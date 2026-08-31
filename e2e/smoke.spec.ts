@@ -56,7 +56,7 @@ test.describe("IELTS Study OS — static build smoke tests", () => {
 });
 
 test.describe("IELTS Study OS — interaction flows", () => {
-  test("reading: answer, flag, refresh recovery, submit, review", async ({ page }) => {
+  test("reading: answer, submit, review", async ({ page }) => {
     await page.goto("/practice/reading/academic-reading-1");
     await page.getByText("Practice mode").click();
 
