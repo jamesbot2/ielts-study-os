@@ -67,7 +67,9 @@ export interface TextQuestion extends BaseQuestion {
   // Accepted answers (normalized before comparison)
   correctAnswer: string;
   acceptableAnswers?: string[];
+  // Word-limit instruction (e.g. "NO MORE THAN TWO WORDS AND/OR A NUMBER")
   wordLimit?: number;
+  allowNumber?: boolean;
 }
 
 export interface ChoiceQuestion extends BaseQuestion {
@@ -106,7 +108,9 @@ export interface AudioAsset {
   src?: string;
   durationSeconds?: number;
   transcript?: string;
-  parts?: { part: number; title: string; startSecond?: number }[];
+  parts?: { part: number; title: string; startSecond?: number; src?: string }[];
+  // Speaker-marked script for TTS generation (and for transcript display).
+  script?: { part: number; lines: { speaker: string; voice?: string; text: string }[] }[];
 }
 
 export type SourceType =

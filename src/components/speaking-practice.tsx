@@ -3,11 +3,32 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { speakingTopics } from "@/lib/content/practice/speaking-topics";
 import { useI18n } from "@/components/i18n-provider";
-import { apiPost } from "@/lib/client/api";
+import { getAiClient, isAiAvailable } from "@/lib/ai/client";
+import { speakingBandFromCriteria } from "@/lib/scoring/scoring";
 import { computeTranscriptMetrics } from "@/lib/speech/metrics";
+import {
+  addSpeakingRecording,
+  addSpeakingTranscript,
+  createSpeakingSession,
+  getSettings,
+} from "@/lib/storage/repository";
 import type { SpeakingEvaluation, TranscriptMetrics } from "@/types/ielts";
 import { BandBadge, Spinner } from "@/components/ui";
-import { Mic, Square, Play, Pause, RefreshCw } from "lucide-react";
+import { Mic, Square, RefreshCw } from "lucide-react";
+
+function pickMimeType(): string {
+  const candidates = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4",
+    "audio/ogg;codecs=opus",
+  ];
+  if (typeof MediaRecorder === "undefined") return "";
+  for (const c of candidates) {
+    if (MediaRecorder.isTypeSupported(c)) return c;
+  }
+  return "";
+}
 
 export function SpeakingPractice() {
   const { t } = useI18n();
@@ -18,6 +39,7 @@ export function SpeakingPractice() {
 
   const [recording, setRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [transcript, setTranscript] = useState("");
   const [metrics, setMetrics] = useState<TranscriptMetrics | null>(null);
@@ -25,24 +47,31 @@ export function SpeakingPractice() {
   const [evaluating, setEvaluating] = useState(false);
   const [evaluation, setEvaluation] = useState<SpeakingEvaluation | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [savedSession, setSavedSession] = useState(false);
 
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const recordingIdRef = useRef<string | null>(null);
 
-  const topic = speakingTopics.find((x) => x.id === topicId)!;
+  const topic = speakingTopics.find((x) => x.id === topicId) ?? speakingTopics[0];
 
   const pickPrompt = useCallback(
     (p: 1 | 2 | 3) => {
       setPart(p);
       setPhase("setup");
       setAudioUrl(null);
+      setAudioBlob(null);
       setTranscript("");
       setMetrics(null);
       setEvaluation(null);
       setError(null);
+      setSavedSession(false);
       setDurationSeconds(0);
+      sessionIdRef.current = null;
+      recordingIdRef.current = null;
       if (p === 1) {
         setPrompt(topic.part1Questions[Math.floor(Math.random() * topic.part1Questions.length)]);
       } else if (p === 2) {
@@ -61,41 +90,71 @@ export function SpeakingPractice() {
     pickPrompt(1);
   }, [topicId, pickPrompt]);
 
-  function startRecording() {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setError("Microphone access is not available in this browser.");
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  async function startRecording() {
+    setError(null);
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      setError("Recording is not supported in this browser. You can still enter a transcript manually.");
+      setPhase("review");
       return;
     }
+    const mimeType = pickMimeType();
     setPhase("recording");
     setAudioUrl(null);
+    setAudioBlob(null);
     setDurationSeconds(0);
     setRecording(true);
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        const rec = new MediaRecorder(stream);
-        mediaRecorder.current = rec;
-        chunks.current = [];
-        rec.ondataavailable = (e) => chunks.current.push(e.data);
-        rec.onstop = () => {
-          const blob = new Blob(chunks.current, { type: "audio/webm" });
-          setAudioUrl(URL.createObjectURL(blob));
-          setRecording(false);
-          setPhase("review");
-        };
-        rec.start();
-        timerRef.current = setInterval(() => setDurationSeconds((s) => s + 1), 1000);
-      })
-      .catch(() => {
-        setError("Microphone permission denied. You can enter a transcript manually.");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      mediaRecorder.current = rec;
+      chunks.current = [];
+      rec.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.current.push(e.data);
+      };
+      rec.onstop = () => {
+        const type = rec.mimeType || mimeType || "audio/webm";
+        const blob = new Blob(chunks.current, { type });
+        setAudioBlob(blob);
+        setAudioUrl(URL.createObjectURL(blob));
         setRecording(false);
         setPhase("review");
-      });
+        // persist session + recording metadata
+        (async () => {
+          const sessionId = await createSpeakingSession("practice", part, topic.name);
+          sessionIdRef.current = sessionId;
+          const recordingId = await addSpeakingRecording({
+            sessionId,
+            part,
+            prompt,
+            audioBlob: blob,
+            durationSeconds,
+            mimeType: type,
+            size: blob.size,
+            evaluation: null,
+          });
+          recordingIdRef.current = recordingId;
+        })().catch(() => {});
+      };
+      rec.start();
+      timerRef.current = setInterval(() => setDurationSeconds((s) => s + 1), 1000);
+    } catch {
+      setError("Microphone permission denied. You can enter a transcript manually.");
+      setRecording(false);
+      setPhase("review");
+    }
   }
 
   function stopRecording() {
     if (timerRef.current) clearInterval(timerRef.current);
-    mediaRecorder.current?.stop();
+    if (mediaRecorder.current && mediaRecorder.current.state !== "inactive") {
+      mediaRecorder.current.stop();
+    }
     mediaRecorder.current?.stream.getTracks().forEach((tr) => tr.stop());
   }
 
@@ -104,19 +163,26 @@ export function SpeakingPractice() {
   }
 
   async function transcribe() {
-    if (!audioUrl) return;
+    if (!audioBlob) return;
     setSttBusy(true);
     setError(null);
     try {
-      const blob = await fetch(audioUrl).then((r) => r.blob());
+      const settings = await getSettings();
+      if (!settings.speech.sttBaseUrl.trim()) {
+        setError("Speech-to-text is not configured. Type or paste your transcript below.");
+        return;
+      }
       const form = new FormData();
-      form.append("audio", blob, "recording.webm");
+      form.append("audio", audioBlob, "recording.webm");
       form.append("durationSeconds", String(durationSeconds));
-      const res = await fetch("/api/stt", { method: "POST", body: form });
+      const res = await fetch(`${settings.speech.sttBaseUrl.replace(/\/$/, "")}/transcribe`, {
+        method: "POST",
+        body: form,
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "STT failed");
-      setTranscript(data.transcript);
-      setMetrics(data.metrics);
+      setTranscript(data.text ?? data.transcript ?? "");
+      setMetrics(computeTranscriptMetrics(data.text ?? data.transcript ?? "", durationSeconds));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -130,12 +196,30 @@ export function SpeakingPractice() {
     const m = metrics ?? computeTranscriptMetrics(transcript, durationSeconds);
     setMetrics(m);
     try {
-      const res = await apiPost<{ evaluation: SpeakingEvaluation; metrics: TranscriptMetrics; error?: string }>(
-        "/api/speaking/evaluate",
-        { part, prompt, transcript, durationSeconds, audioMetrics: undefined },
-      );
-      setEvaluation(res.evaluation);
-      setMetrics(res.metrics);
+      // Persist transcript first.
+      if (recordingIdRef.current) {
+        await addSpeakingTranscript({
+          recordingId: recordingIdRef.current,
+          text: transcript,
+          source: "manual",
+          metrics: m,
+        });
+      }
+      if (!isAiAvailable()) {
+        setError("Transcript-based AI evaluation is unavailable. Your transcript and metrics are saved.");
+        return;
+      }
+      const raw = await getAiClient().evaluateSpeaking({
+        part,
+        prompt,
+        transcript,
+        metrics: m,
+      });
+      const supported = raw.criterionScores.filter((c) => c.supported).map((c) => c.band);
+      const overall = speakingBandFromCriteria(supported);
+      const finalEval: SpeakingEvaluation = { ...raw, estimatedOverallBand: overall };
+      setEvaluation(finalEval);
+      setSavedSession(true);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -174,16 +258,14 @@ export function SpeakingPractice() {
           </div>
           <div className="card card-pad">
             <h2 className="mb-2 text-sm font-semibold">{t("speaking.examiner")}</h2>
-            <p className="text-xs text-muted">{t("coach.subtitle")}</p>
+            <p className="text-xs text-muted">{t("speaking.pronunciationNotEvaluated")}</p>
           </div>
         </aside>
 
         <main className="space-y-4">
           <div className="card card-pad">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted">
-                Part {part} prompt
-              </span>
+              <span className="text-xs font-medium uppercase tracking-wide text-muted">Part {part} prompt</span>
               <button className="btn-ghost" onClick={() => pickPrompt(part)}>
                 <RefreshCw className="h-4 w-4" /> New
               </button>
@@ -202,22 +284,16 @@ export function SpeakingPractice() {
                   <Square className="h-4 w-4" /> {t("speaking.stop")}
                 </button>
               )}
-              {recording && (
-                <span className="text-sm font-semibold text-red-600">{durationSeconds}s</span>
-              )}
+              {recording && <span className="text-sm font-semibold text-red-600">{durationSeconds}s</span>}
               {audioUrl && !recording && (
-                <>
-                  <audio ref={audioRef} src={audioUrl} controls className="max-w-xs" />
-                  <button className="btn-secondary" onClick={transcribe} disabled={sttBusy}>
-                    {sttBusy ? <Spinner /> : "Transcribe"}
-                  </button>
-                </>
+                <audio ref={audioRef} src={audioUrl} controls className="max-w-xs" />
               )}
             </div>
             {audioUrl && !recording && (
-              <p className="mt-2 text-xs text-muted">
-                {t("speaking.noStt")}
-              </p>
+              <p className="mt-2 text-xs text-muted">{t("speaking.noStt")}</p>
+            )}
+            {savedSession && (
+              <p className="mt-2 text-xs text-green-600">✓ Session saved locally</p>
             )}
           </div>
 
@@ -230,6 +306,9 @@ export function SpeakingPractice() {
               placeholder={t("speaking.transcriptPlaceholder")}
             />
             <div className="mt-2 flex flex-wrap gap-2">
+              <button className="btn-secondary" onClick={transcribe} disabled={sttBusy || !audioBlob}>
+                {sttBusy ? <Spinner /> : "Transcribe"}
+              </button>
               <button className="btn-secondary" onClick={computeMetrics}>
                 {t("speaking.metrics")}
               </button>

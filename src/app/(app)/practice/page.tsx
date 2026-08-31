@@ -91,11 +91,16 @@ export default function PracticePage() {
         <section className="card card-pad">
           <h2 className="mb-3 text-base font-semibold">Grammar</h2>
           <p className="mb-3 text-sm text-muted">
-            IELTS-oriented grammar lessons linked to your writing and speaking.
+            IELTS-oriented grammar lessons and practice exercises linked to your writing and speaking.
           </p>
-          <Link href="/learn" className="btn-primary">
-            Open grammar lessons
-          </Link>
+          <div className="flex gap-3">
+            <Link href="/practice/grammar" className="btn-primary">
+              Grammar practice
+            </Link>
+            <Link href="/learn" className="btn-secondary">
+              Lessons
+            </Link>
+          </div>
         </section>
       </div>
     </div>

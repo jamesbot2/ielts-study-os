@@ -55,5 +55,8 @@ uploads/
 # Locally generated TTS audio / practice content
 content/generated/
 
+# TTS voice models (downloaded by scripts/tts, never committed)
+scripts/tts/voices/
+
 # Playwright browser artifacts
 /blob-report/

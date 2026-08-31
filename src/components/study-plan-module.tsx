@@ -2,24 +2,27 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
-import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/client/api";
+import {
+  createStudyTask,
+  deleteStudyTask,
+  getProfile,
+  listStudyTasks,
+  updateStudyTask,
+} from "@/lib/storage/repository";
 import { generatePlan } from "@/lib/study-plan/generate";
-import type { StudyProfile, StudyTaskRow } from "@/lib/db/store";
+import type { StudyProfile, StudyTask } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
 
 export function StudyPlanModule() {
   const { t } = useI18n();
-  const [tasks, setTasks] = useState<StudyTaskRow[]>([]);
+  const [tasks, setTasks] = useState<StudyTask[]>([]);
   const [profile, setProfile] = useState<StudyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
 
   const load = useCallback(async () => {
-    const [t, p] = await Promise.all([
-      apiGet<{ tasks: StudyTaskRow[] }>("/api/study-plan"),
-      apiGet<StudyProfile>("/api/profile"),
-    ]);
-    setTasks(t.tasks);
+    const [tasks, p] = await Promise.all([listStudyTasks(), getProfile()]);
+    setTasks(tasks);
     setProfile(p);
     setLoading(false);
   }, []);
@@ -32,36 +35,31 @@ export function StudyPlanModule() {
     if (!profile) return;
     setGenerating(true);
     const plan = generatePlan(profile);
-    // clear existing then add
     for (const task of tasks) {
-      if (task.category !== "daily") await apiDelete(`/api/study-plan?id=${task.id}`);
+      if (task.category !== "daily") await deleteStudyTask(task.id);
     }
     for (const item of plan) {
-      await apiPost("/api/study-plan", {
-        title: item.title,
-        category: item.category,
-        scheduledFor: item.scheduledFor,
-      });
+      await createStudyTask(item.title, item.category, item.scheduledFor ?? undefined);
     }
     setGenerating(false);
     await load();
   }
 
-  async function toggle(task: StudyTaskRow) {
-    await apiPatch("/api/study-plan", { id: task.id, completed: task.completed ? 0 : 1 });
+  async function toggle(task: StudyTask) {
+    await updateStudyTask(task.id, { completed: task.completed ? 0 : 1 });
     await load();
   }
 
   async function addTask() {
     const title = prompt("Task title");
     if (!title) return;
-    await apiPost("/api/study-plan", { title, category: "daily", scheduledFor: new Date().toISOString().slice(0, 10) });
+    await createStudyTask(title, "daily", new Date().toISOString().slice(0, 10));
     await load();
   }
 
   if (loading) return <div className="container-page"><Spinner /></div>;
 
-  const grouped = groupBy(tasks, (task) => task.scheduled_for ?? "unscheduled");
+  const grouped = groupBy(tasks, (task) => task.scheduledFor ?? "unscheduled");
 
   return (
     <div className="container-page">
@@ -104,7 +102,7 @@ export function StudyPlanModule() {
                     />
                     <span className={`flex-1 text-sm ${task.completed ? "line-through text-muted" : ""}`}>{task.title}</span>
                     <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-muted">{task.category}</span>
-                    <button className="text-xs text-muted hover:text-red-600" onClick={async () => { await apiDelete(`/api/study-plan?id=${task.id}`); await load(); }}>
+                    <button className="text-xs text-muted hover:text-red-600" onClick={async () => { await deleteStudyTask(task.id); await load(); }}>
                       ✕
                     </button>
                   </div>

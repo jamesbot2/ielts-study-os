@@ -2,31 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
-import { apiGet } from "@/lib/client/api";
+import { computeAnalytics, type AnalyticsData } from "@/lib/analytics/compute";
 import { Spinner, BandBadge } from "@/components/ui";
-
-interface Analytics {
-  profile: { targetBand: number | null; currentBand: number | null };
-  summary: {
-    totalPractice: number;
-    totalMistakes: number;
-    totalMocks: number;
-    vocabTotal: number;
-    vocabDue: number;
-    bySkill: Record<string, { attempts: number; accuracy: number; avgBand: number }>;
-  };
-  recentAttempts: { id: string; skill: string; band_score: number | null; raw_score: number | null; started_at: string }[];
-  mocks: { id: string; kind: string; overall_band: number | null; status: string; started_at: string }[];
-  mistakesBySkill: Record<string, number>;
-  mistakesByType: Record<string, number>;
-}
 
 export function AnalyticsModule() {
   const { t } = useI18n();
-  const [data, setData] = useState<Analytics | null>(null);
+  const [data, setData] = useState<AnalyticsData | null>(null);
 
   useEffect(() => {
-    apiGet<Analytics>("/api/analytics").then(setData);
+    computeAnalytics().then(setData);
   }, []);
 
   if (!data) return <div className="container-page"><Spinner /></div>;
@@ -79,9 +63,9 @@ export function AnalyticsModule() {
               <div key={m.id} className="flex items-center justify-between py-2">
                 <div>
                   <p className="text-sm font-medium capitalize">{m.kind.replace(/_/g, " ")}</p>
-                  <p className="text-xs text-muted">{new Date(m.started_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-muted">{new Date(m.startedAt).toLocaleDateString()}</p>
                 </div>
-                {m.status === "completed" ? <BandBadge band={m.overall_band} /> : <span className="text-xs text-muted">in progress</span>}
+                {m.status === "completed" ? <BandBadge band={m.overallBand} /> : <span className="text-xs text-muted">in progress</span>}
               </div>
             ))}
           </div>

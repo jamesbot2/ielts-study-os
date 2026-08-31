@@ -3,11 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { WritingPrompt, WritingEvaluation } from "@/types/ielts";
 import { useI18n } from "@/components/i18n-provider";
-import { apiPost } from "@/lib/client/api";
+import { getAiClient, isAiAvailable } from "@/lib/ai/client";
+import { writingBandFromCriteria } from "@/lib/scoring/scoring";
+import {
+  getWritingDraft,
+  saveWritingDraft,
+  saveWritingSubmission,
+} from "@/lib/storage/repository";
 import { BandBadge, Spinner } from "@/components/ui";
 import { Maximize, Minimize, History } from "lucide-react";
 
-const STORAGE_KEY = "ielts-writing-draft";
+const HISTORY_KEY = "ielts-writing-history";
 
 export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
   const { t } = useI18n();
@@ -26,21 +32,28 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
 
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
 
-  // Load draft
+  // Load draft from IndexedDB (history stays in localStorage, bounded)
   useEffect(() => {
-    const saved = localStorage.getItem(`${STORAGE_KEY}:${prompt.id}`);
+    getWritingDraft(prompt.id).then((draft) => {
+      if (draft) setText(draft.answer);
+    });
+    const saved = localStorage.getItem(`${HISTORY_KEY}:${prompt.id}`);
     if (saved) {
-      const parsed = JSON.parse(saved) as { text: string; history: string[] };
-      setText(parsed.text ?? "");
-      setHistory(parsed.history ?? []);
+      try {
+        const parsed = JSON.parse(saved) as string[];
+        setHistory(parsed);
+      } catch {
+        /* ignore malformed history */
+      }
     }
   }, [prompt.id]);
 
-  // Autosave
+  // Autosave draft to IndexedDB
   useEffect(() => {
     if (phase !== "writing") return;
     const id = setTimeout(() => {
-      localStorage.setItem(`${STORAGE_KEY}:${prompt.id}`, JSON.stringify({ text, history }));
+      saveWritingDraft(prompt.id, text);
+      localStorage.setItem(`${HISTORY_KEY}:${prompt.id}`, JSON.stringify(history.slice(0, 10)));
     }, 800);
     return () => clearTimeout(id);
   }, [text, history, phase, prompt.id]);
@@ -70,15 +83,35 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
     setPhase("evaluating");
     setError(null);
     try {
-      const res = await apiPost<{ evaluation: WritingEvaluation; error?: string }>(
-        "/api/writing/evaluate",
-        {
-          promptId: prompt.id,
-          answer: text,
-          timeUsedSeconds: Math.round((Date.now() - startedAt.current) / 1000),
-        },
-      );
-      setEvaluation(res.evaluation);
+      if (!isAiAvailable()) {
+        setError("AI band estimation is unavailable. Your draft remains saved.");
+        setPhase("writing");
+        return;
+      }
+      const timeUsedSeconds = Math.round((Date.now() - startedAt.current) / 1000);
+      const raw = await getAiClient().evaluateWriting({
+        testType: prompt.testType,
+        task: prompt.task,
+        prompt: prompt.prompt,
+        visualDescription: prompt.visualDescription,
+        dataTable: prompt.dataTable,
+        answer: text,
+        wordCount,
+        timeUsedSeconds,
+      });
+      // Deterministically recompute the overall band from criterion scores.
+      const overall = writingBandFromCriteria(raw.criterionScores, prompt.task);
+      const evaluation: WritingEvaluation = { ...raw, estimatedOverallBand: overall };
+      setEvaluation(evaluation);
+      await saveWritingSubmission({
+        promptId: prompt.id,
+        testType: prompt.testType,
+        task: prompt.task,
+        answer: text,
+        wordCount,
+        timeUsedSeconds,
+        evaluation,
+      });
       setPhase("done");
     } catch (e) {
       setError((e as Error).message);
@@ -90,13 +123,17 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
     snapshotDraft();
     setSaving(true);
     try {
-      await apiPost("/api/writing/save", {
+      await saveWritingSubmission({
         promptId: prompt.id,
+        testType: prompt.testType,
+        task: prompt.task,
         answer: text,
+        wordCount,
         timeUsedSeconds: Math.round((Date.now() - startedAt.current) / 1000),
+        evaluation: null,
       });
     } catch {
-      // saving locally already happened
+      // draft already persisted
     }
     setSaving(false);
     alert(t("common.save") + " ✓");

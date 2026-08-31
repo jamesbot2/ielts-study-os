@@ -1,33 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
 import type { Lesson } from "@/lib/content/curriculum";
-import { apiPost } from "@/lib/client/api";
+import { getLessonProgress, setLessonProgress } from "@/lib/storage/repository";
 
 export function LessonViewer({
   lesson,
   next,
   previous,
-  initialStatus,
 }: {
   lesson: Lesson;
   next: { id: string; title: string } | null;
   previous: { id: string; title: string } | null;
-  initialStatus: string;
 }) {
   const { locale } = useI18n();
-  const [lang, setLang] = useState<"en" | "zh">(locale);
-  const [status, setStatus] = useState(initialStatus);
+  const [status, setStatus] = useState("not_started");
   const [saving, setSaving] = useState(false);
 
-  const l = (s: { en: string; zh: string }) => s[lang];
+  useEffect(() => {
+    getLessonProgress().then((p) => setStatus(p[lesson.id] ?? "not_started"));
+  }, [lesson.id]);
+
+  const l = (s: { en: string; zh: string }) => s[locale];
 
   async function markComplete() {
     setSaving(true);
     const nextStatus = status === "completed" ? "in_progress" : "completed";
-    await apiPost("/api/lessons", { lessonId: lesson.id, status: nextStatus });
+    await setLessonProgress(lesson.id, nextStatus as "not_started" | "in_progress" | "completed");
     setStatus(nextStatus);
     setSaving(false);
   }
@@ -38,20 +39,6 @@ export function LessonViewer({
         <Link href="/learn" className="text-sm text-muted underline">
           ← Learn
         </Link>
-        <div className="flex items-center gap-2 rounded-md border border-border p-0.5">
-          {(["en", "zh"] as const).map((lg) => (
-            <button
-              key={lg}
-              type="button"
-              onClick={() => setLang(lg)}
-              className={`rounded px-2 py-1 text-xs font-medium ${
-                lang === lg ? "bg-accent text-white" : "text-muted"
-              }`}
-            >
-              {lg === "en" ? "EN" : "中文"}
-            </button>
-          ))}
-        </div>
       </div>
 
       <p className="text-xs uppercase tracking-wide text-muted">{lesson.category}</p>

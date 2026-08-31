@@ -2,20 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
-import { apiGet, apiPost, apiDelete } from "@/lib/client/api";
+import {
+  createImportedMaterial,
+  deleteImportedMaterial,
+  listImportedMaterials,
+} from "@/lib/storage/repository";
+import type { ImportedMaterial } from "@/lib/storage/types";
+import { isAiAvailable } from "@/lib/ai/client";
 import { Spinner } from "@/components/ui";
-import type { ImportedMaterialRow } from "@/lib/db/store";
 
 export function LibraryModule() {
   const { t } = useI18n();
-  const [materials, setMaterials] = useState<ImportedMaterialRow[]>([]);
+  const [materials, setMaterials] = useState<ImportedMaterial[]>([]);
   const [loading, setLoading] = useState(true);
   const [showImport, setShowImport] = useState(false);
   const [showGenerate, setShowGenerate] = useState(false);
 
   const load = async () => {
-    const d = await apiGet<{ materials: ImportedMaterialRow[] }>("/api/library");
-    setMaterials(d.materials);
+    setMaterials(await listImportedMaterials());
     setLoading(false);
   };
 
@@ -46,7 +50,7 @@ export function LibraryModule() {
         {t("library.copyrightNotice")}
       </div>
 
-      {showGenerate && <GenerateForm onDone={() => { setShowGenerate(false); load(); }} />}
+      {showGenerate && <GenerateForm />}
       {showImport && <ImportForm onDone={() => { setShowImport(false); load(); }} />}
 
       <p className="mb-2 text-xs text-muted">{t("library.formats")}</p>
@@ -60,14 +64,14 @@ export function LibraryModule() {
               <div className="min-w-0">
                 <p className="font-medium">{m.title}</p>
                 <p className="text-xs text-muted">
-                  {m.skill} · {m.test_type} · {m.format}
-                  {m.source_type === "AI_GENERATED" && <span className="ml-2 text-amber-600">AI-generated</span>}
+                  {m.skill} · {m.testType} · {m.format}
+                  {m.sourceType === "AI_GENERATED" && <span className="ml-2 text-amber-600">AI-generated</span>}
                 </p>
                 {m.content && <p className="mt-1 line-clamp-2 text-xs text-muted">{m.content.slice(0, 200)}</p>}
               </div>
               <button
                 className="text-xs text-muted hover:text-red-600"
-                onClick={async () => { await apiDelete(`/api/library?id=${m.id}`); load(); }}
+                onClick={async () => { await deleteImportedMaterial(m.id); load(); }}
               >
                 ✕
               </button>
@@ -96,7 +100,17 @@ function ImportForm({ onDone }: { onDone: () => void }) {
   async function submit() {
     if (!form.title.trim()) return;
     setSaving(true);
-    await apiPost("/api/library", { ...form, copyrightStatus: "User-provided" });
+    await createImportedMaterial({
+      title: form.title,
+      skill: form.skill,
+      testType: form.testType as "academic" | "general" | "both",
+      sourceType: form.sourceType as "USER_IMPORTED",
+      sourceName: form.sourceName,
+      license: form.license,
+      copyrightStatus: "User-provided",
+      format: form.format,
+      content: form.content,
+    });
     setSaving(false);
     onDone();
   }
@@ -130,23 +144,23 @@ function ImportForm({ onDone }: { onDone: () => void }) {
   );
 }
 
-function GenerateForm({ onDone }: { onDone: () => void }) {
+function GenerateForm() {
   const { t } = useI18n();
   const [topic, setTopic] = useState("");
   const [testType, setTestType] = useState<"academic" | "general">("academic");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<string | null>(null);
 
   async function submit() {
     if (!topic.trim()) return;
     setBusy(true);
     setError(null);
     try {
-      const res = await apiPost<{ label: string; answerConsistencyIssues: string[] }>("/api/generate/reading", { topic, testType, questionCount: 5 });
-      setResult(`${res.label}${res.answerConsistencyIssues.length ? `\nConsistency warnings: ${res.answerConsistencyIssues.join(", ")}` : ""}`);
-    } catch (e) {
-      setError((e as Error).message);
+      if (!isAiAvailable()) {
+        setError("AI generation is unavailable. Connect an AI backend in Settings to enable it.");
+      } else {
+        setError("AI generation is not yet wired to the client proxy. It will be available when a backend is connected.");
+      }
     } finally {
       setBusy(false);
     }
@@ -167,12 +181,6 @@ function GenerateForm({ onDone }: { onDone: () => void }) {
         </button>
       </div>
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-      {result && (
-        <div className="mt-2 rounded-md bg-green-50 p-2 text-sm">
-          <p className="whitespace-pre-wrap text-green-800">{result}</p>
-          <button className="mt-2 text-xs underline" onClick={onDone}>Done</button>
-        </div>
-      )}
     </div>
   );
 }

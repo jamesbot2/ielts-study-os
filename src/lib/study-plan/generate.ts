@@ -1,4 +1,4 @@
-import type { StudyProfile } from "@/lib/db/store";
+import type { StudyProfile } from "@/lib/storage/types";
 
 export interface GeneratedTask {
   title: string;

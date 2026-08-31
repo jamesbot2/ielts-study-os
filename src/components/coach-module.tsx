@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
+import { getAiClient, isAiAvailable, type ChatMessage } from "@/lib/ai/client";
+import { buildCoachSystemPrompt } from "@/lib/ai/prompts";
+import { getProfile } from "@/lib/storage/repository";
 import { Send } from "lucide-react";
 
 interface Message {
@@ -9,15 +12,16 @@ interface Message {
   content: string;
 }
 
-export function CoachModule({ configured }: { configured: boolean }) {
+export function CoachModule() {
   const { t } = useI18n();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [available, setAvailable] = useState<boolean | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setAvailable(isAiAvailable());
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -28,36 +32,50 @@ export function CoachModule({ configured }: { configured: boolean }) {
     setMessages((m) => [...m, { role: "user", content: userMessage }]);
     setStreaming(true);
 
-    const res = await fetch("/api/coach", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversationId, message: userMessage, context: { page: "coach" } }),
-    });
-
-    const newConvId = res.headers.get("X-Conversation-Id");
-    if (newConvId) setConversationId(newConvId);
-
-    if (!res.ok || !res.body) {
+    if (!isAiAvailable()) {
       setMessages((m) => [...m, { role: "assistant", content: t("coach.notConfigured") }]);
       setStreaming(false);
       return;
     }
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let acc = "";
+    const profile = await getProfile();
+    const system = buildCoachSystemPrompt({
+      targetBand: profile.targetBand,
+      testType: profile.testType,
+      currentBand: profile.currentBand,
+      testDate: profile.testDate,
+      weakSkills: profile.weakestSkills,
+    });
+
+    const history: ChatMessage[] = [
+      { role: "system", content: system },
+      ...messages.slice(-10),
+      { role: "user", content: userMessage },
+    ];
+
     setMessages((m) => [...m, { role: "assistant", content: "" }]);
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      acc += decoder.decode(value, { stream: true });
+    let acc = "";
+    try {
+      await getAiClient().chat(
+        history,
+        (delta) => {
+          acc += delta;
+          setMessages((m) => {
+            const copy = [...m];
+            copy[copy.length - 1] = { role: "assistant", content: acc };
+            return copy;
+          });
+        },
+      );
+    } catch (e) {
       setMessages((m) => {
         const copy = [...m];
-        copy[copy.length - 1] = { role: "assistant", content: acc };
+        copy[copy.length - 1] = { role: "assistant", content: `${(e as Error).message}` };
         return copy;
       });
+    } finally {
+      setStreaming(false);
     }
-    setStreaming(false);
   }
 
   return (
@@ -65,7 +83,7 @@ export function CoachModule({ configured }: { configured: boolean }) {
       <h1 className="mb-2 text-2xl font-semibold">{t("coach.title")}</h1>
       <p className="mb-4 text-sm text-muted">{t("coach.context")}</p>
 
-      {!configured && (
+      {available === false && (
         <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm">
           {t("coach.notConfigured")}{" "}
           <a href="/settings" className="underline">Settings</a>
@@ -74,9 +92,7 @@ export function CoachModule({ configured }: { configured: boolean }) {
 
       <div className="flex-1 overflow-y-auto rounded-lg border border-border bg-surface p-4">
         {messages.length === 0 && (
-          <p className="text-sm text-muted">
-            {t("coach.inputPlaceholder")}
-          </p>
+          <p className="text-sm text-muted">{t("coach.inputPlaceholder")}</p>
         )}
         {messages.map((m, i) => (
           <div key={i} className={`mb-4 flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>

@@ -4,14 +4,19 @@ import { academicReadingSet, generalReadingSet } from "@/lib/content/practice";
 import { getWritingPrompts } from "@/lib/content/practice/writing-prompts";
 import { MockRunner } from "@/components/mock-runner";
 
+const KINDS = ["academic_full", "general_full", "listening", "reading", "reading_general"];
+
+export function generateStaticParams() {
+  return KINDS.map((kind) => ({ kind }));
+}
+
 export default async function MockRunPage({
   params,
 }: {
   params: Promise<{ kind: string }>;
 }) {
   const { kind } = await params;
-  const valid = ["academic_full", "general_full", "listening", "reading", "reading_general"];
-  if (!valid.includes(kind)) notFound();
+  if (!KINDS.includes(kind)) notFound();
 
   const testType = kind.includes("general") ? "general" : "academic";
   const readingSet = testType === "general" ? generalReadingSet : academicReadingSet;

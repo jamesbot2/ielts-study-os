@@ -2,29 +2,19 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
-import { apiGet, apiPost } from "@/lib/client/api";
+import {
+  createVocabCard,
+  getDueVocabCards,
+  listVocabCards,
+  recordVocabReview,
+} from "@/lib/storage/repository";
+import type { VocabularyCard } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
-
-interface Card {
-  id: string;
-  word: string;
-  part_of_speech: string | null;
-  chinese_meaning: string | null;
-  english_definition: string | null;
-  ipa: string | null;
-  example: string | null;
-  ielts_example: string | null;
-  due_at: string | null;
-  collocations: string[];
-  synonyms: string[];
-  antonyms: string[];
-  wordFamily: string[];
-}
 
 export function VocabularyModule() {
   const { t } = useI18n();
-  const [cards, setCards] = useState<Card[]>([]);
-  const [dueCount, setDueCount] = useState(0);
+  const [cards, setCards] = useState<VocabularyCard[]>([]);
+  const [dueCards, setDueCards] = useState<VocabularyCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [reviewing, setReviewing] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
@@ -32,9 +22,9 @@ export function VocabularyModule() {
   const [flipped, setFlipped] = useState(false);
 
   const load = useCallback(async () => {
-    const data = await apiGet<{ cards: Card[]; dueCount: number }>("/api/vocabulary");
-    setCards(data.cards);
-    setDueCount(data.dueCount);
+    const [all, due] = await Promise.all([listVocabCards(), getDueVocabCards()]);
+    setCards(all);
+    setDueCards(due);
     setLoading(false);
   }, []);
 
@@ -42,11 +32,10 @@ export function VocabularyModule() {
     load();
   }, [load]);
 
-  const dueCards = cards.filter((c) => !c.due_at || new Date(c.due_at) <= new Date());
-
   async function rate(rating: "again" | "hard" | "good" | "easy") {
     const card = dueCards[reviewIndex];
-    await apiPost("/api/vocabulary/review", { id: card.id, rating });
+    if (!card) return;
+    await recordVocabReview(card.id, rating);
     if (reviewIndex + 1 < dueCards.length) {
       setReviewIndex((i) => i + 1);
       setFlipped(false);
@@ -76,12 +65,12 @@ export function VocabularyModule() {
             {card.ipa && <p className="text-sm text-muted">{card.ipa}</p>}
             {flipped && (
               <div className="mt-4 space-y-2 text-sm">
-                {card.chinese_meaning && <p><span className="text-muted">中文:</span> {card.chinese_meaning}</p>}
-                {card.english_definition && <p><span className="text-muted">Def:</span> {card.english_definition}</p>}
+                {card.chineseMeaning && <p><span className="text-muted">中文:</span> {card.chineseMeaning}</p>}
+                {card.englishDefinition && <p><span className="text-muted">Def:</span> {card.englishDefinition}</p>}
                 {card.example && <p className="italic text-muted">“{card.example}”</p>}
-                {card.ielts_example && <p className="text-muted">IELTS: “{card.ielts_example}”</p>}
-                {card.synonyms?.length > 0 && <p><span className="text-muted">Synonyms:</span> {card.synonyms.join(", ")}</p>}
-                {card.collocations?.length > 0 && <p><span className="text-muted">Collocations:</span> {card.collocations.join(", ")}</p>}
+                {card.ieltsExample && <p className="text-muted">IELTS: “{card.ieltsExample}”</p>}
+                {card.synonyms.length > 0 && <p><span className="text-muted">Synonyms:</span> {card.synonyms.join(", ")}</p>}
+                {card.collocations.length > 0 && <p><span className="text-muted">Collocations:</span> {card.collocations.join(", ")}</p>}
               </div>
             )}
             <p className="mt-3 text-xs text-muted">{flipped ? "Click to hide" : "Click to reveal"}</p>
@@ -103,13 +92,13 @@ export function VocabularyModule() {
         <div>
           <h1 className="text-2xl font-semibold">{t("vocabulary.title")}</h1>
           <p className="text-sm text-muted">
-            {cards.length} {t("vocabulary.totalCards")} · {dueCount} {t("vocabulary.dueCards")}
+            {cards.length} {t("vocabulary.totalCards")} · {dueCards.length} {t("vocabulary.dueCards")}
           </p>
         </div>
         <div className="flex gap-2">
-          {dueCount > 0 && (
+          {dueCards.length > 0 && (
             <button className="btn-primary" onClick={() => { setReviewing(true); setReviewIndex(0); setFlipped(false); }}>
-              {t("vocabulary.review")} ({dueCount})
+              {t("vocabulary.review")} ({dueCards.length})
             </button>
           )}
           <button className="btn-secondary" onClick={() => setShowAdd((s) => !s)}>
@@ -125,18 +114,18 @@ export function VocabularyModule() {
       ) : (
         <div className="card divide-y divide-border">
           {cards.map((c) => {
-            const due = !c.due_at || new Date(c.due_at) <= new Date();
+            const due = !c.due || new Date(c.due) <= new Date();
             return (
               <div key={c.id} className="flex items-center justify-between px-4 py-3">
                 <div>
                   <p className="font-medium">
                     {c.word}
-                    {c.part_of_speech && <span className="ml-2 text-xs text-muted">{c.part_of_speech}</span>}
+                    {c.partOfSpeech && <span className="ml-2 text-xs text-muted">{c.partOfSpeech}</span>}
                   </p>
-                  {c.chinese_meaning && <p className="text-xs text-muted">{c.chinese_meaning}</p>}
+                  {c.chineseMeaning && <p className="text-xs text-muted">{c.chineseMeaning}</p>}
                 </div>
                 <span className={`text-xs ${due ? "font-semibold text-accent" : "text-muted"}`}>
-                  {due ? t("vocabulary.dueNow") : c.due_at ? new Date(c.due_at).toLocaleDateString() : "—"}
+                  {due ? t("vocabulary.dueNow") : c.due ? new Date(c.due).toLocaleDateString() : "—"}
                 </span>
               </div>
             );
@@ -157,7 +146,7 @@ function AddWordForm({ onAdded }: { onAdded: () => void }) {
   async function submit() {
     if (!word.trim()) return;
     setSaving(true);
-    await apiPost("/api/vocabulary", { word: word.trim(), chineseMeaning: chinese, englishDefinition: definition });
+    await createVocabCard({ word: word.trim(), chineseMeaning: chinese, englishDefinition: definition });
     setSaving(false);
     onAdded();
   }

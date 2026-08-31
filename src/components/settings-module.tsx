@@ -1,84 +1,90 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
-import { apiGet, apiPost } from "@/lib/client/api";
+import {
+  getProfile,
+  getSettings,
+  saveProfile,
+  saveSettings,
+} from "@/lib/storage/repository";
+import type { StudyProfile, UserSettings } from "@/lib/storage/types";
+import { exportAll, importBackup, resetAllData, type ImportMode } from "@/lib/storage/export";
+import { configureAiClient, DisabledAiClient, RemoteAiProxyClient } from "@/lib/ai/client";
 import { Spinner } from "@/components/ui";
-import type { StudyProfile } from "@/lib/db/store";
-
-interface AiConfigView {
-  provider: string;
-  baseUrl: string;
-  model: string;
-  temperature: number;
-  maxTokens: number;
-  enableCritic: boolean;
-  hasKey: boolean;
-  keyHint: string;
-  configured: boolean;
-}
-
-interface SpeechConfigView {
-  sttProvider: string;
-  sttBaseUrl: string;
-  sttModel: string;
-  hasSttKey: boolean;
-  ttsProvider: string;
-  ttsVoice: string;
-  pronunciationProvider: string;
-  hasPronunciationKey: boolean;
-}
 
 export function SettingsModule() {
   const { t } = useI18n();
   const [profile, setProfile] = useState<StudyProfile | null>(null);
-  const [ai, setAi] = useState<AiConfigView | null>(null);
-  const [speech, setSpeech] = useState<SpeechConfigView | null>(null);
-  const [aiKey, setAiKey] = useState("");
-  const [testResult, setTestResult] = useState<string | null>(null);
+  const [settings, setSettings] = useState<UserSettings | null>(null);
   const [saved, setSaved] = useState(false);
+  const [importMode, setImportMode] = useState<ImportMode>("merge");
+  const [importStatus, setImportStatus] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    apiGet<StudyProfile>("/api/profile").then(setProfile);
-    apiGet<AiConfigView>("/api/ai-config").then(setAi);
-    apiGet<SpeechConfigView>("/api/speech-config").then(setSpeech);
+    Promise.all([getProfile(), getSettings()]).then(([p, s]) => {
+      setProfile(p);
+      setSettings(s);
+    });
   }, []);
 
-  const saveProfile = useCallback(async () => {
-    if (!profile) return;
-    await apiPost("/api/profile", profile);
+  const flashSaved = useCallback(() => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
-  }, [profile]);
+  }, []);
+
+  const saveProfileCb = useCallback(async () => {
+    if (!profile) return;
+    await saveProfile(profile);
+    flashSaved();
+  }, [profile, flashSaved]);
 
   const saveAi = useCallback(async () => {
-    if (!ai) return;
-    await apiPost("/api/ai-config", { ...ai, apiKey: aiKey || undefined });
-    const refreshed = await apiGet<AiConfigView>("/api/ai-config");
-    setAi(refreshed);
-    setAiKey("");
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  }, [ai, aiKey]);
-
-  const testAi = useCallback(async () => {
-    setTestResult("Testing…");
-    try {
-      const res = await apiPost<{ ok: boolean; reply?: string; error?: string }>("/api/ai-config/test", { apiKey: aiKey || undefined });
-      setTestResult(res.ok ? `OK: ${res.reply}` : `Failed: ${res.error}`);
-    } catch (e) {
-      setTestResult(`Failed: ${(e as Error).message}`);
+    if (!settings) return;
+    await saveSettings({ ai: settings.ai });
+    if (settings.ai.proxyUrl.trim()) {
+      configureAiClient(new RemoteAiProxyClient(settings.ai.proxyUrl.trim()));
+    } else {
+      configureAiClient(new DisabledAiClient());
     }
-  }, [aiKey]);
+    flashSaved();
+  }, [settings, flashSaved]);
 
   const saveSpeech = useCallback(async () => {
-    if (!speech) return;
-    await apiPost("/api/speech-config", speech);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  }, [speech]);
+    if (!settings) return;
+    await saveSettings({ speech: settings.speech });
+    flashSaved();
+  }, [settings, flashSaved]);
 
-  if (!profile || !ai || !speech) return <div className="container-page"><Spinner /></div>;
+  async function handleExport() {
+    await exportAll();
+  }
+
+  async function handleImport(file: File) {
+    setImportStatus("Importing…");
+    try {
+      const result = await importBackup(file, importMode);
+      setImportStatus(
+        result.ok
+          ? `Imported ${Object.values(result.counts).reduce((a, b) => a + b, 0)} records (${result.mode}). Reloading…`
+          : result.error ?? "Import failed",
+      );
+      if (result.ok) setTimeout(() => window.location.reload(), 1500);
+    } catch (e) {
+      setImportStatus(`Import failed: ${(e as Error).message}`);
+    }
+  }
+
+  async function handleReset() {
+    if (!window.confirm("Reset ALL local data? This permanently deletes your profile, progress, vocabulary, mistakes and drafts.")) return;
+    setResetting(true);
+    await resetAllData();
+    window.location.reload();
+  }
+
+  if (!profile || !settings) return <div className="container-page"><Spinner /></div>;
 
   return (
     <div className="container-page max-w-3xl">
@@ -119,56 +125,48 @@ export function SettingsModule() {
             <input type="number" className="input mt-1" value={profile.weeklyHours} onChange={(e) => setProfile({ ...profile, weeklyHours: Number(e.target.value) })} />
           </label>
         </div>
-        <button className="btn-primary mt-4" onClick={saveProfile}>{t("common.save")}</button>
+        <button className="btn-primary mt-4" onClick={saveProfileCb}>{t("common.save")}</button>
       </section>
 
-      {/* AI */}
+      {/* AI (future remote proxy; no secrets in the browser) */}
       <section className="card card-pad mb-4">
         <h2 className="mb-1 text-base font-semibold">{t("settings.ai")}</h2>
-        <p className="mb-3 text-xs text-muted">{t("settings.providerHint")}</p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="label">
-            {t("settings.baseUrl")}
-            <input className="input mt-1" value={ai.baseUrl} onChange={(e) => setAi({ ...ai, baseUrl: e.target.value })} />
-          </label>
-          <label className="label">
-            {t("settings.model")}
-            <input className="input mt-1" value={ai.model} onChange={(e) => setAi({ ...ai, model: e.target.value })} />
-          </label>
-          <label className="label sm:col-span-2">
-            {t("settings.apiKey")} {ai.hasKey && <span className="text-xs text-muted">({ai.keyHint})</span>}
-            <input className="input mt-1" type="password" value={aiKey} placeholder={ai.hasKey ? "Leave blank to keep existing key" : "sk-..."} onChange={(e) => setAiKey(e.target.value)} autoComplete="off" />
-            <span className="mt-1 block text-xs text-muted">{t("settings.keyServerOnly")}</span>
-          </label>
-        </div>
+        <p className="mb-3 text-xs text-muted">
+          AI is optional. Point this app at a trusted remote proxy that holds its own
+          API key. The browser never stores a secret key.
+        </p>
+        <label className="label">
+          Remote AI proxy URL
+          <input
+            className="input mt-1"
+            value={settings.ai.proxyUrl}
+            placeholder="https://your-proxy.example.com"
+            onChange={(e) => setSettings({ ...settings, ai: { ...settings.ai, proxyUrl: e.target.value } })}
+            autoComplete="off"
+          />
+        </label>
+        <label className="label mt-3">
+          {t("settings.model")}
+          <input className="input mt-1" value={settings.ai.model} onChange={(e) => setSettings({ ...settings, ai: { ...settings.ai, model: e.target.value } })} />
+        </label>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button className="btn-primary" onClick={saveAi}>{t("common.save")}</button>
-          <button className="btn-secondary" onClick={testAi}>{t("settings.testConnection")}</button>
-          {ai.configured && <span className="text-xs text-green-600">● configured</span>}
+          {settings.ai.proxyUrl.trim() ? <span className="text-xs text-green-600">● proxy configured</span> : <span className="text-xs text-muted">● AI unavailable</span>}
         </div>
-        {testResult && <p className="mt-2 text-sm text-muted">{testResult}</p>}
       </section>
 
-      {/* Speech */}
+      {/* Speech (future remote services) */}
       <section className="card card-pad mb-4">
         <h2 className="mb-1 text-base font-semibold">{t("settings.speech")}</h2>
         <p className="mb-3 text-xs text-muted">{t("speaking.noStt")}</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="label">
-            {t("settings.speechToText")} provider
-            <input className="input mt-1" value={speech.sttProvider} placeholder="whisper-http / openai-compatible-stt" onChange={(e) => setSpeech({ ...speech, sttProvider: e.target.value })} />
+            {t("settings.speechToText")} base URL
+            <input className="input mt-1" value={settings.speech.sttBaseUrl} placeholder="http://localhost:9000" onChange={(e) => setSettings({ ...settings, speech: { ...settings.speech, sttBaseUrl: e.target.value } })} />
           </label>
           <label className="label">
-            STT base URL
-            <input className="input mt-1" value={speech.sttBaseUrl} onChange={(e) => setSpeech({ ...speech, sttBaseUrl: e.target.value })} />
-          </label>
-          <label className="label">
-            {t("settings.textToSpeech")} provider
-            <input className="input mt-1" value={speech.ttsProvider} onChange={(e) => setSpeech({ ...speech, ttsProvider: e.target.value })} />
-          </label>
-          <label className="label">
-            {t("settings.pronunciation")} provider
-            <input className="input mt-1" value={speech.pronunciationProvider} onChange={(e) => setSpeech({ ...speech, pronunciationProvider: e.target.value })} />
+            STT model
+            <input className="input mt-1" value={settings.speech.sttModel} onChange={(e) => setSettings({ ...settings, speech: { ...settings.speech, sttModel: e.target.value } })} />
           </label>
         </div>
         <button className="btn-primary mt-4" onClick={saveSpeech}>{t("common.save")}</button>
@@ -178,11 +176,42 @@ export function SettingsModule() {
       <section className="card card-pad mb-4">
         <h2 className="mb-3 text-base font-semibold">{t("settings.data")}</h2>
         <div className="flex flex-wrap gap-2">
-          <a href="/api/export" className="btn-secondary" download>{t("settings.exportData")}</a>
+          <button className="btn-secondary" onClick={handleExport}>{t("settings.exportData")}</button>
+        </div>
+
+        <div className="mt-4 rounded-md border border-border p-3">
+          <p className="text-sm font-medium">Import backup</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <select className="input w-40" value={importMode} onChange={(e) => setImportMode(e.target.value as ImportMode)}>
+              <option value="merge">Merge</option>
+              <option value="replace">Replace all</option>
+            </select>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleImport(f);
+                e.target.value = "";
+              }}
+            />
+            <button className="btn-secondary" onClick={() => fileRef.current?.click()}>Choose backup file…</button>
+          </div>
+          <p className="mt-2 text-xs text-muted">Replace clears current data before restoring. Merge keeps existing records.</p>
+          {importStatus && <p className="mt-2 text-sm text-muted">{importStatus}</p>}
+        </div>
+
+        <div className="mt-4 border-t border-border pt-4">
+          <button className="btn-danger" onClick={handleReset} disabled={resetting}>
+            {resetting ? <Spinner /> : t("settings.resetProgress")}
+          </button>
         </div>
         <p className="mt-3 text-xs text-muted">
-          Data is stored locally in SQLite (data/ielts.db). Your recordings and
-          imported materials are never committed to the repository.
+          Data is stored locally in your browser (IndexedDB). Your recordings and
+          imported materials never leave your device unless you connect a remote AI or
+          speech service.
         </p>
       </section>
     </div>

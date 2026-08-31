@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PracticeSet, WritingPrompt, Question } from "@/types/ielts";
-import { apiPost } from "@/lib/client/api";
+import { startMock, finishMock, saveMockState, type MockSectionResult, type MockCompleteInput } from "@/lib/practice/mock";
 import { QuestionPanel } from "@/components/reading-runner";
 import { BandBadge, Spinner } from "@/components/ui";
 import { Play } from "lucide-react";
@@ -15,11 +15,17 @@ interface SectionDef {
   durationSeconds: number;
 }
 
-interface SectionResult {
-  rawScore?: number;
-  total?: number;
-  band?: number;
+interface PersistedMock {
+  attemptId: string;
+  kind: string;
+  sectionIndex: number;
+  answers: Record<string, Record<string, Answer>>;
+  sectionTimes: Record<string, number>;
+  deadline: number | null; // absolute ms timestamp for the current section
+  phase: "running" | "section-intro";
 }
+
+const storageKey = (kind: string) => `ielts-mock:${kind}`;
 
 export function MockRunner({
   kind,
@@ -34,17 +40,17 @@ export function MockRunner({
   readingSet: PracticeSet | null;
   writingPrompts: WritingPrompt[];
 }) {
-  const [phase, setPhase] = useState<"intro" | "section-intro" | "running" | "submitting" | "results">("intro");
+  const [phase, setPhase] = useState<"intro" | "resume" | "section-intro" | "running" | "submitting" | "results">("intro");
   const [sectionIndex, setSectionIndex] = useState(0);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, Record<string, Answer>>>({});
   const [sectionTimes, setSectionTimes] = useState<Record<string, number>>({});
+  const [deadline, setDeadline] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [results, setResults] = useState<Record<string, SectionResult> | null>(null);
+  const [results, setResults] = useState<Record<string, MockSectionResult> | null>(null);
   const [overallBand, setOverallBand] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sectionStart = useRef<number>(Date.now());
 
   const sections: SectionDef[] = [
     ...(listeningSet ? [{ key: "listening", title: "Listening", durationSeconds: 35 * 60 }] : []),
@@ -61,65 +67,136 @@ export function MockRunner({
     return [];
   };
 
-  const startAttempt = useCallback(async () => {
-    const res = await apiPost<{ attemptId: string }>("/api/mock", { kind, testType });
-    setAttemptId(res.attemptId);
-  }, [kind, testType]);
+  // On mount: detect an in-progress mock and offer resume.
+  useEffect(() => {
+    const raw = localStorage.getItem(storageKey(kind));
+    if (raw) {
+      try {
+        const saved = JSON.parse(raw) as PersistedMock;
+        if (saved.attemptId && saved.kind === kind) {
+          setAttemptId(saved.attemptId);
+          setSectionIndex(saved.sectionIndex);
+          setAnswers(saved.answers);
+          setSectionTimes(saved.sectionTimes);
+          setPhase("resume");
+        }
+      } catch {
+        localStorage.removeItem(storageKey(kind));
+      }
+    }
+  }, [kind]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const persist = useCallback(
+    (state: Partial<PersistedMock>) => {
+      if (!attemptId) return;
+      const current: PersistedMock = {
+        attemptId,
+        kind,
+        sectionIndex,
+        answers,
+        sectionTimes,
+        deadline,
+        phase: phase === "section-intro" ? "section-intro" : "running",
+      };
+      localStorage.setItem(storageKey(kind), JSON.stringify({ ...current, ...state }));
+    },
+    [attemptId, kind, sectionIndex, answers, sectionTimes, deadline, phase],
+  );
 
   const begin = async () => {
     setError(null);
     try {
-      if (!attemptId) await startAttempt();
+      const id = await startMock(kind, testType);
+      setAttemptId(id);
       setPhase("section-intro");
     } catch (e) {
       setError(String(e));
     }
   };
 
-  const beginSection = () => {
-    sectionStart.current = Date.now();
-    setTimeLeft(currentSection.durationSeconds);
+  const resume = () => {
     setPhase("running");
-    timerRef.current = setInterval(() => {
-      const elapsed = Math.round((Date.now() - sectionStart.current) / 1000);
-      const remaining = currentSection.durationSeconds - elapsed;
+    // Re-arm the timer from the persisted absolute deadline.
+    if (deadline != null) {
+      const remaining = Math.max(0, Math.round((deadline - Date.now()) / 1000));
       setTimeLeft(remaining);
-      setSectionTimes((t) => ({ ...t, [currentSection.key]: elapsed }));
+      armTimer(deadline);
+    } else {
+      startSectionTimer();
+    }
+  };
+
+  const discardAndRestart = () => {
+    localStorage.removeItem(storageKey(kind));
+    setAttemptId(null);
+    setSectionIndex(0);
+    setAnswers({});
+    setSectionTimes({});
+    setDeadline(null);
+    setPhase("intro");
+  };
+
+  function armTimer(absoluteDeadline: number) {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      const remaining = Math.max(0, Math.round((absoluteDeadline - Date.now()) / 1000));
+      setTimeLeft(remaining);
       if (remaining <= 0) {
         clearInterval(timerRef.current!);
         finishSection();
       }
     }, 1000);
+  }
+
+  function startSectionTimer() {
+    const d = Date.now() + currentSection.durationSeconds * 1000;
+    setDeadline(d);
+    setTimeLeft(currentSection.durationSeconds);
+    armTimer(d);
+  }
+
+  const beginSection = () => {
+    setPhase("running");
+    startSectionTimer();
   };
 
   const finishSection = useCallback(async () => {
     if (timerRef.current) clearInterval(timerRef.current);
-    const elapsed = Math.round((Date.now() - sectionStart.current) / 1000);
-    setSectionTimes((t) => ({ ...t, [currentSection.key]: elapsed }));
+    const elapsed = currentSection ? Math.max(0, Math.round((Date.now() - (deadline ? deadline - currentSection.durationSeconds * 1000 : Date.now())) / 1000)) : 0;
+    setSectionTimes((t) => ({ ...t, [currentSection?.key ?? ""]: elapsed }));
+
+    if (attemptId) {
+      await saveMockState(attemptId, { sectionIndex, answers, sectionTimes });
+    }
 
     if (sectionIndex + 1 < sections.length) {
       setSectionIndex((i) => i + 1);
+      setDeadline(null);
       setPhase("section-intro");
     } else {
       setPhase("submitting");
       await submitAll();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSection, sectionIndex, sections.length]);
+  }, [currentSection, sectionIndex, sections.length, deadline, attemptId, answers, sectionTimes]);
 
   async function submitAll() {
     try {
-      const sectionsPayload: Record<string, { answers: Record<string, Answer>; timeSpentSeconds: number }> = {};
-      for (const s of sections) {
-        sectionsPayload[s.key] = {
-          answers: answers[s.key] ?? {},
-          timeSpentSeconds: sectionTimes[s.key] ?? 0,
-        };
+      const input: MockCompleteInput = {};
+      if (sections.some((s) => s.key === "listening") && listeningSet) {
+        input.listening = { answers: answers.listening ?? {}, timeSpentSeconds: sectionTimes.listening ?? 0 };
       }
-      const res = await apiPost<{ overallBand: number; sections: Record<string, SectionResult> }>(
-        `/api/mock/${attemptId}`,
-        { sections: sectionsPayload },
-      );
+      if (sections.some((s) => s.key === "reading") && readingSet) {
+        input.reading = { answers: answers.reading ?? {}, timeSpentSeconds: sectionTimes.reading ?? 0 };
+      }
+      const res = await finishMock(attemptId!, testType, listeningSet, readingSet, input);
+      localStorage.removeItem(storageKey(kind));
       setResults(res.sections);
       setOverallBand(res.overallBand);
       setPhase("results");
@@ -130,15 +207,23 @@ export function MockRunner({
   }
 
   const setAnswer = (qid: string, value: Answer) => {
-    const key = currentSection.key;
-    setAnswers((prev) => ({ ...prev, [key]: { ...prev[key], [qid]: value } }));
+    const key = currentSection?.key ?? "";
+    setAnswers((prev) => {
+      const next = { ...prev, [key]: { ...prev[key], [qid]: value } };
+      // persist answers to localStorage (cheap) on every change
+      if (attemptId) {
+        const p: PersistedMock = { attemptId, kind, sectionIndex: sectionIndex, answers: next, sectionTimes, deadline, phase: "running" };
+        localStorage.setItem(storageKey(kind), JSON.stringify(p));
+      }
+      return next;
+    });
   };
 
+  // Persist state on timer ticks and transitions.
   useEffect(() => {
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
+    if (phase === "running" || phase === "section-intro") persist({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, sectionTimes, deadline, phase]);
 
   if (phase === "intro") {
     return (
@@ -167,6 +252,23 @@ export function MockRunner({
           </div>
           {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
           <button className="btn-primary mt-6" onClick={begin}>Start mock exam</button>
+        </div>
+      </FullScreen>
+    );
+  }
+
+  if (phase === "resume") {
+    return (
+      <FullScreen>
+        <div className="mx-auto max-w-xl">
+          <h1 className="text-2xl font-semibold">Resume in-progress mock</h1>
+          <p className="mt-2 text-sm text-muted">
+            We found an unfinished {kind.replace(/_/g, " ")} mock. You can resume where you left off or start over.
+          </p>
+          <div className="mt-6 flex gap-3">
+            <button className="btn-primary" onClick={resume}>Resume</button>
+            <button className="btn-secondary" onClick={discardAndRestart}>Start over</button>
+          </div>
         </div>
       </FullScreen>
     );
@@ -203,7 +305,7 @@ export function MockRunner({
           <h1 className="text-2xl font-semibold">Mock results</h1>
           <div className="card card-pad mt-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted">Overall band</p>
+              <p className="text-sm text-muted">Average of completed skills</p>
               <BandBadge band={overallBand} />
             </div>
             <div className="mt-4 space-y-2">
@@ -218,7 +320,11 @@ export function MockRunner({
                 );
               })}
             </div>
-            <p className="mt-3 text-xs text-muted">Raw-score conversion uses published approximate tables; exact thresholds may vary between test versions.</p>
+            <p className="mt-3 text-xs text-muted">
+              This is the average of completed sections, not an official Overall IELTS Band
+              (which requires all four skills including Speaking). Raw-score conversion uses
+              published approximate tables; exact thresholds may vary between test versions.
+            </p>
           </div>
           <a href="/mock" className="btn-primary mt-6 inline-flex">Back to mocks</a>
         </div>
@@ -230,20 +336,24 @@ export function MockRunner({
   const questions = currentQuestions();
   return (
     <FullScreen>
-      {currentSection.key === "writing" ? (
+      {currentSection?.key === "writing" ? (
         <WritingSection prompts={writingPrompts} answers={answers.writing ?? {}} onAnswer={(qid, v) => setAnswer(qid, v)} />
       ) : (
         <QuestionSection
-          title={currentSection.title}
           questions={questions}
-          answers={answers[currentSection.key] ?? {}}
+          answers={answers[currentSection?.key ?? ""] ?? {}}
           onAnswer={setAnswer}
-          listening={currentSection.key === "listening"}
-          transcript={currentSection.key === "listening" ? listeningSet?.audio?.transcript ?? "" : ""}
-          passages={currentSection.key === "reading" ? readingSet?.passages ?? [] : []}
+          listening={currentSection?.key === "listening"}
+          audioParts={currentSection?.key === "listening" ? listeningSet?.audio?.parts?.filter((p) => p.src) ?? [] : []}
+          passages={currentSection?.key === "reading" ? readingSet?.passages ?? [] : []}
         />
       )}
-      <FooterBar timeLeft={timeLeft} answered={countAnswered(answers[currentSection.key] ?? {})} total={currentSection.key === "writing" ? 2 : questions.length} onFinish={finishSection} />
+      <FooterBar
+        timeLeft={timeLeft}
+        answered={countAnswered(answers[currentSection?.key ?? ""] ?? {})}
+        total={currentSection?.key === "writing" ? 2 : questions.length}
+        onFinish={finishSection}
+      />
     </FullScreen>
   );
 }
@@ -265,27 +375,52 @@ function FooterBar({ timeLeft, answered, total, onFinish }: { timeLeft: number; 
 }
 
 function QuestionSection({
-  title,
   questions,
   answers,
   onAnswer,
   listening,
-  transcript,
+  audioParts,
   passages,
 }: {
-  title: string;
   questions: Question[];
   answers: Record<string, Answer>;
   onAnswer: (qid: string, v: Answer) => void;
   listening: boolean;
-  transcript: string;
+  audioParts: { part: number; title: string; src?: string }[];
   passages: PracticeSet["passages"];
 }) {
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [partIndex, setPartIndex] = useState(0);
   const [played, setPlayed] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const q = questions[current];
+
+  const playAudio = () => {
+    if (played || audioParts.length === 0) return;
+    const audio = audioRef.current;
+    if (audio) {
+      audio.src = audioParts[0].src ?? "";
+      void audio.play();
+      setPlaying(true);
+    }
+  };
+
+  const handleEnded = () => {
+    const next = partIndex + 1;
+    if (next < audioParts.length) {
+      setPartIndex(next);
+      const audio = audioRef.current;
+      if (audio) {
+        audio.src = audioParts[next].src ?? "";
+        void audio.play();
+      }
+    } else {
+      setPlaying(false);
+      setPlayed(true);
+    }
+  };
 
   return (
     <div className="flex flex-1 flex-col">
@@ -302,20 +437,16 @@ function QuestionSection({
       </div>
 
       {listening && (
-        <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-2">
-          <button
-            className="btn-secondary"
-            disabled={played}
-            onClick={() => {
-              setPlaying(true);
-              setPlayed(true);
-              setTimeout(() => setPlaying(false), 60000);
-            }}
-          >
-            <Play className="h-4 w-4" /> {played ? "Played" : "Play audio (once)"}
-          </button>
-          {playing && <span className="text-xs text-muted">Playing… (transcript shown below)</span>}
-        </div>
+        <>
+          <audio ref={audioRef} onEnded={handleEnded} onPlay={() => setPlaying(true)} className="hidden" />
+          <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-2">
+            <button className="btn-secondary" disabled={played} onClick={playAudio}>
+              <Play className="h-4 w-4" /> {played ? "Played" : "Play audio (once)"}
+            </button>
+            {playing && <span className="text-xs text-muted">Playing… {audioParts[partIndex]?.title}</span>}
+            {played && <span className="text-xs text-muted">Audio complete</span>}
+          </div>
+        </>
       )}
 
       <div className="grid flex-1 lg:grid-cols-2">
@@ -327,11 +458,6 @@ function QuestionSection({
                 <div className="passage-text whitespace-pre-wrap text-sm">{p.body}</div>
               </div>
             ))}
-          </div>
-        )}
-        {listening && playing && (
-          <div className="max-h-[calc(100vh-10rem)] overflow-y-auto border-r border-border p-4 text-sm text-muted">
-            {transcript}
           </div>
         )}
 

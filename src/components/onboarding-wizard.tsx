@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
-import { apiPost } from "@/lib/client/api";
-import type { StudyProfile } from "@/lib/db/store";
+import { saveProfile } from "@/lib/storage/repository";
+import type { StudyProfile } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
 
 const SKILLS = [
@@ -64,7 +64,7 @@ export function OnboardingWizard() {
       takenBefore: form.takenBefore,
       onboardingComplete: !skip,
     };
-    await apiPost("/api/profile", profile);
+    await saveProfile(profile);
     router.push("/");
     router.refresh();
   }

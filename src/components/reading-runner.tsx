@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { PracticeSet, Question } from "@/types/ielts";
 import { useI18n } from "@/components/i18n-provider";
-import { apiPost } from "@/lib/client/api";
+import { submitPractice } from "@/lib/practice/submit";
 import { BandBadge, Spinner } from "@/components/ui";
 import {
   Flag,
@@ -42,7 +42,6 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   const [results, setResults] = useState<Result[] | null>(null);
   const [rawScore, setRawScore] = useState(0);
   const [band, setBand] = useState(0);
-  const [startedAt] = useState(() => Date.now());
   const startRef = useRef<number | null>(null);
 
   const questions = set.questions;
@@ -53,18 +52,13 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
       setPhase("submitting");
       const timeSpent = Math.round((Date.now() - (startRef.current ?? Date.now())) / 1000);
       try {
-        const res = await apiPost<{
-          rawScore: number;
-          total: number;
-          band: number;
-          results: Result[];
-        }>("/api/practice/submit", {
-          setId: set.meta.id,
+        const res = await submitPractice(
+          set,
           mode,
-          answers: finalAnswers,
-          timeSpentSeconds: timeSpent,
-          flags: Object.fromEntries([...flags].map((f) => [f, true])),
-        });
+          finalAnswers,
+          timeSpent,
+          Object.fromEntries([...flags].map((f) => [f, true])),
+        );
         setResults(res.results);
         setRawScore(res.rawScore);
         setBand(res.band);
@@ -104,7 +98,8 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   const toggleFlag = (id: string) => {
     setFlags((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -438,7 +433,7 @@ export function ResultsView({
           <div>
             <h1 className="text-xl font-semibold">Results</h1>
             <p className="text-sm text-muted">
-              {correct}/{set.questions.length} correct · {mode} mode
+              {correct}/{set.questions.length} correct · raw score {rawScore} · {mode} mode
             </p>
           </div>
           <BandBadge band={band} />
