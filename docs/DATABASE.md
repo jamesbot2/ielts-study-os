@@ -1,49 +1,62 @@
 # Database
 
-Local-first SQLite via Node's built-in `node:sqlite` (`DatabaseSync`), WAL mode,
-foreign keys on. The database file lives at `data/ielts.db` (gitignored) and can
-be overridden with `IELTS_DB_PATH`.
+V0.2 is **static-first**: there is no server database. All persistent data is
+stored in the browser's **IndexedDB** via [Dexie](https://dexie.org).
 
-## Why not Postgres/Supabase from day one
+## Why IndexedDB
 
-The requirement is that the app starts locally with zero cloud configuration.
-`node:sqlite` has no native build step and no service dependency. The schema and
-store layer are written so Postgres/Supabase can be swapped in later.
+- It is the only browser API designed for structured, transactional, sizeable
+  client-side storage.
+- It works offline and survives reloads.
+- Dexie provides a small, typed, versioned schema API.
 
-## Schema
+`localStorage` is used only for tiny preferences (language) and the in-progress
+mock exam state.
 
-`src/lib/db/schema.ts` defines an idempotent DDL (versioned via
-`settings.schema_version`). Tables:
+## Schema (`src/lib/storage/db.ts`)
 
-| Table | Purpose |
-|---|---|
-| `settings` | key/value store (profile, AI/speech config, schema version) |
-| `lesson_progress` | per-lesson completion status |
-| `vocabulary_cards` | vocab + FSRS state + due date |
-| `vocabulary_reviews` | review log |
-| `practice_attempts` | one per completed practice set |
-| `question_attempts` | per-question result + time + flag |
-| `mistakes` | unified mistake book |
-| `writing_submissions` / `writing_evaluations` | essays + AI reports |
-| `speaking_sessions` / `speaking_recordings` / `speaking_transcripts` / `speaking_evaluations` | speaking flow |
-| `mock_attempts` / `mock_sections` | mock exams + per-section scores |
-| `ai_conversations` / `ai_messages` | coach + examiner chat |
-| `study_tasks` | study plan items |
-| `imported_materials` | user-imported / generated content |
+Versioned (`DB_VERSION = 1`) with the following stores:
+
+| Store | Key | Indexes |
+|---|---|---|
+| `profile` | id | — |
+| `settings` | id | — |
+| `studyTasks` | id | scheduledFor, completed |
+| `lessonProgress` | lessonId | updatedAt |
+| `vocabulary` | id | due, createdAt, word |
+| `vocabularyReviews` | id | cardId, reviewedAt |
+| `practiceAttempts` | id | setId, skill, startedAt |
+| `questionAttempts` | id | attemptId, questionId |
+| `mistakes` | id | skill, questionType, createdAt |
+| `writingDrafts` | id | promptId, updatedAt |
+| `writingSubmissions` | id | promptId, createdAt |
+| `speakingSessions` | id | createdAt |
+| `speakingRecordings` | id | sessionId, part, createdAt |
+| `speakingTranscripts` | id | recordingId |
+| `mockAttempts` | id | status, startedAt |
+| `aiConversations` | id | kind, updatedAt |
+| `aiMessages` | id | conversationId, createdAt |
+| `importedMaterials` | id | createdAt |
 
 ## Access layer
 
-`src/lib/db/store.ts` exposes typed functions (`getProfile`, `createVocabCard`,
-`createPracticeAttempt`, `recordMistake`, …). It is marked `server-only`.
+`src/lib/storage/repository.ts` exposes async domain operations
+(`getProfile`, `createVocabCard`, `recordVocabReview`, `submitPractice`-support,
+`recordMistake`, `createMockAttempt`, …). Components import only these functions.
 
 ## Migrations
 
-`migrate()` runs the full DDL (all `CREATE TABLE IF NOT EXISTS`) then bumps
-`schema_version`. This is reproducible and safe to run repeatedly.
+Dexie schema versions are declared in `db.ts`. Future changes bump `DB_VERSION`
+and add an upgrade function so existing learner data is never casually
+destroyed.
 
-## Privacy
+## Backup
 
-- No secrets in the DB (API keys are only held in server memory/env + settings;
-  the GET endpoint masks them).
-- User recordings/imports live under `data/` and are gitignored.
-- Full export available at `GET /api/export` (JSON).
+Full versioned JSON export/import/reset is in `src/lib/storage/export.ts`.
+See `docs/DATA_BACKUP.md`.
+
+## (Removed) SQLite
+
+The V0.1 SQLite backend (`node:sqlite`, `src/lib/db`) and all API routes were
+removed. There is no runtime SQLite dependency. Migration path from V0.1 is
+documented in `docs/DATA_BACKUP.md`.

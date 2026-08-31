@@ -1,55 +1,51 @@
 # Mock Exam Specification
 
 The mock engine reproduces the **interaction model** of computer-delivered IELTS
-without copying any protected assets pixel-for-pixel.
+without copying any protected assets or branding.
 
 ## Exam types
 
 - **Academic Full** — Listening + Reading (Academic) + Writing (Academic).
 - **General Training Full** — Listening + Reading (General) + Writing (General).
 - **Listening / Reading / Writing** — individual sections.
-- **Speaking** — runs as a separate session (practice/speaking module).
+- **Speaking** — a separate full mock session (`/mock/speaking`).
 
 ## Strict exam mode
 
-- Full-screen-capable layout (separate route group, no sidebar).
-- Persistent, non-pausable timer per section.
-- Answers autosaved (localStorage + server state).
-- Automatic section submission on time expiry.
-- Question navigator with answered/unanswered/current/flagged states.
-- Previous/next navigation + keyboard accessibility.
-- Low-time warning near the end.
-- Crash recovery: in-progress attempt state is persisted server-side; a refresh
-  can resume. Intentional pause is never offered in exam mode.
+- Full-screen layout (separate route group, no sidebar).
+- Persistent, non-pausable timer per section using **absolute deadlines**
+  (`deadline = startedAt + duration`), so a refresh never resets the clock.
+- Answers and exam state persisted to `localStorage`; refresh offers Resume /
+  Start over.
+- Automatic section submission on time expiry; automatic final submission.
+- Question navigator with answered/unanswered/current states.
+- Low-time warning; clear section-transition screens.
+- No answer feedback before submission.
 
 ## Section behaviour
 
-**Listening**: 4 parts, 40 questions (content currently 20); audio plays once;
-no transcript before completion; final checking period.
+**Listening**: 4 parts, 40 questions; **real generated audio**; one playback
+only, no seek, no replay; transcript hidden until submission.
 
-**Reading**: 60 minutes, 3 sections, 40 questions (content currently 21–25);
-split passage/questions, highlighting, notes, no feedback during the exam.
+**Reading**: 60 minutes, 3 sections, 40 questions; split passage/questions,
+highlighting, no feedback during the exam.
 
-**Writing**: 60 minutes, Task 1 + Task 2, word count, timer, no grammar/spell
-assistance in strict mode, Task 2 double weighting reflected in results.
+**Writing**: 60 minutes, Task 1 + Task 2; word count, timer, no grammar/spell
+assistance in strict mode.
+
+**Speaking**: INTRO → Part 1 → Part 2 (instructions → 1-min prep → 1–2 min long
+turn) → Part 3 → COMPLETE → REVIEW; recording + manual transcript; deterministic
+metrics.
 
 ## Scoring (deterministic)
 
 - Listening/Reading: normalised answer checking → raw score → band table
   (Academic vs General tables differ).
-- Overall: average of available section bands, rounded to nearest half band.
-- Results show raw score, band per section, overall band, and the honest note that
-  raw-score tables are approximate.
-
-## Results dashboard
-
-- Overall + per-section bands.
-- Deterministic per-question analysis available via the practice review UI.
-- Writing AI report included only when an evaluator is configured.
-- Mistakes are recorded into the Mistake Book automatically.
+- Result: per-section raw/band plus the **average of completed skills** — never
+  labelled as an official Overall IELTS Band (which requires Speaking too).
+- Mistakes flow into the Mistake Book automatically.
 
 ## Persistence
 
-- `mock_attempts` (state JSON) + `mock_sections` tables.
-- Answers stored server-side per section; `PATCH /api/mock/[id]` saves state;
-  `POST /api/mock/[id]` completes and scores.
+- `mockAttempts` in IndexedDB (kind, status, timestamps, overall band).
+- In-progress state (answers, section, absolute deadline) in `localStorage`.

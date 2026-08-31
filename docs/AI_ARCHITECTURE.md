@@ -1,82 +1,59 @@
-# AI Architecture
+# AI Architecture (static mode)
 
 ## Principles
 
-- Provider-independent; never coupled to one vendor.
-- API keys stay server-side; never in client bundles.
-- The app is fully functional with AI unconfigured.
-- Deterministic logic (objective scoring, band combination) is never delegated to
-  an LLM.
+- AI is **optional**. The core product works fully with AI unconfigured.
+- The browser **never holds a provider secret key**.
+- Deterministic logic (objective scoring, band combination) is never delegated
+  to an LLM.
 
-## Provider abstraction
-
-`src/lib/ai/provider.ts` defines:
+## Client abstraction (`src/lib/ai/client.ts`)
 
 ```ts
-interface AiProvider { name: string; generateText(opts): Promise<string> }
-interface AiConfig { provider; baseUrl; apiKey; model; temperature; maxTokens; timeoutMs; enableCritic }
+interface AiClient {
+  available: boolean;
+  evaluateWriting(input): Promise<WritingEvaluation>;
+  evaluateSpeaking(input): Promise<SpeakingEvaluation>;
+  chat(messages, onDelta, signal?): Promise<string>;
+}
 ```
 
-`OpenAICompatibleProvider` implements the chat-completions wire protocol, so it
-works with OpenAI, DeepSeek, OpenRouter, xAI, Google (OpenAI-compat), and local
-servers (LM Studio, Ollama, vLLM).
+Implementations:
 
-`src/lib/ai/index.ts` adds:
+- `DisabledAiClient` (default) — every call throws `AiUnavailableError` with a
+  clear message. The UI shows "Connect an AI backend to enable …" rather than
+  broken buttons.
+- `RemoteAiProxyClient` — posts to a user-configured public proxy URL. The proxy
+  is a separate, trusted service that holds the real provider key server-side.
 
-- `getAiConfig()` — merges server-side settings (DB) and env placeholders.
-- `isAiConfigured()` — key presence check.
-- `generateText()` / `generateStructured(schema, ...)` — the latter requests JSON
-  output, extracts/parses, validates with Zod, and retries once with a corrective
-  hint on failure.
-- `streamText()` — async generator for the coach.
+Configuration happens in **Settings → AI** (a `proxyUrl` and `model`), persisted
+in IndexedDB. There is no `NEXT_PUBLIC_*` key and no bundled secret.
 
-## Configuration precedence
+## Contracts
 
-`settings(DB) ai_config` > env `AI_API_KEY`/`AI_BASE_URL`/`AI_MODEL` > defaults.
-The `GET /api/ai-config` endpoint never returns the raw key (masked `sk-••••1234`).
+`src/lib/ai/schemas.ts` holds the Zod schemas for `WritingEvaluation` and
+`SpeakingEvaluation`. `src/lib/ai/prompts.ts` holds the band-descriptor-anchored
+prompt builders and the coach system prompt. These are the reference contract
+for any proxy server and for future in-repo adapters.
 
-## Agents
+## Deterministic band combination
 
-### AI Coach (`src/lib/ai/coach.ts`)
+Even when AI returns criterion bands, the overall band is recomputed
+deterministically in the browser:
 
-- `buildCoachContext()` builds a **bounded** context (target band, test type,
-  test date, ≤12 recent mistakes, weak skills) — never the full history.
-- `coachSystemPrompt()` produces the system prompt.
-- Streamed via `POST /api/coach`; conversation persisted.
+- Writing: `writingBandFromCriteria(criteria, task)` (Task 2 double-weighted at
+  section level via `writingBandFromTasks`).
+- Speaking: `speakingBandFromCriteria(supportedCriteria)` (equal weight;
+  pronunciation excluded unless `supported`).
 
-### Writing Evaluator (`src/lib/ai/evaluators/writing.ts`)
+## Absent-AI UX
 
-- Prompt anchors each criterion in the **official public band descriptors** and
-  forbids inventing criteria.
-- Zod schema: `criterionScores[]`, strengths, weaknesses, sentence-level issues,
-  grammar/lexical/coherence/task-response issues, missing requirements,
-  corrections, improved sentences, vocabulary suggestions, next targets,
-  examiner-style summary, `bandGapAnalysis` (what separates this from Band X+1).
-- The **overall band is computed deterministically** from criterion bands, not
-  asked of the model.
+| Feature | Without AI |
+|---|---|
+| AI Coach | "Connect an AI backend to enable tutoring." |
+| Writing | "AI band estimation is unavailable. Your draft remains saved." |
+| Speaking | "Transcript-based AI evaluation is unavailable." |
+| Practice generation | "AI generation is unavailable." |
 
-### Speaking Evaluator (`src/lib/ai/evaluators/speaking.ts`)
-
-- Anchored to the four official criteria; `pronunciation.supported` is `false`
-  when no audio analysis exists, and the band is forced to 0/"not evaluated".
-- Uses transcript metrics (WPM, fillers, diversity) as input but never fabricates
-  pronunciation from text.
-- Overall band computed deterministically from supported criteria.
-
-### Practice Generator (`src/app/api/generate/reading`)
-
-- Generates original reading passage + questions; Zod-validated.
-- Runs an **answer-consistency check** (answers must appear in the passage).
-- Saved as `AI_GENERATED` draft material with the required label.
-
-## Optional second-pass critic
-
-`AiConfig.enableCritic` is a configuration flag reserved for an
-Evaluator → Critic → Final pipeline. It is off by default to avoid burning
-tokens; not yet wired (see ROADMAP).
-
-## Failure behaviour
-
-If AI is unconfigured: learning, practice, objective scoring, vocabulary, mock
-exams and analytics all work. AI buttons surface the configuration requirement
-and no work is lost.
+Writing, recording, deterministic metrics, saving and revisiting all keep
+working.

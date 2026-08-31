@@ -37,8 +37,7 @@ applicable, and is always original writing by project contributors.
   `sourceType: "ORIGINAL"` and `copyrightStatus: "Original, freely redistributable"`.
 - AI-generated content is marked `sourceType: "AI_GENERATED"` with the label
   "AI-generated practice material — not an official IELTS question."
-- User-imported content is stored locally (SQLite, gitignored) and never
-  committed.
+- User-imported content is stored locally (IndexedDB) and never committed.
 
 ## Third-party notices
 

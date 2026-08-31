@@ -1,64 +1,52 @@
 # Speech Architecture
 
-Speaking must work with **no speech API key**. The design separates three
-concerns and makes audio-based scoring strictly optional.
+Speaking works with **no speech service and no key**. Audio-based scoring is
+strictly optional and never fabricated from text.
 
-## Provider interfaces (`src/lib/speech/providers.ts`)
+## Recording (`MediaRecorder`)
 
-```ts
-interface SpeechToTextProvider { name; transcribe(audio, opts?): Promise<{transcript, language?, confidence?, words?}> }
-interface PronunciationAssessmentProvider { name; assess(audio, referenceText): Promise<PronunciationScore> }
-interface TextToSpeechProvider { name; synthesize(text, opts?): Promise<ArrayBuffer> }
-```
+- MIME type is selected dynamically with `MediaRecorder.isTypeSupported`
+  (webm/opus → webm → mp4 → ogg), not hardcoded to Chrome.
+- Permission denied / unsupported / empty recordings produce clear errors and
+  fall back to manual transcript.
+- Recordings are stored as Blobs in IndexedDB (with duration, MIME type, size,
+  created-at). Users can play back, and delete them via data reset.
 
-Implementations:
+## Transcription
 
-- `WhisperHttpProvider` — calls a local `faster-whisper` HTTP service.
-- `OpenAICompatibleSttProvider` — OpenAI-compatible `/audio/transcriptions`.
-
-`src/lib/speech/index.ts` reads server-side speech config (DB + env) and returns
-a provider only if configured.
-
-## Client recording flow
-
-1. `MediaRecorder` captures audio in the browser.
-2. Recording is kept in memory (blob URL) for playback; no upload is required.
-3. If STT is configured, `POST /api/stt` (multipart) transcribes.
-4. Otherwise the learner enters a transcript manually.
-5. Deterministic transcript metrics (`computeTranscriptMetrics`) run on any text.
+- **Manual transcript** always works.
+- Optional STT: configure a `sttBaseUrl` in Settings. The app posts audio to
+  `${baseUrl}/transcribe` and reads `{ text }`. A local `faster-whisper` HTTP
+  service is the documented target.
 
 ## Metrics — two distinct classes
 
-**Transcript-based** (always available, from text):
+**Transcript-based** (deterministic, always available):
 
-- duration, word count, WPM, filler frequency, repeated words, vocabulary
-  diversity (type-token ratio), sentence count/length.
+- duration, word count, WPM, filler count, vocabulary diversity (type-token
+  ratio), sentence stats.
 
-**Audio-based pronunciation** (only when a real audio engine ran):
+**Audio-based pronunciation** (only when a real audio engine runs):
 
 - pronunciation score, accuracy/fluency/completeness, per-word scores.
 
-These are **never conflated**. Text metrics never imply pronunciation quality.
+These are never conflated. The UI shows **"Pronunciation: not evaluated"**
+without an audio engine.
 
-## Pronunciation policy
+## Audio generation (Listening tests)
 
-Without a pronunciation provider, the UI shows **"Pronunciation: not evaluated"**.
-The app never fabricates a pronunciation score from text alone.
+Original Listening audio is generated with **Piper** (local, permissively-licensed
+TTS) from the speaker-marked scripts in `scripts/tts/listening-scripts.json`.
 
-## Local options (documented, optional)
+- Generation: `python scripts/tts/generate_audio.py` (reads voices from
+  `scripts/tts/voices/`, which is gitignored; writes MP3s to
+  `public/audio/listening-1/`).
+- Voices: en_US-lessac-medium, en_GB-northern_english_male-medium,
+  en_US-ryan-high (used for different speakers).
+- The generated MP3s are original and committed; the large voice models are not.
 
-- `faster-whisper` (recommended): `pip install faster-whisper`, expose a small
-  HTTP endpoint; point `STT_BASE_URL` at it.
-- `whisper` / `WhisperX` / forced alignment (e.g. Montreal Forced Aligner) for
-  phoneme-level analysis in the future.
+## Player behavior
 
-## TTS / examiner voice
-
-`TextToSpeechProvider` is defined for future examiner-voice and practice-audio
-generation (e.g. reading Listening scripts aloud). Not required for the current
-version.
-
-## Storage & privacy
-
-Recordings are held client-side by default. Persisted recordings (future) go
-under the gitignored `data/uploads/` directory and are never committed.
+- **Practice mode**: replay and seek allowed; transcript available after playback.
+- **Exam mode**: one playback, no seek, no replay, transcript hidden until
+  submission.

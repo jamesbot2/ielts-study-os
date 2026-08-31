@@ -37,6 +37,7 @@ versions, this project represents conversion tables as honest approximations.
 | lucide-react | ISC | Icons |
 | Zod | MIT | Validation |
 | ts-fsrs | MIT | Spaced repetition (FSRS) |
+| Dexie | Apache-2.0 | IndexedDB wrapper (storage) |
+| Piper (piper-tts) | MIT | Local TTS for original Listening audio |
 | Vitest / Testing Library | MIT | Testing |
 | Playwright | Apache-2.0 | E2E testing |
-| node:sqlite | MIT (Node.js) | Database |

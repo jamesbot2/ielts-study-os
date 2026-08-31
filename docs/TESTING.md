@@ -6,45 +6,32 @@
 npm test          # vitest run (unit + integration)
 npm run typecheck # tsc --noEmit
 npm run lint      # eslint
-npm run build     # production build (also runs type checking)
-npm run test:e2e  # Playwright (requires: npx playwright install)
+npm run build     # static production build (out/) — also type-checks
+npm run test:e2e  # Playwright against the static build
 ```
 
-## Unit tests (`src/**/*.test.ts`)
+## Unit / integration tests (`src/**/*.test.ts`)
 
-`src/lib/scoring/scoring.test.ts` covers:
-
-- Answer normalisation (case, whitespace, punctuation, full-width).
-- Word-limit enforcement.
-- Text / single-choice / multiple-choice / matching answer checking.
-- Listening, Academic Reading, General Reading band boundaries.
-- Overall band rounding (`.25` up, `.75` up, nearest half).
-- Writing Task 2 double-weighting.
-- Speaking four-criteria averaging.
-- Raw-score-for-band requirements.
-
-## Integration coverage (via route tests / manual API checks)
-
-- `POST /api/practice/submit` → deterministic score + mistake creation.
-- `POST /api/vocabulary` + `/api/vocabulary/review` → FSRS scheduling.
-- `POST /api/mock` → attempt creation, state, completion scoring.
-- `GET /api/analytics` → aggregation.
-- AI-disabled behaviour: `/api/writing/evaluate` returns 503 with a clear message
-  when no key is configured.
+| Suite | Covers |
+|---|---|
+| `scoring.test.ts` (33) | conservative normalisation (apostrophes, hyphens, decimals, dates), word-limit instruction enforcement, choice/matching checking, band tables, quarter-band rounding, official overall vs completed-skills average, writing/speaking aggregation |
+| `srs/fsrs.test.ts` | FSRS scheduling (again/hard/good/easy, multi-review) |
+| `study-plan/generate.test.ts` | plan generation, weak-skill weighting, scheduling |
+| `storage/repository.test.ts` | profile, vocabulary + FSRS, mistakes recurrence, mock lifecycle, study tasks (against fake-indexeddb) |
+| `storage/export.test.ts` | backup round-trip, version rejection, malformed input |
+| `content/validate.test.ts` | 40-question counts, unique IDs, structural validation, answer-consistency, coverage manifest |
 
 ## E2E (Playwright)
 
-A Playwright project is configured for future browser flows (onboarding, reading
-practice, writing editor, mock submission, bilingual switch). Browser binaries
-must be installed with `npx playwright install`; the specs are scaffolded in
-`e2e/`.
+11 specs run **against the static export** (the `webServer` builds and serves
+`out/`), covering: homepage, learn hub, bilingual switch + persistence, reading
+practice + submit, writing autosave/restore, vocabulary, settings export/reset,
+mock + speaking mock. See `e2e/smoke.spec.ts`.
 
 ## Quality gate
 
-Before declaring complete, run:
-
 ```bash
-npm run lint && npm run typecheck && npm test && npm run build
+npm run lint && npm run typecheck && npm test && npm run build && npm run test:e2e
 ```
 
-All four must pass.
+All must pass before merging.

@@ -1,106 +1,78 @@
 # Content Coverage
 
-This file is the master checklist for IELTS knowledge coverage. It is intentionally
-honest: **"implemented" means a working feature exists**, not a placeholder.
+This file is the master checklist for IELTS knowledge coverage. It is generated
+from the actual content where possible (see `src/lib/content/coverage.ts` and the
+content-validation tests) and intentionally honest: **"implemented" means a
+working feature exists**.
 
-Status legend:
+Status legend: ✅ implemented · 🟡 partial · ⬜ planned/not implemented
 
-- ✅ Implemented and working
-- 🟡 Partially implemented (working but incomplete volume/scope)
-- ⬜ Planned / not yet implemented
+## 1. Objective practice content (measured)
 
-## 1. Curriculum coverage matrix
+| Set | Questions | Passages/Sections | Audio | Question types |
+|---|---|---|---|---|
+| Academic Reading | **40** | 3 passages | — | multiple choice, T/F/NG, Y/N/NG, matching headings/information/features/sentence endings, sentence/summary/note/table completion, short answer |
+| General Training Reading | **40** | 3 sections | — | multiple choice, T/F/NG, matching headings/features/sentence endings, sentence/summary/note completion, short answer |
+| Listening | **40** | 4 parts | **real TTS audio (4 MP3s)** | form completion, multiple choice, map labelling, short answer, matching, note completion |
 
-| Category | Subcategory | A/G/Both | Lesson | Practice | Explanation | Assessment | Status |
-|---|---|---|---|---|---|---|---|
-| IELTS Fundamentals | What IELTS is, who uses it | Both | ✅ | — | ✅ | — | ✅ |
-| IELTS Fundamentals | Academic vs General Training | Both | ✅ | — | ✅ | — | ✅ |
-| IELTS Fundamentals | Test structure & timings | Both | ✅ | — | ✅ | — | ✅ |
-| IELTS Fundamentals | 0–9 scale, whole/half bands | Both | ✅ | — | ✅ | — | ✅ |
-| IELTS Fundamentals | Overall band rounding rules | Both | ✅ | — | ✅ | ✅ (deterministic + tests) | ✅ |
-| IELTS Fundamentals | Listening raw-score conversion | Both | ✅ | — | ✅ | ✅ | ✅ |
-| IELTS Fundamentals | Academic Reading conversion | Academic | ✅ | — | ✅ | ✅ | ✅ |
-| IELTS Fundamentals | General Training Reading conversion | General | ✅ | — | ✅ | ✅ | ✅ |
-| IELTS Fundamentals | Writing scoring (Task 2 ×2 weight) | Both | ✅ | — | ✅ | ✅ | ✅ |
-| IELTS Fundamentals | Speaking scoring (4 equal criteria) | Both | ✅ | — | ✅ | ✅ | ✅ |
-| IELTS Fundamentals | Computer-delivered IELTS & Writing on Paper | Both | ✅ | — | ✅ | — | ✅ |
-| IELTS Fundamentals | Test-day workflow & interface concepts | Both | ✅ | — | ✅ | — | ✅ |
-| IELTS Fundamentals | One Skill Retake & result validity | Both | ✅ | — | ✅ | — | ✅ |
-| IELTS Fundamentals | Target scores & common misconceptions | Both | ✅ | — | ✅ | — | ✅ |
-| Listening | 4-part structure, 40 questions, accents | Both | ✅ | — | ✅ | — | ✅ |
-| Listening | All 13 question types | Both | ✅ (taught) | 🟡 (set covers form/choice/map/matching/note/short-answer) | ✅ | ✅ | 🟡 |
-| Listening | Prediction, paraphrase, distractors | Both | ✅ | — | ✅ | — | ✅ |
-| Listening | Numbers/dates/spelling/word limits | Both | ✅ | — | ✅ | — | ✅ |
-| Listening | One-play exam mode vs replay practice | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Listening | Transcript hidden before submission | Both | — | ✅ | ✅ | — | ✅ |
-| Reading (Academic) | 3 passages, 40 questions, 60 min | Academic | ✅ | 🟡 (21 questions, 3 passages) | ✅ | ✅ | 🟡 |
-| Reading (General) | 3 sections (survival/workplace/general) | General | ✅ | 🟡 (25 questions) | ✅ | ✅ | 🟡 |
-| Reading | T/F/NG and Y/N/NG | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Reading | Matching headings/information/features/sentence endings | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Reading | Multiple choice & short answer | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Reading | Completion (summary/note/table/flow/diagram) | Both | ✅ | ✅ (summary/sentence) | ✅ | ✅ | 🟡 |
-| Reading | Skimming, scanning, keyword/paraphrase | Both | ✅ | ✅ | ✅ | — | ✅ |
-| Reading | False vs Not Given, over-reading | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Reading | Split-pane UI, highlight, notes, font-size | Both | — | ✅ | — | — | ✅ |
-| Writing (Academic T1) | Graphs, charts, tables, maps, processes | Academic | ✅ | ✅ (4 prompts: line/bar/process/map) | ✅ | ✅ (AI) | ✅ |
-| Writing (General T1) | Formal/semi-formal/informal letters | General | ✅ | ✅ (3 prompts) | ✅ | ✅ (AI) | ✅ |
-| Writing Task 2 | All essay types | Both | ✅ | ✅ (6 prompts) | ✅ | ✅ (AI) | ✅ |
-| Writing | 4 official criteria & Task 2 weighting | Both | ✅ | — | ✅ | ✅ | ✅ |
-| Writing | Editor: timer, word count, autosave, fullscreen | Both | — | ✅ | — | — | ✅ |
-| Writing | AI evaluation (band descriptors anchored) | Both | — | ✅ | ✅ | ✅ | ✅ |
-| Speaking | Part 1/2/3 structure | Both | ✅ | ✅ | ✅ | — | ✅ |
-| Speaking | 4 criteria (FC/LR/GRA/P) | Both | ✅ | — | ✅ | ✅ (AI) | ✅ |
-| Speaking | Topic library (work, study, travel, …) | Both | — | ✅ (12 topics) | — | — | ✅ |
-| Speaking | Recording + manual transcript + metrics | Both | — | ✅ | ✅ | ✅ | ✅ |
-| Speaking | Pronunciation (audio-based only) | Both | — | — | — | 🟡 (architecture only) | 🟡 |
-| Vocabulary | Manual + extracted words, rich card fields | Both | — | ✅ | ✅ | — | ✅ |
-| Vocabulary | FSRS spaced repetition (Again/Hard/Good/Easy) | Both | — | ✅ | — | ✅ | ✅ |
-| Grammar | Sentence types, clauses, agreement, articles | Both | ✅ | — | ✅ | — | ✅ |
-| Grammar | Tenses, conditionals, passive, modals | Both | ✅ | — | ✅ | — | ✅ |
-| Grammar | Punctuation, fragments, formal style | Both | ✅ | — | ✅ | — | ✅ |
-| Strategies | Skill-specific checklists | Both | ✅ | — | ✅ | — | ✅ |
+A structural validator (`src/lib/content/validate.ts`, tested) enforces unique
+IDs, 40-question counts, correct-answer presence, word-limit metadata,
+source/license metadata, and reading answer-consistency (answers grounded in the
+passage).
 
-## 2. Product surface
+## 2. Curriculum coverage matrix
 
-| Area | Status | Notes |
-|---|---|---|
-| Onboarding (language, type, bands, date, weak skills) | ✅ | Skip + edit later supported |
-| Home / Dashboard | ✅ | Targets, countdown, progress, mock history |
-| Learn hub + lesson viewer (bilingual) | ✅ | EN/中文 toggle per lesson |
-| Practice hub | ✅ | Reading / Listening / Writing / Speaking / Vocab / Grammar |
-| Reading practice runner | ✅ | Split-pane, highlight, timer, flag, review |
-| Listening practice runner | ✅ | One-play exam vs replay, transcript after submit |
-| Writing editor + AI evaluator | ✅ | Timer, word count, autosave, draft history |
-| Speaking recorder + evaluator | ✅ | MediaRecorder, manual transcript, metrics |
-| Vocabulary + FSRS | ✅ | Add, review due cards |
-| Mistake Book | ✅ | Filters, mastery, recurrence |
-| Mock exam engine | ✅ | Strict timing, sections, auto-submit, results |
-| AI Coach | ✅ | Streaming chat with context building |
-| Analytics | ✅ | Skill/question-type/mock/mistake stats |
-| Study Plan | ✅ | Deterministic generator + manual edit |
-| Material Library + import | ✅ | Text/Markdown import, AI generation |
-| Settings (profile / AI / speech / data export) | ✅ | Server-side keys, masked |
-| i18n (English + Simplified Chinese) | ✅ | UI dictionary + per-lesson bilingual content |
+| Category | Subcategory | Lesson | Practice | Assessment | Status |
+|---|---|---|---|---|---|
+| IELTS Fundamentals | What/why IELTS, Academic vs General, structure, timings | ✅ | — | ✅ | ✅ |
+| IELTS Fundamentals | 0–9 scale, rounding, band conversion (L/R/GT) | ✅ | — | ✅ deterministic + tests | ✅ |
+| IELTS Fundamentals | Writing/Speaking scoring, computer delivery, One Skill Retake | ✅ | — | ✅ | ✅ |
+| Listening | 4-part structure, 13 question types, strategies | ✅ | ✅ 40q | ✅ | ✅ |
+| Reading (Academic) | 3 passages, all major types, skills | ✅ | ✅ 40q | ✅ | ✅ |
+| Reading (General) | 3 sections incl. matching features + sentence endings | ✅ | ✅ 40q | ✅ | ✅ |
+| Writing (Academic T1) | graphs/charts/tables/maps/processes | ✅ | ✅ 4 prompts | ✅ (AI, optional) | ✅ |
+| Writing (General T1) | formal/semi-formal/informal letters | ✅ | ✅ 3 prompts | ✅ (AI, optional) | ✅ |
+| Writing T2 | all essay types | ✅ | ✅ 6 prompts | ✅ (AI, optional) | ✅ |
+| Speaking | Parts 1/2/3, 4 criteria, strategies | ✅ | ✅ topic library + full mock flow | ✅ (AI, optional) | ✅ |
+| Vocabulary | FSRS, rich cards | ✅ | ✅ | ✅ | ✅ |
+| Grammar | 20+ topics + IELTS error types | ✅ | ✅ 23 exercises | ✅ (self-check) | ✅ |
+| Strategies | per-skill checklists | ✅ | — | — | ✅ |
 
-## 3. Honest gaps (current version)
+## 3. Product surface
 
-1. **Objective question volume.** Practice sets contain 20–34 questions, not the
-   full 40 per exam section. The scoring engine and mock runner support 40-question
-   sets; more original content is needed. Academic Reading = 21, General Reading = 25,
-   Listening = 20.
-2. **Listening audio.** Original transcripts/scripts are included, but no audio
-   files are bundled yet. The runner simulates playback from the transcript
-   (estimated duration). TTS generation is a documented next step.
-3. **Pronunciation assessment.** Only the provider abstraction exists; no audio
-   pronunciation scoring runs by default. Pronunciation is correctly reported as
-   "not evaluated" without an audio engine (never fabricated from text).
-4. **General Training Reading** has fewer question types than Academic (no
-   matching-features/matching-sentence-endings items authored yet).
-5. **Writing band descriptors** are embedded in the AI evaluator prompt rather than
-   a fully structured public descriptor dataset.
-6. **PDF/DOCX import** adapters are documented but not yet implemented (text/Markdown work).
-7. **Speaking examiner state machine** (adaptive Part 1→2→3 flow with follow-ups)
-   is designed but the interactive agent flow is not yet wired to the UI (topic
-   library + single-prompt practice work).
+| Area | Status |
+|---|---|
+| Onboarding (skippable) | ✅ |
+| Dashboard | ✅ (from real persisted data) |
+| Learn hub + bilingual lessons (56 lessons) | ✅ |
+| Reading runner (split-pane, highlight, timer, flag, review) | ✅ |
+| Listening runner (real audio, one-play exam, replay practice) | ✅ |
+| Writing editor (timer, autosave, drafts, AI optional) | ✅ |
+| Speaking practice + full mock (record, transcript, metrics) | ✅ |
+| Vocabulary + FSRS | ✅ |
+| Grammar practice | ✅ |
+| Mistake Book (all skills) | ✅ |
+| Mock exams (Academic/General full, Listening, Reading, Writing, Speaking) | ✅ |
+| Analytics (real activity) | ✅ |
+| Study plan (deterministic, editable) | ✅ |
+| Material library (text/Markdown/JSON import, AI-labelled generation) | ✅ |
+| Settings (profile, optional AI/speech proxy, export/import/reset) | ✅ |
+| i18n (English + Simplified Chinese) | ✅ |
 
-These gaps are tracked in `docs/ROADMAP.md`.
+## 4. Honest gaps (current version)
+
+1. **Pronunciation assessment** — provider interface only; no audio
+   pronunciation scoring runs by default. Correctly shown as "not evaluated"
+   (never fabricated from text).
+2. **PDF / DOCX import** — not implemented; text/Markdown/JSON import works.
+3. **AI** — evaluation/coach require a user-configured remote proxy (off by
+   default). Deterministic band combination is done client-side.
+4. **Speech-to-text** — manual transcript always works; automatic STT requires
+   a configured remote endpoint.
+5. **Reading answer-consistency** is validated at the word level (not full
+   phrase), which is intentionally lenient to avoid false positives.
+6. **Question type coverage**: not every type appears in every test, but the
+   practice library provides real examples of all major types (measured by
+   `questionTypeCoverage()` in the tests).
+
+These are tracked in `docs/ROADMAP.md`.
