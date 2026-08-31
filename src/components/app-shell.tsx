@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
+import { useStudyProfile } from "@/components/study-profile-provider";
 import type { ReactNode } from "react";
 import {
   LayoutDashboard,
@@ -37,6 +38,7 @@ const NAV = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t, locale, setLocale } = useI18n();
+  const { updateProfile } = useStudyProfile();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -71,11 +73,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     </nav>
   );
 
+  const changeLocale = (next: "en" | "zh") => {
+    setLocale(next);
+    updateProfile({ uiLanguage: next }).catch(() => {});
+  };
+
   const langToggle = (
     <div className="flex items-center gap-1 rounded-md border border-border p-0.5">
       <button
         type="button"
-        onClick={() => setLocale("en")}
+        onClick={() => changeLocale("en")}
         className={`rounded px-2 py-1 text-xs font-medium ${
           locale === "en" ? "bg-accent text-white" : "text-muted hover:text-foreground"
         }`}
@@ -84,7 +91,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </button>
       <button
         type="button"
-        onClick={() => setLocale("zh")}
+        onClick={() => changeLocale("zh")}
         className={`rounded px-2 py-1 text-xs font-medium ${
           locale === "zh" ? "bg-accent text-white" : "text-muted hover:text-foreground"
         }`}

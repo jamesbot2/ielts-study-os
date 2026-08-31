@@ -2,32 +2,31 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
-import {
-  getProfile,
-  getSettings,
-  saveProfile,
-  saveSettings,
-} from "@/lib/storage/repository";
-import type { StudyProfile, UserSettings } from "@/lib/storage/types";
+import { useStudyProfile } from "@/components/study-profile-provider";
+import { useAi } from "@/components/ai-provider";
+import { getSettings, saveSettings } from "@/lib/storage/repository";
+import type { UserSettings } from "@/lib/storage/types";
 import { exportAll, importBackup, resetAllData, type ImportMode } from "@/lib/storage/export";
-import { configureAiClient, DisabledAiClient, RemoteAiProxyClient } from "@/lib/ai/client";
 import { Spinner } from "@/components/ui";
 
 export function SettingsModule() {
   const { t } = useI18n();
-  const [profile, setProfile] = useState<StudyProfile | null>(null);
+  const { profile, updateProfile, loading: profileLoading } = useStudyProfile();
+  const { settings: aiSettings, saveAi, available: aiAvailable, testProxy } = useAi();
   const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [aiUrl, setAiUrl] = useState("");
+  const [testResult, setTestResult] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [importMode, setImportMode] = useState<ImportMode>("merge");
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [resetting, setResetting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Speech settings are loaded locally (not part of the profile/ai providers).
   useEffect(() => {
-    Promise.all([getProfile(), getSettings()]).then(([p, s]) => {
-      setProfile(p);
-      setSettings(s);
-    });
+    getSettings().then(setSettings);
+    setAiUrl(aiSettings?.ai.proxyUrl ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const flashSaved = useCallback(() => {
@@ -35,22 +34,14 @@ export function SettingsModule() {
     setTimeout(() => setSaved(false), 2000);
   }, []);
 
-  const saveProfileCb = useCallback(async () => {
-    if (!profile) return;
-    await saveProfile(profile);
-    flashSaved();
-  }, [profile, flashSaved]);
-
-  const saveAi = useCallback(async () => {
-    if (!settings) return;
-    await saveSettings({ ai: settings.ai });
-    if (settings.ai.proxyUrl.trim()) {
-      configureAiClient(new RemoteAiProxyClient(settings.ai.proxyUrl.trim()));
-    } else {
-      configureAiClient(new DisabledAiClient());
+  async function patchProfile(patch: Partial<import("@/lib/storage/types").StudyProfile>) {
+    try {
+      await updateProfile(patch);
+      flashSaved();
+    } catch {
+      flashSaved();
     }
-    flashSaved();
-  }, [settings, flashSaved]);
+  }
 
   const saveSpeech = useCallback(async () => {
     if (!settings) return;
@@ -84,7 +75,7 @@ export function SettingsModule() {
     window.location.reload();
   }
 
-  if (!profile || !settings) return <div className="container-page"><Spinner /></div>;
+  if (profileLoading || !settings) return <div className="container-page"><Spinner /></div>;
 
   return (
     <div className="container-page max-w-3xl">
@@ -99,33 +90,33 @@ export function SettingsModule() {
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="label">
             {t("onboarding.testType")}
-            <select className="input mt-1" value={profile.testType} onChange={(e) => setProfile({ ...profile, testType: e.target.value as "academic" | "general" })}>
+            <select className="input mt-1" value={profile.testType} onChange={(e) => patchProfile({ testType: e.target.value as "academic" | "general" })}>
               <option value="academic">Academic</option>
               <option value="general">General Training</option>
             </select>
           </label>
           <label className="label">
             {t("onboarding.targetBand")}
-            <select className="input mt-1" value={String(profile.targetBand ?? 6.5)} onChange={(e) => setProfile({ ...profile, targetBand: Number(e.target.value) })}>
+            <select className="input mt-1" value={String(profile.targetBand ?? 6.5)} onChange={(e) => patchProfile({ targetBand: Number(e.target.value) })}>
               {["5.0", "5.5", "6.0", "6.5", "7.0", "7.5", "8.0"].map((b) => <option key={b}>{b}</option>)}
             </select>
           </label>
           <label className="label">
             {t("onboarding.currentBand")}
-            <select className="input mt-1" value={String(profile.currentBand ?? 4.5)} onChange={(e) => setProfile({ ...profile, currentBand: Number(e.target.value) })}>
+            <select className="input mt-1" value={String(profile.currentBand ?? 4.5)} onChange={(e) => patchProfile({ currentBand: Number(e.target.value) })}>
               {["4.0", "4.5", "5.0", "5.5", "6.0", "6.5", "7.0", "7.5", "8.0"].map((b) => <option key={b}>{b}</option>)}
             </select>
           </label>
           <label className="label">
             {t("onboarding.testDate")}
-            <input type="date" className="input mt-1" value={profile.testDate ?? ""} onChange={(e) => setProfile({ ...profile, testDate: e.target.value || null })} />
+            <input type="date" className="input mt-1" value={profile.testDate ?? ""} onChange={(e) => patchProfile({ testDate: e.target.value || null })} />
           </label>
           <label className="label">
             {t("onboarding.weeklyTime")}
-            <input type="number" className="input mt-1" value={profile.weeklyHours} onChange={(e) => setProfile({ ...profile, weeklyHours: Number(e.target.value) })} />
+            <input type="number" className="input mt-1" value={profile.weeklyHours} onChange={(e) => patchProfile({ weeklyHours: Number(e.target.value) })} />
           </label>
         </div>
-        <button className="btn-primary mt-4" onClick={saveProfileCb}>{t("common.save")}</button>
+        <p className="mt-3 text-xs text-muted">{t("settings.saved")}</p>
       </section>
 
       {/* AI (future remote proxy; no secrets in the browser) */}
@@ -139,20 +130,18 @@ export function SettingsModule() {
           Remote AI proxy URL
           <input
             className="input mt-1"
-            value={settings.ai.proxyUrl}
+            value={aiUrl}
             placeholder="https://your-proxy.example.com"
-            onChange={(e) => setSettings({ ...settings, ai: { ...settings.ai, proxyUrl: e.target.value } })}
+            onChange={(e) => setAiUrl(e.target.value)}
             autoComplete="off"
           />
         </label>
-        <label className="label mt-3">
-          {t("settings.model")}
-          <input className="input mt-1" value={settings.ai.model} onChange={(e) => setSettings({ ...settings, ai: { ...settings.ai, model: e.target.value } })} />
-        </label>
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button className="btn-primary" onClick={saveAi}>{t("common.save")}</button>
-          {settings.ai.proxyUrl.trim() ? <span className="text-xs text-green-600">● proxy configured</span> : <span className="text-xs text-muted">● AI unavailable</span>}
+          <button className="btn-primary" onClick={async () => { await saveAi({ proxyUrl: aiUrl }); flashSaved(); }}>{t("common.save")}</button>
+          <button className="btn-secondary" onClick={async () => { setTestResult("Testing…"); const r = await testProxy(aiUrl); setTestResult(r.ok ? r.message : r.message); }}>{t("settings.testConnection")}</button>
+          {aiAvailable ? <span className="text-xs text-green-600">● proxy configured</span> : <span className="text-xs text-muted">● AI unavailable</span>}
         </div>
+        {testResult && <p className="mt-2 text-sm text-muted">{testResult}</p>}
       </section>
 
       {/* Speech (future remote services) */}

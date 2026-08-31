@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/components/i18n-provider";
-import { saveProfile } from "@/lib/storage/repository";
+import { useStudyProfile } from "@/components/study-profile-provider";
 import type { StudyProfile } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
 
@@ -15,7 +15,8 @@ const SKILLS = [
 ] as const;
 
 export function OnboardingWizard() {
-  const { t, locale } = useI18n();
+  const { t, locale, setLocale } = useI18n();
+  const { updateProfile } = useStudyProfile();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -64,7 +65,7 @@ export function OnboardingWizard() {
       takenBefore: form.takenBefore,
       onboardingComplete: !skip,
     };
-    await saveProfile(profile);
+    await updateProfile(profile);
     router.push("/");
     router.refresh();
   }
@@ -91,7 +92,7 @@ export function OnboardingWizard() {
                   <button
                     key={l}
                     type="button"
-                    onClick={() => set("uiLanguage", l)}
+                    onClick={() => { set("uiLanguage", l); setLocale(l); }}
                     className={`btn ${form.uiLanguage === l ? "btn-primary" : "btn-secondary"}`}
                   >
                     {l === "en" ? "English" : "中文"}
@@ -228,7 +229,10 @@ export function OnboardingWizard() {
         </button>
         <div className="flex gap-3">
           {step === 4 && (
-            <LinkButton href="/practice/reading/academic-reading-1" label={t("onboarding.diagnostic")} />
+            <LinkButton
+              href={form.testType === "academic" ? "/practice/reading/academic-reading-1" : "/practice/reading/general-reading-1"}
+              label={t("onboarding.diagnostic")}
+            />
           )}
           {step < 5 ? (
             <button type="button" className="btn-primary" onClick={() => setStep((s) => s + 1)} disabled={saving}>

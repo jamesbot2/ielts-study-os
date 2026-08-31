@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { I18nProvider } from "@/components/i18n-provider";
+import { StudyProfileProvider } from "@/components/study-profile-provider";
+import { AiProvider } from "@/components/ai-provider";
 
 export const metadata: Metadata = {
   title: "IELTS Study OS",
@@ -19,7 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full">
-        <I18nProvider>{children}</I18nProvider>
+        <I18nProvider>
+          <StudyProfileProvider>
+            <AiProvider>{children}</AiProvider>
+          </StudyProfileProvider>
+        </I18nProvider>
       </body>
     </html>
   );
