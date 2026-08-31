@@ -78,61 +78,83 @@ export function generatePlan(profile: StudyProfile): GeneratedTask[] {
   for (let w = 0; w < weeks; w++) {
     const weekStart = addDays(start, w * 7);
 
-    // Cap total weekly minutes by scaling if the default allocation exceeds the budget.
-    let weekTasks: GeneratedTask[] = [];
-
-    const push = (t: Omit<GeneratedTask, "scheduledFor"> & { scheduledFor: string }) =>
-      weekTasks.push({ ...t, scheduledFor: t.scheduledFor });
+    // Build candidate tasks with REAL, fixed durations and a priority.
+    const candidates: { task: Omit<GeneratedTask, "scheduledFor">; priority: number; required: boolean }[] = [];
 
     for (const skill of ["listening", "reading", "writing", "speaking"] as const) {
       const n = weeklySessions(skill);
       for (let i = 0; i < n; i++) {
         const isWriting = skill === "writing";
         const isReading = skill === "reading";
-        push({
-          title: `${capitalize(skill)} practice ${i + 1}${isWriting ? (profile.testType === "general" ? " (letter)" : " (Task 1/2)") : ""}`,
-          titleZh: `${skillZh(skill)}练习 ${i + 1}${isWriting ? (profile.testType === "general" ? "（书信）" : "（Task 1/2）") : ""}`,
-          category: skill,
-          estimatedMinutes: sessionMinutes[skill],
-          href: isReading ? readingHref : isWriting ? writingHref : skill === "listening" ? "/practice/listening/listening-1" : "/practice/speaking",
-          scheduledFor: iso(addDays(weekStart, i * 2)),
+        const priority =
+          100 +
+          skillGap(skill) * 20 +
+          (weakest.has(skill) ? 40 : 0) +
+          (i === 0 ? 10 : 0); // first session of a skill slightly higher
+        candidates.push({
+          task: {
+            title: `${capitalize(skill)} practice ${i + 1}${isWriting ? (profile.testType === "general" ? " (letter)" : " (Task 1/2)") : ""}`,
+            titleZh: `${skillZh(skill)}练习 ${i + 1}${isWriting ? (profile.testType === "general" ? "（书信）" : "（Task 1/2）") : ""}`,
+            category: skill,
+            estimatedMinutes: sessionMinutes[skill],
+            href: isReading ? readingHref : isWriting ? writingHref : skill === "listening" ? "/practice/listening/listening-1" : "/practice/speaking",
+          },
+          priority,
+          required: false,
         });
       }
     }
 
-    push({
-      title: "Vocabulary review (spaced repetition)",
-      titleZh: "词汇复习（间隔重复）",
-      category: "vocabulary",
-      estimatedMinutes: sessionMinutes.vocabulary,
-      href: "/vocabulary",
-      scheduledFor: iso(addDays(weekStart, 1)),
+    candidates.push({
+      task: {
+        title: "Vocabulary review (spaced repetition)",
+        titleZh: "词汇复习（间隔重复）",
+        category: "vocabulary",
+        estimatedMinutes: sessionMinutes.vocabulary,
+        href: "/vocabulary",
+      },
+      priority: 90,
+      required: true,
     });
-    push({
-      title: "Review mistake book",
-      titleZh: "复习错题本",
-      category: "review",
-      estimatedMinutes: sessionMinutes.review,
-      href: "/mistakes",
-      scheduledFor: iso(addDays(weekStart, 3)),
+    candidates.push({
+      task: {
+        title: "Review mistake book",
+        titleZh: "复习错题本",
+        category: "review",
+        estimatedMinutes: sessionMinutes.review,
+        href: "/mistakes",
+      },
+      priority: 85,
+      required: true,
     });
 
-    if (w % 2 === 1) {
-      push({
-        title: `Full mock exam (${profile.testType === "general" ? "General Training" : "Academic"})`,
-        titleZh: `全真模拟考试（${profile.testType === "general" ? "培训类" : "学术类"}）`,
-        category: "mock",
-        estimatedMinutes: sessionMinutes.mock,
-        href: fullMockHref,
-        scheduledFor: iso(addDays(weekStart, 5)),
+    // Mock scheduling: more frequent in the final weeks if budget allows.
+    const weeksUntilExam = weeks - w;
+    const mockThisWeek = weeksUntilExam <= 6 && w % 2 === 1;
+    if (mockThisWeek) {
+      candidates.push({
+        task: {
+          title: `Full mock exam (${profile.testType === "general" ? "General Training" : "Academic"})`,
+          titleZh: `全真模拟考试（${profile.testType === "general" ? "培训类" : "学术类"}）`,
+          category: "mock",
+          estimatedMinutes: sessionMinutes.mock,
+          href: fullMockHref,
+        },
+        priority: weeksUntilExam <= 4 ? 95 : 70,
+        required: weeksUntilExam <= 2,
       });
     }
 
-    // Scale down to the weekly budget if necessary.
-    const total = weekTasks.reduce((sum, t) => sum + t.estimatedMinutes, 0);
-    if (total > weeklyMinutes && weekTasks.length > 1) {
-      const scale = weeklyMinutes / total;
-      for (const t of weekTasks) t.estimatedMinutes = Math.max(10, Math.round(t.estimatedMinutes * scale));
+    // Budget allocator: pick the highest-priority tasks that fit within the
+    // weekly time budget. Task durations are NEVER shortened.
+    candidates.sort((a, b) => b.priority - a.priority);
+    let remaining = weeklyMinutes;
+    const weekTasks: GeneratedTask[] = [];
+    for (const c of candidates) {
+      if (c.required || c.task.estimatedMinutes <= remaining) {
+        weekTasks.push({ ...c.task, scheduledFor: iso(addDays(weekStart, weekTasks.length % 6)) });
+        remaining -= c.task.estimatedMinutes;
+      }
     }
 
     tasks.push(...weekTasks);

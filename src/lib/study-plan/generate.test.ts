@@ -97,3 +97,21 @@ function localDateOffset0(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
+
+describe("study plan duration integrity", () => {
+  it("never shortens a full mock below its real duration", () => {
+    const plan = generatePlan({ ...base, weeklyHours: 2 });
+    const mocks = plan.filter((t) => t.category === "mock");
+    for (const m of mocks) {
+      expect(m.estimatedMinutes).toBe(120);
+    }
+  });
+
+  it("never shortens a reading section below 45 minutes", () => {
+    const plan = generatePlan({ ...base, weeklyHours: 2 });
+    const reading = plan.filter((t) => t.category === "reading");
+    for (const r of reading) {
+      expect(r.estimatedMinutes).toBe(45);
+    }
+  });
+});
