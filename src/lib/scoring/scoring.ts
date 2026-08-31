@@ -8,37 +8,116 @@
 import type {
   Question,
   RawBandTable,
-  SectionBand,
   Skill,
   WritingCriterion,
   SpeakingCriterion,
 } from "@/types/ielts";
 
-// --- Answer normalization --------------------------------------------------
+// --- Answer normalization (conservative) -----------------------------------
+//
+// We deliberately DO NOT strip apostrophes, hyphens, decimals, commas,
+// slashes or other meaningful punctuation. "book's" and "books" are different
+// answers; "mother-in-law" is not "mother in law"; "3.5" is not "35".
 
 export function normalizeAnswer(answer: string): string {
-  return answer
+  let s = answer
     .normalize("NFKC")
     .trim()
     .toLocaleLowerCase("en")
-    // strip surrounding/enclosing punctuation that does not change meaning
-    .replace(/[“”‘’"'.,!?;:()[\]{}]/g, "")
+    // collapse repeated whitespace (incl. newlines/tabs) to a single space
     .replace(/\s+/g, " ")
     .trim();
+
+  // For purely numeric answers (no letters), ignore thousands separators so
+  // "50,000", "50 000" and "50000" match. "10:30", "3.5" and "£50" are kept.
+  if (/\d/.test(s) && !/[a-z]/i.test(s)) {
+    s = s.replace(/[, ]+/g, "");
+  }
+  return s;
 }
 
 export function normalizeAnswers(answers: string[]): string[] {
   return answers.map(normalizeAnswer);
 }
 
-// --- Word-limit enforcement ------------------------------------------------
+// --- Word-count / instruction enforcement ----------------------------------
 
-export function wordCount(text: string): number {
-  const trimmed = text.trim();
-  if (!trimmed) return 0;
-  return trimmed.split(/\s+/).length;
+export interface AnswerInstruction {
+  // Maximum number of words permitted (e.g. 1 for "ONE WORD ONLY").
+  maxWords: number;
+  // Whether a single number is additionally allowed (AND/OR A NUMBER).
+  allowNumber: boolean;
 }
 
+export function wordCount(text: string): number {
+  const t = text.trim();
+  if (!t) return 0;
+  return t.split(/\s+/).filter(Boolean).length;
+}
+
+function tokenize(text: string): string[] {
+  return text.trim().split(/\s+/).filter(Boolean);
+}
+
+function isNumberToken(token: string): boolean {
+  return /\d/.test(token) && !/[a-z]/i.test(token);
+}
+
+function isWordToken(token: string): boolean {
+  return /[a-z]/i.test(token);
+}
+
+export interface InstructionCheck {
+  words: string[];
+  numbers: string[];
+  compliant: boolean;
+  reason?: "too_many_words" | "number_not_allowed" | "too_many_numbers";
+}
+
+// Enforce explicit answer instructions such as:
+//   ONE WORD ONLY
+//   NO MORE THAN TWO WORDS
+//   NO MORE THAN TWO WORDS AND/OR A NUMBER
+//   ONE WORD AND/OR A NUMBER
+// A violation makes the answer incorrect.
+export function checkInstruction(
+  answer: string,
+  instruction: AnswerInstruction | undefined,
+): InstructionCheck {
+  const tokens = tokenize(answer);
+  const words = tokens.filter(isWordToken);
+  const numbers = tokens.filter(isNumberToken);
+  const check: InstructionCheck = { words, numbers, compliant: true };
+
+  if (!instruction) return check;
+
+  if (words.length > instruction.maxWords) {
+    check.compliant = false;
+    check.reason = "too_many_words";
+  } else if (numbers.length > 1) {
+    check.compliant = false;
+    check.reason = "too_many_numbers";
+  } else if (numbers.length === 1 && !instruction.allowNumber) {
+    check.compliant = false;
+    check.reason = "number_not_allowed";
+  }
+  return check;
+}
+
+// Parse a human instruction string into structured metadata (used by content
+// authors and the coverage validator).
+export function parseInstruction(text: string): AnswerInstruction {
+  const t = text.toLowerCase();
+  const allowNumber = /and\/or a number|and\/or number|a number/.test(t);
+  const wordToNum: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5 };
+  const m1 = t.match(/(?:no more than|up to|maximum of|max|only)\s+(one|two|three|four|five|1|2|3|4|5)/);
+  const m2 = t.match(/^(one|two|three|four|five|1|2|3|4|5)\s+word/);
+  const match = m1 ?? m2;
+  const maxWords = match ? (wordToNum[match[1]] ?? 2) : 2;
+  return { maxWords, allowNumber };
+}
+
+// Backward-compatible helper: does a raw answer exceed a simple word limit?
 export function exceedsWordLimit(text: string, limit: number | undefined): boolean {
   if (!limit) return false;
   return wordCount(text) > limit;
@@ -50,7 +129,7 @@ export interface AnswerCheckResult {
   correct: boolean;
   normalizedUser: string;
   normalizedExpected: string[];
-  wordLimitExceeded: boolean;
+  instructionViolation: boolean;
 }
 
 export function checkTextAnswer(
@@ -63,14 +142,19 @@ export function checkTextAnswer(
     question.correctAnswer,
     ...(question.acceptableAnswers ?? []),
   ]);
+
+  const instruction: AnswerInstruction | undefined = question.wordLimit
+    ? { maxWords: question.wordLimit, allowNumber: question.allowNumber ?? false }
+    : undefined;
+  const instr = checkInstruction(raw, instruction);
+  const instructionViolation = !instr.compliant;
+
   const correct =
-    normalizedUser !== "" && expected.includes(normalizedUser);
-  return {
-    correct,
-    normalizedUser,
-    normalizedExpected: expected,
-    wordLimitExceeded: exceedsWordLimit(raw, question.wordLimit),
-  };
+    normalizedUser !== "" &&
+    expected.includes(normalizedUser) &&
+    !instructionViolation;
+
+  return { correct, normalizedUser, normalizedExpected: expected, instructionViolation };
 }
 
 export function checkChoiceAnswer(
@@ -80,10 +164,7 @@ export function checkChoiceAnswer(
   const selected = (userAnswer ?? []).filter(Boolean);
   if (selected.length === 0) return false;
   if (question.answerType === "single_choice") {
-    return (
-      selected.length === 1 &&
-      question.correctAnswers.includes(selected[0])
-    );
+    return selected.length === 1 && question.correctAnswers.includes(selected[0]);
   }
   // multiple choice: exact set match
   const expected = [...question.correctAnswers].sort();
@@ -105,10 +186,7 @@ export function checkMatchingAnswer(
   return true;
 }
 
-export function checkQuestion(
-  question: Question,
-  userAnswer: unknown,
-): boolean {
+export function checkQuestion(question: Question, userAnswer: unknown): boolean {
   if (question.answerType === "text" || question.answerType === "number") {
     return checkTextAnswer(
       typeof userAnswer === "string" ? userAnswer : undefined,
@@ -134,72 +212,27 @@ export function checkQuestion(
 
 // --- Raw-to-band tables (public approximate values) ------------------------
 
-// Listening: Academic and General Training share the same table.
 export const LISTENING_BAND_TABLE: RawBandTable = {
   thresholds: [
-    [39, 9.0],
-    [37, 8.5],
-    [35, 8.0],
-    [32, 7.5],
-    [30, 7.0],
-    [26, 6.5],
-    [23, 6.0],
-    [18, 5.5],
-    [16, 5.0],
-    [13, 4.5],
-    [11, 4.0],
-    [8, 3.5],
-    [6, 3.0],
-    [4, 2.5],
-    [2, 2.0],
-    [1, 1.0],
-    [0, 0.0],
+    [39, 9.0], [37, 8.5], [35, 8.0], [32, 7.5], [30, 7.0], [26, 6.5],
+    [23, 6.0], [18, 5.5], [16, 5.0], [13, 4.5], [11, 4.0], [8, 3.5],
+    [6, 3.0], [4, 2.5], [2, 2.0], [1, 1.0], [0, 0.0],
   ],
 };
 
-// Academic Reading
 export const ACADEMIC_READING_BAND_TABLE: RawBandTable = {
   thresholds: [
-    [39, 9.0],
-    [37, 8.5],
-    [35, 8.0],
-    [33, 7.5],
-    [30, 7.0],
-    [27, 6.5],
-    [23, 6.0],
-    [19, 5.5],
-    [15, 5.0],
-    [13, 4.5],
-    [10, 4.0],
-    [8, 3.5],
-    [6, 3.0],
-    [4, 2.5],
-    [2, 2.0],
-    [1, 1.0],
-    [0, 0.0],
+    [39, 9.0], [37, 8.5], [35, 8.0], [33, 7.5], [30, 7.0], [27, 6.5],
+    [23, 6.0], [19, 5.5], [15, 5.0], [13, 4.5], [10, 4.0], [8, 3.5],
+    [6, 3.0], [4, 2.5], [2, 2.0], [1, 1.0], [0, 0.0],
   ],
 };
 
-// General Training Reading (higher raw scores needed for the same band)
 export const GENERAL_READING_BAND_TABLE: RawBandTable = {
   thresholds: [
-    [40, 9.0],
-    [39, 8.5],
-    [38, 8.0],
-    [36, 7.5],
-    [34, 7.0],
-    [32, 6.5],
-    [30, 6.0],
-    [27, 5.5],
-    [23, 5.0],
-    [19, 4.5],
-    [15, 4.0],
-    [12, 3.5],
-    [9, 3.0],
-    [6, 2.5],
-    [4, 2.0],
-    [2, 1.0],
-    [0, 0.0],
+    [40, 9.0], [39, 8.5], [38, 8.0], [36, 7.5], [34, 7.0], [32, 6.5],
+    [30, 6.0], [27, 5.5], [23, 5.0], [19, 4.5], [15, 4.0], [12, 3.5],
+    [9, 3.0], [6, 2.5], [4, 2.0], [2, 1.0], [0, 0.0],
   ],
 };
 
@@ -227,20 +260,46 @@ export function objectiveBand(skill: Skill, rawScore: number, testType: "academi
   return readingBand(rawScore, testType);
 }
 
-// --- Overall band rounding --------------------------------------------------
+// --- Band rounding & aggregation -------------------------------------------
 
-// IELTS rounds the average of the four section scores to the nearest half band.
-// x.25 -> next half band up; x.75 -> next whole band up.
+// IELTS rounds to the nearest half band. For quarter-band averages:
+//   x.00 -> x.0, x.125 -> x.0, x.25 -> x.5, x.375 -> x.5,
+//   x.50 -> x.5, x.625 -> x.5, x.75 -> x+1.0, x.875 -> x+1.0
+// Math.round(value * 2) / 2 reproduces this exactly for these values; we keep
+// the formula but verify with explicit boundary tests.
 export function roundBand(value: number): number {
   return Math.round(value * 2) / 2;
 }
 
-export function overallBandFromSections(sections: SectionBand[]): number {
-  const available = sections.filter(
-    (s): s is number => typeof s === "number" && Number.isFinite(s),
-  );
-  if (available.length === 0) return 0;
-  const avg = available.reduce((a, b) => a + b, 0) / available.length;
+export interface SectionBands {
+  listening: number | null;
+  reading: number | null;
+  writing: number | null;
+  speaking: number | null;
+}
+
+// OFFICIAL overall band: only valid when all four skills are present.
+export function calculateOfficialOverallBand(sections: SectionBands): number | null {
+  const { listening, reading, writing, speaking } = sections;
+  if (
+    listening == null ||
+    reading == null ||
+    writing == null ||
+    speaking == null
+  ) {
+    return null;
+  }
+  const avg = (listening + reading + writing + speaking) / 4;
+  return roundBand(avg);
+}
+
+// Learning-analytics average of however many skills are available.
+// The UI MUST label this "Average of completed skills", never "Overall IELTS Band".
+export function calculateCompletedSkillsAverage(sections: SectionBands): number | null {
+  const values = [sections.listening, sections.reading, sections.writing, sections.speaking]
+    .filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+  if (values.length === 0) return null;
+  const avg = values.reduce((a, b) => a + b, 0) / values.length;
   return roundBand(avg);
 }
 
@@ -248,8 +307,7 @@ export function overallBandFromSections(sections: SectionBand[]): number {
 
 // Task 2 carries twice the weight of Task 1.
 export function writingBandFromTasks(task1: number, task2: number): number {
-  const weighted = (task1 + task2 * 2) / 3;
-  return roundBand(weighted);
+  return roundBand((task1 + task2 * 2) / 3);
 }
 
 export const WRITING_CRITERIA: WritingCriterion[] = [
@@ -260,7 +318,6 @@ export const WRITING_CRITERIA: WritingCriterion[] = [
   "grammaticalRange",
 ];
 
-// Speaking: four criteria equally weighted.
 export const SPEAKING_CRITERIA: SpeakingCriterion[] = [
   "fluencyCoherence",
   "lexicalResource",
@@ -278,10 +335,8 @@ export function writingBandFromCriteria(
   criteria: { criterion: WritingCriterion; band: number }[],
   task: 1 | 2,
 ): number {
-  // Task 1 uses Task Achievement; Task 2 uses Task Response; plus 3 shared criteria.
   const shared = criteria.filter(
-    (c) =>
-      c.criterion !== "taskAchievement" && c.criterion !== "taskResponse",
+    (c) => c.criterion !== "taskAchievement" && c.criterion !== "taskResponse",
   );
   const taskCriterion = criteria.find((c) =>
     task === 1 ? c.criterion === "taskAchievement" : c.criterion === "taskResponse",
@@ -306,7 +361,6 @@ export function bandDescription(band: number): string {
   return "Did not attempt the test";
 }
 
-// Lowest raw score that reaches each band (for reporting score requirements).
 export function rawScoreForBand(table: RawBandTable, targetBand: number): number {
   for (let s = 0; s <= 40; s++) {
     if (bandForRawScore(s, table) >= targetBand) return s;

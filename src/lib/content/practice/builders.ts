@@ -42,7 +42,7 @@ function base(args: BaseArgs): BaseQuestion {
 }
 
 export function textQ(
-  args: BaseArgs & { correctAnswer: string; acceptableAnswers?: string[]; wordLimit?: number; number?: boolean },
+  args: BaseArgs & { correctAnswer: string; acceptableAnswers?: string[]; wordLimit?: number; number?: boolean; allowNumber?: boolean },
 ): TextQuestion {
   return {
     ...base(args),
@@ -50,6 +50,7 @@ export function textQ(
     correctAnswer: args.correctAnswer,
     acceptableAnswers: args.acceptableAnswers,
     wordLimit: args.wordLimit,
+    allowNumber: args.allowNumber,
   };
 }
 
