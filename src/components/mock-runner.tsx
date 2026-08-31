@@ -6,6 +6,14 @@ import { startMock, finishMock, saveMockState, type MockSectionResult, type Mock
 import { QuestionPanel } from "@/components/reading-runner";
 import { BandBadge, Spinner } from "@/components/ui";
 import { useI18n } from "@/components/i18n-provider";
+import {
+  initialListeningPlaybackState,
+  playbackStart,
+  playbackProgress,
+  playbackAdvance,
+  playbackFinish,
+  type ListeningPlaybackState,
+} from "@/lib/practice/listening-state";
 import { Play, Flag } from "lucide-react";
 
 type Answer = string | string[] | Record<string, string>;
@@ -25,7 +33,8 @@ interface PersistedMock {
   flags: Record<string, Record<string, boolean>>;
   deadline: number | null; // absolute ms timestamp for the current section
   phase: "running" | "section-intro";
-  listening: { played: boolean; partIndex: number };
+  listening: ListeningPlaybackState;
+  currentQuestion: Record<string, number>;
 }
 
 const storageKey = (kind: string) => `ielts-mock:${kind}`;
@@ -52,7 +61,8 @@ export function MockRunner({
   const [flags, setFlags] = useState<Record<string, Record<string, boolean>>>({});
   const [deadline, setDeadline] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [listening, setListening] = useState<{ played: boolean; partIndex: number }>({ played: false, partIndex: 0 });
+  const [listening, setListening] = useState<ListeningPlaybackState>(initialListeningPlaybackState());
+  const [currentQuestion, setCurrentQuestion] = useState<Record<string, number>>({});
   const [results, setResults] = useState<Record<string, MockSectionResult> | null>(null);
   const [overallBand, setOverallBand] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +98,8 @@ export function MockRunner({
           setSectionTimes(saved.sectionTimes ?? {});
           setFlags(saved.flags ?? {});
           setDeadline(saved.deadline ?? null);
-          setListening(saved.listening ?? { played: false, partIndex: 0 });
+          setListening(saved.listening ?? initialListeningPlaybackState());
+          setCurrentQuestion(saved.currentQuestion ?? {});
           setPhase("resume");
         }
       } catch {
@@ -116,10 +127,11 @@ export function MockRunner({
         deadline,
         phase: phase === "section-intro" ? "section-intro" : "running",
         listening,
+        currentQuestion,
       };
       localStorage.setItem(storageKey(kind), JSON.stringify({ ...current, ...overrides }));
     },
-    [attemptId, kind, sectionIndex, answers, sectionTimes, flags, deadline, phase, listening],
+    [attemptId, kind, sectionIndex, answers, sectionTimes, flags, deadline, phase, listening, currentQuestion],
   );
 
   const begin = async () => {
@@ -180,7 +192,8 @@ export function MockRunner({
     setSectionTimes({});
     setFlags({});
     setDeadline(null);
-    setListening({ played: false, partIndex: 0 });
+    setListening(initialListeningPlaybackState());
+    setCurrentQuestion({});
     setPhase("intro");
   };
 
@@ -250,15 +263,20 @@ export function MockRunner({
     });
   };
 
-  const onListeningStateChange = (played: boolean, partIndex: number) => {
-    setListening({ played, partIndex });
+  const onListeningStateChange = (next: ListeningPlaybackState) => {
+    setListening(next);
+  };
+
+  const onCurrentQuestionChange = (qid: number) => {
+    const key = currentSection?.key ?? "";
+    setCurrentQuestion((prev) => ({ ...prev, [key]: qid }));
   };
 
   // Persist on every relevant change.
   useEffect(() => {
     if (phase === "running" || phase === "section-intro") persist();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answers, sectionTimes, flags, deadline, phase, listening]);
+  }, [answers, sectionTimes, flags, deadline, phase, listening, currentQuestion]);
 
   if (phase === "intro") {
     return (
@@ -390,9 +408,10 @@ export function MockRunner({
           onToggleFlag={toggleFlag}
           listening={currentSection?.key === "listening"}
           audioParts={currentSection?.key === "listening" ? listeningSet?.audio?.parts?.filter((p) => p.src) ?? [] : []}
-          initialPlayed={listening.played}
-          initialPart={listening.partIndex}
+          playbackState={listening}
+          initialQuestion={currentQuestion[currentSection?.key ?? ""] ?? 0}
           onListeningStateChange={onListeningStateChange}
+          onCurrentQuestionChange={onCurrentQuestionChange}
           passages={currentSection?.key === "reading" ? readingSet?.passages ?? [] : []}
         />
       )}
@@ -431,9 +450,10 @@ function QuestionSection({
   onToggleFlag,
   listening,
   audioParts,
-  initialPlayed,
-  initialPart,
+  playbackState,
+  initialQuestion,
   onListeningStateChange,
+  onCurrentQuestionChange,
   passages,
 }: {
   questions: Question[];
@@ -443,45 +463,84 @@ function QuestionSection({
   onToggleFlag: (qid: string) => void;
   listening: boolean;
   audioParts: { part: number; title: string; src?: string }[];
-  initialPlayed: boolean;
-  initialPart: number;
-  onListeningStateChange: (played: boolean, partIndex: number) => void;
+  playbackState: ListeningPlaybackState;
+  initialQuestion: number;
+  onListeningStateChange: (state: ListeningPlaybackState) => void;
+  onCurrentQuestionChange: (index: number) => void;
   passages: PracticeSet["passages"];
 }) {
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(initialQuestion);
   const [playing, setPlaying] = useState(false);
-  const [partIndex, setPartIndex] = useState(initialPart);
-  const [played, setPlayed] = useState(initialPlayed);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const lastPersistRef = useRef(0);
   const { t } = useI18n();
 
   const q = questions[current];
+  const partIndex = playbackState.partIndex;
+  const finished = playbackState.finished;
+
+  // Keep the audio element pointing at the correct part and resume offset.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !listening || audioParts.length === 0) return;
+    const src = audioParts[partIndex]?.src ?? "";
+    if (audio.src !== new URL(src, window.location.href).href) {
+      audio.src = src;
+      audio.load();
+    }
+    if (playbackState.currentTime > 0 && !finished) {
+      audio.currentTime = playbackState.currentTime;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [partIndex, listening, audioParts]);
 
   const playAudio = () => {
-    if (played || audioParts.length === 0) return;
+    if (finished || audioParts.length === 0) return;
     const audio = audioRef.current;
     if (audio) {
-      audio.src = audioParts[0].src ?? "";
+      if (audio.src !== new URL(audioParts[partIndex]?.src ?? "", window.location.href).href) {
+        audio.src = audioParts[partIndex]?.src ?? "";
+        audio.load();
+      }
+      if (playbackState.currentTime > 0 && audio.currentTime === 0) {
+        audio.currentTime = playbackState.currentTime;
+      }
       void audio.play();
       setPlaying(true);
+      onListeningStateChange(playbackStart(playbackState));
     }
+  };
+
+  const handleTimeUpdate = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const now = Date.now();
+    // Throttle persistence to at most once per second.
+    if (now - lastPersistRef.current < 1000) return;
+    lastPersistRef.current = now;
+    onListeningStateChange(playbackProgress(playbackState, audio.currentTime, now));
   };
 
   const handleEnded = () => {
     const next = partIndex + 1;
     if (next < audioParts.length) {
-      setPartIndex(next);
-      onListeningStateChange(false, next);
+      const nextState = playbackAdvance(playbackState, next);
+      onListeningStateChange(nextState);
       const audio = audioRef.current;
       if (audio) {
         audio.src = audioParts[next].src ?? "";
+        audio.load();
         void audio.play();
       }
     } else {
       setPlaying(false);
-      setPlayed(true);
-      onListeningStateChange(true, partIndex);
+      onListeningStateChange(playbackFinish(playbackState));
     }
+  };
+
+  const goToQuestion = (i: number) => {
+    setCurrent(i);
+    onCurrentQuestionChange(i);
   };
 
   return (
@@ -494,7 +553,7 @@ function QuestionSection({
           return (
             <button
               key={question.id}
-              onClick={() => setCurrent(i)}
+              onClick={() => goToQuestion(i)}
               className={`flex h-8 min-w-8 items-center justify-center gap-1 rounded px-1.5 text-xs ${
                 i === current
                   ? "bg-accent text-white"
@@ -514,13 +573,13 @@ function QuestionSection({
 
       {listening && (
         <>
-          <audio ref={audioRef} onEnded={handleEnded} onPlay={() => setPlaying(true)} className="hidden" />
+          <audio ref={audioRef} onEnded={handleEnded} onTimeUpdate={handleTimeUpdate} onPlay={() => setPlaying(true)} className="hidden" />
           <div className="flex items-center gap-3 border-b border-border bg-surface px-4 py-2">
-            <button className="btn-secondary" disabled={played} onClick={playAudio}>
-              <Play className="h-4 w-4" /> {played ? t("mock.played") : t("mock.playAudioOnce")}
+            <button className="btn-secondary" disabled={finished} onClick={playAudio}>
+              <Play className="h-4 w-4" /> {finished ? t("mock.played") : playbackState.started && !playing ? t("mock.resumeAudio") : t("mock.playAudioOnce")}
             </button>
             {playing && <span className="text-xs text-muted">Playing… {audioParts[partIndex]?.title}</span>}
-            {played && <span className="text-xs text-muted">{t("mock.audioComplete")}</span>}
+            {finished && <span className="text-xs text-muted">{t("mock.audioComplete")}</span>}
           </div>
         </>
       )}
@@ -551,8 +610,8 @@ function QuestionSection({
             />
           ) : null}
           <div className="mt-4 flex justify-between">
-            <button className="btn-secondary" onClick={() => setCurrent((c) => Math.max(0, c - 1))} disabled={current === 0}>{t("common.previous")}</button>
-            <button className="btn-secondary" onClick={() => setCurrent((c) => Math.min(questions.length - 1, c + 1))} disabled={current === questions.length - 1}>{t("common.next")}</button>
+            <button className="btn-secondary" onClick={() => goToQuestion(Math.max(0, current - 1))} disabled={current === 0}>{t("common.previous")}</button>
+            <button className="btn-secondary" onClick={() => goToQuestion(Math.min(questions.length - 1, current + 1))} disabled={current === questions.length - 1}>{t("common.next")}</button>
           </div>
         </div>
       </div>

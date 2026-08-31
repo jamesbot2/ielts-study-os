@@ -351,6 +351,7 @@ export const en = {
     submittedNotGraded: "Submitted — not graded",
     backToMocks: "Back to mocks",
     playAudioOnce: "Play audio (once)",
+    resumeAudio: "Resume audio",
     played: "Played",
     audioComplete: "Audio complete",
     submitSection: "Submit section",

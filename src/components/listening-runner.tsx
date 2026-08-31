@@ -4,6 +4,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PracticeSet } from "@/types/ielts";
 import { useI18n } from "@/components/i18n-provider";
 import { submitPractice } from "@/lib/practice/submit";
+import { useStudyProfile } from "@/components/study-profile-provider";
+import {
+  initialListeningPlaybackState,
+  playbackStart,
+  playbackProgress,
+  playbackAdvance,
+  playbackFinish,
+  type ListeningPlaybackState,
+} from "@/lib/practice/listening-state";
 import { QuestionPanel, ResultsView } from "@/components/reading-runner";
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Flag } from "lucide-react";
 
@@ -15,8 +24,7 @@ interface PersistedListening {
   answers: Record<string, Answer>;
   flags: string[];
   current: number;
-  playedOnce: boolean;
-  partIndex: number;
+  playback: ListeningPlaybackState;
   startedAt: number;
 }
 
@@ -24,15 +32,15 @@ const storageKey = (setId: string) => `ielts-listening:${setId}`;
 
 export function ListeningRunner({ set }: { set: PracticeSet }) {
   const { t, locale } = useI18n();
+  const { testType } = useStudyProfile();
   const [phase, setPhase] = useState<"intro" | "resume" | "running" | "submitting" | "results">("intro");
   const [mode, setMode] = useState<"practice" | "exam">("practice");
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [flags, setFlags] = useState<Set<string>>(new Set());
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [partIndex, setPartIndex] = useState(0);
+  const [playback, setPlayback] = useState<ListeningPlaybackState>(initialListeningPlaybackState());
   const [progress, setProgress] = useState(0);
-  const [playedOnce, setPlayedOnce] = useState(false);
   const [results, setResults] = useState<Awaited<ReturnType<typeof submitPractice>>["results"] | null>(null);
   const [rawScore, setRawScore] = useState(0);
   const [band, setBand] = useState(0);
@@ -55,8 +63,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
         setAnswers(saved.answers ?? {});
         setFlags(new Set(saved.flags ?? []));
         setCurrent(saved.current ?? 0);
-        setPlayedOnce(saved.playedOnce ?? false);
-        setPartIndex(saved.partIndex ?? 0);
+        setPlayback(saved.playback ?? initialListeningPlaybackState());
         startedAt.current = saved.startedAt ?? Date.now();
         setPhase("resume");
       }
@@ -73,12 +80,11 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
       answers,
       flags: [...flags],
       current,
-      playedOnce,
-      partIndex,
+      playback,
       startedAt: startedAt.current,
     };
     localStorage.setItem(storageKey(set.meta.id), JSON.stringify(data));
-  }, [set.meta.id, mode, answers, flags, current, playedOnce, partIndex, phase]);
+  }, [set.meta.id, mode, answers, flags, current, playback, phase]);
 
   useEffect(() => {
     persist();
@@ -98,10 +104,18 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   }, []);
 
   const playAudio = useCallback(() => {
-    if (mode === "exam" && playedOnce) return;
-    if (mode === "exam" && partIndex === 0 && !playing) setPartIndex(0);
+    if (mode === "exam" && playback.finished) return;
+    const audio = audioRef.current;
+    if (audio) {
+      if (audio.src !== new URL(parts[playback.partIndex]?.src ?? "", window.location.href).href) {
+        audio.src = parts[playback.partIndex]?.src ?? "";
+        audio.load();
+      }
+      if (playback.currentTime > 0 && audio.currentTime === 0) audio.currentTime = playback.currentTime;
+    }
+    setPlayback((p) => playbackStart(p));
     playCurrentPart();
-  }, [mode, playedOnce, partIndex, playing, playCurrentPart]);
+  }, [mode, playback, parts, playCurrentPart]);
 
   const pauseAudio = useCallback(() => {
     audioRef.current?.pause();
@@ -109,7 +123,6 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   }, []);
 
   const replay = useCallback(() => {
-    setPartIndex(0);
     setProgress(0);
     const audio = audioRef.current;
     if (audio) {
@@ -117,13 +130,13 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
       audio.src = parts[0]?.src ?? "";
     }
     setPlaying(false);
-    setPlayedOnce(false);
+    setPlayback(initialListeningPlaybackState());
   }, [parts]);
 
   const handleEnded = useCallback(() => {
-    if (partIndex < parts.length - 1) {
-      const next = partIndex + 1;
-      setPartIndex(next);
+    if (playback.partIndex < parts.length - 1) {
+      const next = playback.partIndex + 1;
+      setPlayback((p) => playbackAdvance(p, next));
       const audio = audioRef.current;
       if (audio) {
         audio.src = parts[next]?.src ?? "";
@@ -131,9 +144,9 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
       }
     } else {
       setPlaying(false);
-      setPlayedOnce(true);
+      setPlayback((p) => playbackFinish(p));
     }
-  }, [partIndex, parts]);
+  }, [playback.partIndex, parts]);
 
   const handleTimeUpdate = useCallback(() => {
     const audio = audioRef.current;
@@ -141,19 +154,22 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
     const total = parts.reduce((sum, p) => sum + estimatePartDuration(p.src ?? ""), 0) || 1;
     const partDurations = parts.map((p) => estimatePartDuration(p.src ?? ""));
     const elapsedInPart = audio.currentTime;
-    const prior = partDurations.slice(0, partIndex).reduce((a, b) => a + b, 0);
+    const prior = partDurations.slice(0, playback.partIndex).reduce((a, b) => a + b, 0);
     setProgress(Math.min(100, Math.round(((prior + elapsedInPart) / total) * 100)));
-  }, [partIndex, parts]);
+    // Throttled persistence of playback offset (once per second).
+    const now = Date.now();
+    setPlayback((p) => (now - p.updatedAt >= 1000 ? playbackProgress(p, audio.currentTime, now) : p));
+  }, [parts, playback.partIndex]);
 
   // When the part changes, the audio element src changes; auto-play is handled
   // by handleEnded / playAudio.
   useEffect(() => {
     const audio = audioRef.current;
-    if (audio && parts[partIndex]) {
-      audio.src = parts[partIndex].src ?? "";
+    if (audio && parts[playback.partIndex]) {
+      audio.src = parts[playback.partIndex].src ?? "";
       audio.load();
     }
-  }, [partIndex, parts]);
+  }, [playback.partIndex, parts]);
 
   useEffect(() => {
     return () => {
@@ -161,7 +177,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
     };
   }, []);
 
-  const canPlay = mode === "practice" || !playedOnce;
+  const canPlay = mode === "practice" || !playback.finished;
 
   const submit = useCallback(
     async (finalAnswers: Record<string, Answer>) => {
@@ -174,6 +190,8 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
         finalAnswers,
         timeSpent,
         Object.fromEntries([...flags].map((f) => [f, true])),
+        {},
+        testType,
       );
       localStorage.removeItem(storageKey(set.meta.id));
       setResults(res.results);
@@ -212,7 +230,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
         </p>
         <div className="mt-6 flex gap-3">
           <button className="btn-primary" onClick={() => setPhase("running")}>{locale === "zh" ? "继续" : "Resume"}</button>
-          <button className="btn-secondary" onClick={() => { localStorage.removeItem(storageKey(set.meta.id)); setAnswers({}); setFlags(new Set()); setPlayedOnce(false); setPartIndex(0); setCurrent(0); startedAt.current = Date.now(); setPhase("intro"); }}>{locale === "zh" ? "重新开始" : "Start over"}</button>
+          <button className="btn-secondary" onClick={() => { localStorage.removeItem(storageKey(set.meta.id)); setAnswers({}); setFlags(new Set()); setPlayback(initialListeningPlaybackState()); setCurrent(0); startedAt.current = Date.now(); setPhase("intro"); }}>{locale === "zh" ? "重新开始" : "Start over"}</button>
         </div>
       </div>
     );
@@ -254,7 +272,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
         <div className="flex items-center gap-3">
           {!playing ? (
             <button className="btn-primary" onClick={playAudio} disabled={!canPlay}>
-              <Play className="h-4 w-4" /> {playedOnce && mode === "exam" ? t("listening.onePlay") : t("listening.playAudio")}
+              <Play className="h-4 w-4" /> {playback.finished && mode === "exam" ? t("listening.onePlay") : t("listening.playAudio")}
             </button>
           ) : mode === "practice" ? (
             <button className="btn-secondary" onClick={pauseAudio}>
@@ -271,8 +289,8 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
               <div className="h-2 rounded-full bg-accent transition-all" style={{ width: `${progress}%` }} />
             </div>
             <p className="mt-1 text-xs text-muted">
-              {parts[partIndex]?.title ?? ""}
-              {mode === "exam" && playedOnce ? ` · ${t("listening.onePlay")}` : ""}
+              {parts[playback.partIndex]?.title ?? ""}
+              {mode === "exam" && playback.finished ? ` · ${t("listening.onePlay")}` : ""}
             </p>
           </div>
           <span className="text-sm font-semibold">{answered}/{questions.length}</span>
@@ -281,7 +299,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Transcript in practice mode after playback only; hidden in exam mode */}
-        {mode === "practice" && playedOnce && (
+        {mode === "practice" && playback.finished && (
           <div className="card card-pad max-h-[70vh] overflow-y-auto">
             <h2 className="mb-2 text-sm font-semibold">{t("listening.transcript")}</h2>
             <div className="whitespace-pre-wrap text-sm leading-relaxed text-muted">{transcript}</div>

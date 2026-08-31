@@ -347,6 +347,7 @@ export const zh: Dict = {
     submittedNotGraded: "已提交 — 未评分",
     backToMocks: "返回模拟考试",
     playAudioOnce: "播放音频（仅一次）",
+    resumeAudio: "继续播放音频",
     played: "已播放",
     audioComplete: "音频播放完毕",
     submitSection: "提交本部分",
