@@ -27,9 +27,24 @@ interface Result {
   flagged: boolean;
 }
 
+interface PersistedReading {
+  setId: string;
+  mode: "practice" | "exam";
+  answers: Record<string, Answer>;
+  flags: string[];
+  current: number;
+  startedAt: number;
+  deadline: number | null;
+  fontScale: number;
+  split: number;
+  hidePassage: boolean;
+}
+
+const storageKey = (setId: string) => `ielts-reading:${setId}`;
+
 export function ReadingRunner({ set }: { set: PracticeSet }) {
-  const { t } = useI18n();
-  const [phase, setPhase] = useState<"intro" | "running" | "submitting" | "results">("intro");
+  const { t, locale } = useI18n();
+  const [phase, setPhase] = useState<"intro" | "resume" | "running" | "submitting" | "results">("intro");
   const [mode, setMode] = useState<"practice" | "exam">("practice");
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [flags, setFlags] = useState<Set<string>>(new Set());
@@ -39,6 +54,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   const [hidePassage, setHidePassage] = useState(false);
   const [highlights, setHighlights] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState(60 * 60);
+  const [deadline, setDeadline] = useState<number | null>(null);
   const [results, setResults] = useState<Result[] | null>(null);
   const [rawScore, setRawScore] = useState(0);
   const [band, setBand] = useState(0);
@@ -46,6 +62,50 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
 
   const questions = set.questions;
   const passages = set.passages;
+
+  // Detect an in-progress attempt and offer resume.
+  useEffect(() => {
+    const raw = localStorage.getItem(storageKey(set.meta.id));
+    if (!raw) return;
+    try {
+      const saved = JSON.parse(raw) as PersistedReading;
+      if (saved.setId === set.meta.id) {
+        setMode(saved.mode);
+        setAnswers(saved.answers ?? {});
+        setFlags(new Set(saved.flags ?? []));
+        setCurrent(saved.current ?? 0);
+        setFontScale(saved.fontScale ?? 1);
+        setSplit(saved.split ?? 50);
+        setHidePassage(saved.hidePassage ?? false);
+        startRef.current = saved.startedAt;
+        setDeadline(saved.deadline ?? null);
+        setPhase("resume");
+      }
+    } catch {
+      localStorage.removeItem(storageKey(set.meta.id));
+    }
+  }, [set.meta.id]);
+
+  const persist = useCallback(() => {
+    if (phase !== "running") return;
+    const data: PersistedReading = {
+      setId: set.meta.id,
+      mode,
+      answers,
+      flags: [...flags],
+      current,
+      startedAt: startRef.current ?? Date.now(),
+      deadline,
+      fontScale,
+      split,
+      hidePassage,
+    };
+    localStorage.setItem(storageKey(set.meta.id), JSON.stringify(data));
+  }, [set.meta.id, mode, answers, flags, current, deadline, fontScale, split, hidePassage, phase]);
+
+  useEffect(() => {
+    persist();
+  }, [persist]);
 
   const submit = useCallback(
     async (finalAnswers: Record<string, Answer>) => {
@@ -59,6 +119,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
           timeSpent,
           Object.fromEntries([...flags].map((f) => [f, true])),
         );
+        localStorage.removeItem(storageKey(set.meta.id));
         setResults(res.results);
         setRawScore(res.rawScore);
         setBand(res.band);
@@ -71,25 +132,25 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
     [flags, mode, set.meta.id],
   );
 
-  // Timer
+  // Timer (exam mode uses an absolute deadline; practice mode counts up).
   useEffect(() => {
     if (phase !== "running") return;
     startRef.current = startRef.current ?? Date.now();
     const interval = setInterval(() => {
-      const elapsed = Math.round((Date.now() - startRef.current!) / 1000);
       if (mode === "exam") {
-        const remaining = 60 * 60 - elapsed;
+        const d = deadline ?? Date.now() + 60 * 60 * 1000;
+        const remaining = Math.max(0, Math.round((d - Date.now()) / 1000));
         setTimeLeft(remaining);
         if (remaining <= 0) {
           clearInterval(interval);
           submit(answers);
         }
       } else {
-        setTimeLeft(elapsed);
+        setTimeLeft(Math.round((Date.now() - startRef.current!) / 1000));
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [phase, mode, submit, answers]);
+  }, [phase, mode, submit, answers, deadline]);
 
   const setAnswer = (questionId: string, value: Answer) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
@@ -113,6 +174,31 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
     sel?.removeAllRanges();
   };
 
+  const startAttempt = (m: "practice" | "exam") => {
+    setMode(m);
+    startRef.current = Date.now();
+    setDeadline(m === "exam" ? Date.now() + 60 * 60 * 1000 : null);
+    setTimeLeft(m === "exam" ? 60 * 60 : 0);
+    setPhase("running");
+  };
+
+  const discardAndRestart = () => {
+    localStorage.removeItem(storageKey(set.meta.id));
+    setAnswers({});
+    setFlags(new Set());
+    setCurrent(0);
+    startRef.current = null;
+    setDeadline(null);
+    setPhase("intro");
+  };
+
+  const resume = () => {
+    setPhase("running");
+    if (mode === "exam" && deadline && deadline - Date.now() <= 0) {
+      submit(answers);
+    }
+  };
+
   if (phase === "intro") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-10">
@@ -121,14 +207,29 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
           {set.questions.length} questions · {set.meta.testType === "academic" ? "Academic" : "General Training"} Reading
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <button onClick={() => { setMode("practice"); setPhase("running"); }} className="card card-pad text-left hover:border-accent">
+          <button onClick={() => startAttempt("practice")} className="card card-pad text-left hover:border-accent">
             <p className="font-semibold">{t("practice.practiceMode")}</p>
             <p className="mt-1 text-sm text-muted">{t("practice.flexible")}</p>
           </button>
-          <button onClick={() => { setMode("exam"); setPhase("running"); }} className="card card-pad text-left hover:border-accent">
+          <button onClick={() => startAttempt("exam")} className="card card-pad text-left hover:border-accent">
             <p className="font-semibold">{t("practice.examMode")}</p>
             <p className="mt-1 text-sm text-muted">60 minutes · {t("practice.strict")}</p>
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "resume") {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-10">
+        <h1 className="text-2xl font-semibold">{locale === "zh" ? "继续进行中的阅读" : "Resume in-progress reading"}</h1>
+        <p className="mt-2 text-sm text-muted">
+          {locale === "zh" ? "发现未完成的阅读。可以继续或重新开始。" : "We found an unfinished reading attempt. Resume or start over."}
+        </p>
+        <div className="mt-6 flex gap-3">
+          <button className="btn-primary" onClick={resume}>{locale === "zh" ? "继续" : "Resume"}</button>
+          <button className="btn-secondary" onClick={discardAndRestart}>{locale === "zh" ? "重新开始" : "Start over"}</button>
         </div>
       </div>
     );

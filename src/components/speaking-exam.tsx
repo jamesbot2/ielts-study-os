@@ -52,6 +52,7 @@ export function SpeakingExam() {
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const chunks = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const recordingStartedAt = useRef<number | null>(null);
 
   const part1Questions = topic.part1Questions.slice(0, 3);
   const cueCard = topic.part2CueCards[0];
@@ -80,15 +81,10 @@ export function SpeakingExam() {
 
   const recordTurn = useCallback(
     (part: number) => {
-      setTurns((prev) => {
-        const copy = [...prev];
-        copy[copy.length - 1] = { part, prompt: currentPrompt(), transcript, durationSeconds };
-        return copy;
-      });
+      setTurns((prev) => [...prev, { part, prompt: currentPrompt(), transcript, durationSeconds }]);
       setTranscript("");
       setDurationSeconds(0);
     },
-     
     [currentPrompt, transcript, durationSeconds],
   );
 
@@ -99,6 +95,11 @@ export function SpeakingExam() {
       return;
     }
     const mimeType = pickMimeType();
+    // Capture immutable metadata at recording start so the async onstop
+    // callback never stores a later stage/prompt/part.
+    const capturedPart = stage === "part1" ? 1 : stage === "part3" ? 3 : 2;
+    const capturedPrompt = currentPrompt();
+    recordingStartedAt.current = Date.now();
     setRecording(true);
     setDurationSeconds(0);
     try {
@@ -111,14 +112,15 @@ export function SpeakingExam() {
       };
       rec.onstop = async () => {
         setRecording(false);
+        const duration = recordingStartedAt.current ? Math.round((Date.now() - recordingStartedAt.current) / 1000) : 0;
         if (!sessionIdRef.current) sessionIdRef.current = await createSpeakingSession("exam", null, topic.name);
         const blob = new Blob(chunks.current, { type: rec.mimeType || mimeType || "audio/webm" });
         await addSpeakingRecording({
           sessionId: sessionIdRef.current,
-          part: stage === "part1" ? 1 : stage === "part3" ? 3 : 2,
-          prompt: currentPrompt(),
+          part: capturedPart,
+          prompt: capturedPrompt,
           audioBlob: blob,
-          durationSeconds,
+          durationSeconds: duration,
           mimeType: blob.type,
           size: blob.size,
           evaluation: null,
@@ -294,7 +296,7 @@ export function SpeakingExam() {
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
       <div className="flex justify-between">
-        <button className="btn-secondary" onClick={() => { recordTurn(stage === "part1" ? 1 : stage === "part3" ? 3 : 2); }}>
+        <button className="btn-secondary" onClick={() => { setTranscript(""); setDurationSeconds(0); advance(); }}>
           Skip
         </button>
         <button className="btn-primary" onClick={saveTranscriptAndNext}>

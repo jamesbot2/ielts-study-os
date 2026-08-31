@@ -9,9 +9,22 @@ import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Flag } from "lucide-
 
 type Answer = string | string[] | Record<string, string>;
 
+interface PersistedListening {
+  setId: string;
+  mode: "practice" | "exam";
+  answers: Record<string, Answer>;
+  flags: string[];
+  current: number;
+  playedOnce: boolean;
+  partIndex: number;
+  startedAt: number;
+}
+
+const storageKey = (setId: string) => `ielts-listening:${setId}`;
+
 export function ListeningRunner({ set }: { set: PracticeSet }) {
-  const { t } = useI18n();
-  const [phase, setPhase] = useState<"intro" | "running" | "submitting" | "results">("intro");
+  const { t, locale } = useI18n();
+  const [phase, setPhase] = useState<"intro" | "resume" | "running" | "submitting" | "results">("intro");
   const [mode, setMode] = useState<"practice" | "exam">("practice");
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [flags, setFlags] = useState<Set<string>>(new Set());
@@ -30,6 +43,52 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   const parts = set.audio?.parts?.filter((p) => p.src) ?? [];
   const questions = set.questions;
   const groups = set.groups ?? [];
+
+  // Detect an in-progress attempt and offer resume.
+  useEffect(() => {
+    const raw = localStorage.getItem(storageKey(set.meta.id));
+    if (!raw) return;
+    try {
+      const saved = JSON.parse(raw) as PersistedListening;
+      if (saved.setId === set.meta.id) {
+        setMode(saved.mode);
+        setAnswers(saved.answers ?? {});
+        setFlags(new Set(saved.flags ?? []));
+        setCurrent(saved.current ?? 0);
+        setPlayedOnce(saved.playedOnce ?? false);
+        setPartIndex(saved.partIndex ?? 0);
+        startedAt.current = saved.startedAt ?? Date.now();
+        setPhase("resume");
+      }
+    } catch {
+      localStorage.removeItem(storageKey(set.meta.id));
+    }
+  }, [set.meta.id]);
+
+  const persist = useCallback(() => {
+    if (phase !== "running") return;
+    const data: PersistedListening = {
+      setId: set.meta.id,
+      mode,
+      answers,
+      flags: [...flags],
+      current,
+      playedOnce,
+      partIndex,
+      startedAt: startedAt.current,
+    };
+    localStorage.setItem(storageKey(set.meta.id), JSON.stringify(data));
+  }, [set.meta.id, mode, answers, flags, current, playedOnce, partIndex, phase]);
+
+  useEffect(() => {
+    persist();
+  }, [persist]);
+
+  function startAttempt(m: "practice" | "exam") {
+    setMode(m);
+    startedAt.current = Date.now();
+    setPhase("running");
+  }
 
   const playCurrentPart = useCallback(() => {
     const audio = audioRef.current;
@@ -109,13 +168,20 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
       setPhase("submitting");
       audioRef.current?.pause();
       const timeSpent = Math.round((Date.now() - startedAt.current) / 1000);
-      const res = await submitPractice(set, mode, finalAnswers, timeSpent);
+      const res = await submitPractice(
+        set,
+        mode,
+        finalAnswers,
+        timeSpent,
+        Object.fromEntries([...flags].map((f) => [f, true])),
+      );
+      localStorage.removeItem(storageKey(set.meta.id));
       setResults(res.results);
       setRawScore(res.rawScore);
       setBand(res.band);
       setPhase("results");
     },
-    [mode, set],
+    [mode, set, flags],
   );
 
   if (phase === "intro") {
@@ -124,14 +190,29 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
         <h1 className="text-2xl font-semibold">{set.meta.title}</h1>
         <p className="mt-2 text-sm text-muted">{set.questions.length} questions · 4 parts · real audio</p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <button onClick={() => { setMode("practice"); setPhase("running"); }} className="card card-pad text-left hover:border-accent">
+          <button onClick={() => startAttempt("practice")} className="card card-pad text-left hover:border-accent">
             <p className="font-semibold">{t("practice.practiceMode")}</p>
             <p className="mt-1 text-sm text-muted">{t("practice.flexible")}</p>
           </button>
-          <button onClick={() => { setMode("exam"); setPhase("running"); }} className="card card-pad text-left hover:border-accent">
+          <button onClick={() => startAttempt("exam")} className="card card-pad text-left hover:border-accent">
             <p className="font-semibold">{t("practice.examMode")}</p>
             <p className="mt-1 text-sm text-muted">{t("listening.onePlay")}</p>
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "resume") {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-10">
+        <h1 className="text-2xl font-semibold">{locale === "zh" ? "继续进行中的听力" : "Resume in-progress listening"}</h1>
+        <p className="mt-2 text-sm text-muted">
+          {locale === "zh" ? "发现未完成的听力。可以继续或重新开始。" : "We found an unfinished listening attempt. Resume or start over."}
+        </p>
+        <div className="mt-6 flex gap-3">
+          <button className="btn-primary" onClick={() => setPhase("running")}>{locale === "zh" ? "继续" : "Resume"}</button>
+          <button className="btn-secondary" onClick={() => { localStorage.removeItem(storageKey(set.meta.id)); setAnswers({}); setFlags(new Set()); setPlayedOnce(false); setPartIndex(0); setCurrent(0); startedAt.current = Date.now(); setPhase("intro"); }}>{locale === "zh" ? "重新开始" : "Start over"}</button>
         </div>
       </div>
     );
@@ -175,11 +256,11 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
             <button className="btn-primary" onClick={playAudio} disabled={!canPlay}>
               <Play className="h-4 w-4" /> {playedOnce && mode === "exam" ? t("listening.onePlay") : t("listening.playAudio")}
             </button>
-          ) : (
+          ) : mode === "practice" ? (
             <button className="btn-secondary" onClick={pauseAudio}>
               <Pause className="h-4 w-4" />
             </button>
-          )}
+          ) : null}
           {mode === "practice" && (
             <button className="btn-secondary" onClick={replay}>
               <RotateCcw className="h-4 w-4" />

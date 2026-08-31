@@ -14,13 +14,15 @@ import { BandBadge, Spinner } from "@/components/ui";
 import { Maximize, Minimize, History } from "lucide-react";
 
 const HISTORY_KEY = "ielts-writing-history";
+const SESSION_KEY = (promptId: string) => `ielts-writing-session:${promptId}`;
 
 export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [mode, setMode] = useState<"practice" | "exam">("practice");
   const [phase, setPhase] = useState<"intro" | "writing" | "evaluating" | "done">("intro");
   const [text, setText] = useState("");
   const [timeLeft, setTimeLeft] = useState(prompt.suggestedMinutes * 60);
+  const [deadline, setDeadline] = useState<number | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -31,6 +33,22 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+  // Detect an in-progress session (strict exam mode survives refresh).
+  useEffect(() => {
+    const raw = localStorage.getItem(SESSION_KEY(prompt.id));
+    if (raw) {
+      try {
+        const saved = JSON.parse(raw) as { mode: "practice" | "exam"; startedAt: number; deadline: number | null };
+        setMode(saved.mode);
+        startedAt.current = saved.startedAt;
+        setDeadline(saved.deadline);
+        setPhase("writing");
+      } catch {
+        localStorage.removeItem(SESSION_KEY(prompt.id));
+      }
+    }
+  }, [prompt.id]);
 
   // Load draft from IndexedDB (history stays in localStorage, bounded)
   useEffect(() => {
@@ -58,25 +76,38 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
     return () => clearTimeout(id);
   }, [text, history, phase, prompt.id]);
 
-  // Timer
+  // Timer (exam mode uses an absolute deadline; practice mode counts up).
   useEffect(() => {
     if (phase !== "writing") return;
-    startedAt.current = Date.now();
+    startedAt.current = startedAt.current || Date.now();
     const interval = setInterval(() => {
-      const elapsed = Math.round((Date.now() - startedAt.current) / 1000);
       if (mode === "exam") {
-        const remaining = prompt.suggestedMinutes * 60 - elapsed;
+        const d = deadline ?? Date.now() + prompt.suggestedMinutes * 60 * 1000;
+        const remaining = Math.max(0, Math.round((d - Date.now()) / 1000));
         setTimeLeft(remaining);
+        if (remaining <= 0) {
+          clearInterval(interval);
+          saveWritingDraft(prompt.id, text);
+        }
       } else {
-        setTimeLeft(elapsed);
+        setTimeLeft(Math.round((Date.now() - startedAt.current) / 1000));
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [phase, mode, prompt.suggestedMinutes]);
+  }, [phase, mode, prompt.suggestedMinutes, deadline, prompt.id, text]);
 
   const snapshotDraft = useCallback(() => {
     if (text.trim()) setHistory((h) => [text, ...h.filter((x) => x !== text)].slice(0, 10));
   }, [text]);
+
+  function startWriting(m: "practice" | "exam") {
+    setMode(m);
+    startedAt.current = Date.now();
+    setDeadline(m === "exam" ? Date.now() + prompt.suggestedMinutes * 60 * 1000 : null);
+    setTimeLeft(m === "exam" ? prompt.suggestedMinutes * 60 : 0);
+    localStorage.setItem(SESSION_KEY(prompt.id), JSON.stringify({ mode: m, startedAt: startedAt.current, deadline: m === "exam" ? startedAt.current + prompt.suggestedMinutes * 60 * 1000 : null }));
+    setPhase("writing");
+  }
 
   async function evaluate() {
     snapshotDraft();
@@ -112,6 +143,7 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
         timeUsedSeconds,
         evaluation,
       });
+      localStorage.removeItem(SESSION_KEY(prompt.id));
       setPhase("done");
     } catch (e) {
       setError((e as Error).message);
@@ -136,6 +168,7 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
       // draft already persisted
     }
     setSaving(false);
+    localStorage.removeItem(SESSION_KEY(prompt.id));
     alert(t("common.save") + " ✓");
   }
 
@@ -181,11 +214,11 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
           Minimum {prompt.wordLimit} words · suggested {prompt.suggestedMinutes} minutes
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <button onClick={() => { setMode("practice"); setPhase("writing"); }} className="card card-pad text-left hover:border-accent">
+          <button onClick={() => startWriting("practice")} className="card card-pad text-left hover:border-accent">
             <p className="font-semibold">{t("practice.practiceMode")}</p>
             <p className="mt-1 text-sm text-muted">{t("writing.draftHistory")}</p>
           </button>
-          <button onClick={() => { setMode("exam"); setPhase("writing"); }} className="card card-pad text-left hover:border-accent">
+          <button onClick={() => startWriting("exam")} className="card card-pad text-left hover:border-accent">
             <p className="font-semibold">{t("practice.examMode")}</p>
             <p className="mt-1 text-sm text-muted">{t("writing.noSpellcheck")}</p>
           </button>
