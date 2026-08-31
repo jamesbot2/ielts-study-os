@@ -34,7 +34,7 @@ Status legend:
 | Listening | One-play exam mode vs replay practice | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Listening | Transcript hidden before submission | Both | — | ✅ | ✅ | — | ✅ |
 | Reading (Academic) | 3 passages, 40 questions, 60 min | Academic | ✅ | 🟡 (21 questions, 3 passages) | ✅ | ✅ | 🟡 |
-| Reading (General) | 3 sections (survival/workplace/general) | General | ✅ | 🟡 (30 questions) | ✅ | ✅ | 🟡 |
+| Reading (General) | 3 sections (survival/workplace/general) | General | ✅ | 🟡 (25 questions) | ✅ | ✅ | 🟡 |
 | Reading | T/F/NG and Y/N/NG | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Reading | Matching headings/information/features/sentence endings | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Reading | Multiple choice & short answer | Both | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -86,7 +86,7 @@ Status legend:
 
 1. **Objective question volume.** Practice sets contain 20–34 questions, not the
    full 40 per exam section. The scoring engine and mock runner support 40-question
-   sets; more original content is needed. Academic Reading = 21, General Reading = 30,
+   sets; more original content is needed. Academic Reading = 21, General Reading = 25,
    Listening = 20.
 2. **Listening audio.** Original transcripts/scripts are included, but no audio
    files are bundled yet. The runner simulates playback from the transcript

@@ -27,7 +27,7 @@ without copying any protected assets pixel-for-pixel.
 **Listening**: 4 parts, 40 questions (content currently 20); audio plays once;
 no transcript before completion; final checking period.
 
-**Reading**: 60 minutes, 3 sections, 40 questions (content currently 21–30);
+**Reading**: 60 minutes, 3 sections, 40 questions (content currently 21–25);
 split passage/questions, highlighting, notes, no feedback during the exam.
 
 **Writing**: 60 minutes, Task 1 + Task 2, word count, timer, no grammar/spell
