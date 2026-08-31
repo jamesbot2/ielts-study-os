@@ -16,6 +16,7 @@ import type {
   WritingSubmission,
   SpeakingRecording,
   SpeakingTranscript,
+  SpeakingTurn,
   MockAttempt,
   AiMessage,
   ImportedMaterial,
@@ -328,9 +329,11 @@ export async function completeSpeakingSession(id: string): Promise<void> {
   await db().speakingSessions.update(id, { completedAt: nowIso() });
 }
 
-export async function addSpeakingRecording(recording: Omit<SpeakingRecording, "id" | "createdAt">): Promise<string> {
+export async function addSpeakingRecording(
+  recording: Omit<SpeakingRecording, "id" | "createdAt" | "turnId"> & { turnId?: string | null },
+): Promise<string> {
   const id = newId();
-  await db().speakingRecordings.add({ ...recording, id, createdAt: nowIso() });
+  await db().speakingRecordings.add({ ...recording, turnId: recording.turnId ?? null, id, createdAt: nowIso() });
   return id;
 }
 
@@ -353,8 +356,55 @@ export async function getSpeakingTranscript(recordingId: string): Promise<Speaki
   return db().speakingTranscripts.where("recordingId").equals(recordingId).first();
 }
 
-export async function updateSpeakingEvaluation(recordingId: string, evaluation: unknown): Promise<void> {
-  await db().speakingRecordings.update(recordingId, { evaluation });
+// ---------- Speaking turns (canonical unit) ----------
+export async function createSpeakingTurn(input: {
+  sessionId: string;
+  part: 1 | 2 | 3;
+  prompt: string;
+  transcript?: string | null;
+  transcriptSource?: "manual" | "stt" | "none";
+  recordingId?: string | null;
+  durationSeconds?: number | null;
+  metrics?: unknown;
+}): Promise<SpeakingTurn> {
+  const id = newId();
+  const now = nowIso();
+  const turn: SpeakingTurn = {
+    id,
+    sessionId: input.sessionId,
+    part: input.part,
+    prompt: input.prompt,
+    transcript: input.transcript ?? null,
+    transcriptSource: input.transcriptSource ?? "none",
+    recordingId: input.recordingId ?? null,
+    durationSeconds: input.durationSeconds ?? null,
+    metrics: input.metrics ?? null,
+    evaluation: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await db().speakingTurns.add(turn);
+  return turn;
+}
+
+export async function updateSpeakingTurn(id: string, patch: Partial<SpeakingTurn>): Promise<void> {
+  await db().speakingTurns.update(id, { ...patch, updatedAt: nowIso() });
+}
+
+export async function getSpeakingTurn(id: string): Promise<SpeakingTurn | undefined> {
+  return db().speakingTurns.get(id);
+}
+
+export async function listSpeakingTurns(): Promise<SpeakingTurn[]> {
+  return db().speakingTurns.orderBy("createdAt").reverse().toArray();
+}
+
+export async function deleteSpeakingTurn(id: string): Promise<void> {
+  const turn = await db().speakingTurns.get(id);
+  if (turn?.recordingId) {
+    await db().speakingRecordings.delete(turn.recordingId);
+  }
+  await db().speakingTurns.delete(id);
 }
 
 // ---------- Mock attempts ----------
@@ -368,7 +418,8 @@ export async function createMockAttempt(kind: string, testType: string): Promise
     startedAt: nowIso(),
     completedAt: null,
     state: {},
-    overallBand: null,
+    gradedAverage: null,
+    officialOverallBand: null,
   });
   return id;
 }
@@ -381,8 +432,8 @@ export async function updateMockState(id: string, state: Record<string, unknown>
   await db().mockAttempts.update(id, { state });
 }
 
-export async function completeMockAttempt(id: string, overallBand: number): Promise<void> {
-  await db().mockAttempts.update(id, { status: "completed", completedAt: nowIso(), overallBand });
+export async function completeMockAttempt(id: string, gradedAverage: number): Promise<void> {
+  await db().mockAttempts.update(id, { status: "completed", completedAt: nowIso(), gradedAverage });
 }
 
 export async function abandonMockAttempt(id: string): Promise<void> {

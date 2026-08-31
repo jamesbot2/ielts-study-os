@@ -71,7 +71,7 @@ describe("mock repository", () => {
     await completeMockAttempt(id, 6.5);
     const done = await getMockAttempt(id);
     expect(done?.status).toBe("completed");
-    expect(done?.overallBand).toBe(6.5);
+    expect(done?.gradedAverage).toBe(6.5);
   });
 });
 

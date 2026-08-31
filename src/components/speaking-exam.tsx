@@ -6,9 +6,9 @@ import { speakingTopics } from "@/lib/content/practice/speaking-topics";
 import { computeTranscriptMetrics } from "@/lib/speech/metrics";
 import {
   addSpeakingRecording,
-  addSpeakingTranscript,
   completeSpeakingSession,
   createSpeakingSession,
+  createSpeakingTurn,
 } from "@/lib/storage/repository";
 import { Mic, Square, Timer } from "lucide-react";
 
@@ -123,7 +123,6 @@ export function SpeakingExam() {
           durationSeconds: duration,
           mimeType: blob.type,
           size: blob.size,
-          evaluation: null,
         });
       };
       rec.start();
@@ -163,10 +162,13 @@ export function SpeakingExam() {
     if (transcript.trim()) {
       if (!sessionIdRef.current) sessionIdRef.current = await createSpeakingSession("exam", null, topic.name);
       setTurns((prev) => [...prev, { part, prompt: currentPrompt(), transcript: transcript.trim(), durationSeconds }]);
-      await addSpeakingTranscript({
-        recordingId: "manual",
-        text: transcript.trim(),
-        source: "manual",
+      await createSpeakingTurn({
+        sessionId: sessionIdRef.current,
+        part,
+        prompt: currentPrompt(),
+        transcript: transcript.trim(),
+        transcriptSource: "manual",
+        durationSeconds,
         metrics: computeTranscriptMetrics(transcript, durationSeconds),
       });
     }

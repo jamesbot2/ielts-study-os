@@ -159,16 +159,33 @@ export interface SpeakingSession {
   completedAt: string | null;
 }
 
+// Canonical unit of a speaking response. Recording, transcript and evaluation
+// are all OPTIONAL and attach to a turn, never the other way around.
+export interface SpeakingTurn {
+  id: string;
+  sessionId: string;
+  part: 1 | 2 | 3;
+  prompt: string;
+  transcript: string | null;
+  transcriptSource: "manual" | "stt" | "none";
+  recordingId: string | null;
+  durationSeconds: number | null;
+  metrics: unknown | null;
+  evaluation: unknown | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface SpeakingRecording {
   id: string;
   sessionId: string;
+  turnId: string | null;
   part: number;
   prompt: string;
   audioBlob: Blob | null;
   durationSeconds: number | null;
   mimeType: string | null;
   size: number | null;
-  evaluation: unknown | null;
   createdAt: string;
 }
 
@@ -189,7 +206,10 @@ export interface MockAttempt {
   startedAt: string;
   completedAt: string | null;
   state: Record<string, unknown>;
-  overallBand: number | null; // Listening/Reading graded average (not an official overall band)
+  // Listening/Reading objective average (NOT an official four-skill overall).
+  gradedAverage: number | null;
+  // Only valid when Listening + Reading + Writing + Speaking all have scores.
+  officialOverallBand: number | null;
 }
 
 export interface AiConversation {
