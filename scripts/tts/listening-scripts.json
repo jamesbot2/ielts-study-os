@@ -1,0 +1,81 @@
+{
+  "parts": [
+    {
+      "part": 1,
+      "title": "Hotel booking",
+      "lines": [
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Good morning, Lakeside Hotel. How can I help you?" },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "Oh, hello. I'd like to book a room for three nights, please." },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Certainly. Which dates were you thinking of?" },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "The fourteenth, fifteenth and sixteenth of March." },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Let me check. Yes, we have rooms available then. Would you like a single or a double room?" },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "A double room, please. And do you have any rooms with a sea view?" },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "We do, but they're slightly more expensive. A standard double is eighty-five pounds per night, and a sea-view double is one hundred and ten." },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "I'll go for the sea view. It's a special occasion." },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Lovely. Can I take your name, please?" },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "It's Margaret Sullivan. That's S-U-L-L-I-V-A-N." },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Thank you, Ms Sullivan. And a contact phone number?" },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "Sure, it's oh-seven-four-one-two, five-three-six, nine-eight-seven." },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Great. Will you be arriving by car?" },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "Yes, I will. Is there parking at the hotel?" },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "There is, and it's free for guests. Just register your number plate at reception when you check in." },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "Perfect. What time is check-in?" },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Rooms are available from two p.m. Check-out is by eleven a.m. on your final day." },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "That's fine. Could I also book breakfast?" },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Of course. Breakfast is served from seven until ten, and it's twelve pounds per person if you book in advance." },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "Yes, please include breakfast for both of us." },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Noted. So, a sea-view double room for three nights, with breakfast for two, arriving on the fourteenth of March. Is that all?" },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "One more thing — do you have Wi-Fi in the rooms?" },
+        { "speaker": "Receptionist", "voice": "en_US-lessac-medium", "text": "Yes, Wi-Fi is free throughout the hotel. The password is 'lakeside'." },
+        { "speaker": "Caller", "voice": "en_GB-northern_english_male-medium", "text": "Excellent. That's everything. Thank you very much." }
+      ]
+    },
+    {
+      "part": 2,
+      "title": "City museum tour",
+      "lines": [
+        { "speaker": "Guide", "voice": "en_US-ryan-high", "text": "Good afternoon, everyone, and welcome to the City Museum. My name's David, and I'll be your guide today. The tour will take about an hour, and we'll finish back here at the main entrance." },
+        { "speaker": "Guide", "voice": "en_US-ryan-high", "text": "Before we set off, let me point out a few important things. The main entrance, where you're standing now, is here at the bottom of your map, marked A. The information desk is just inside, on your right, and that's where you can collect audio guides for five pounds." },
+        { "speaker": "Guide", "voice": "en_US-ryan-high", "text": "Now, if you look at your map, the café is directly to the left of the entrance. It's a good spot to rest, and it closes at four thirty." },
+        { "speaker": "Guide", "voice": "en_US-ryan-high", "text": "Moving further inside, the main exhibition hall is in the centre of the museum. It currently houses a special exhibition on ancient Egypt, which has been extended until the end of August because it's so popular." },
+        { "speaker": "Guide", "voice": "en_US-ryan-high", "text": "To the east of the exhibition hall is the natural history gallery. It was recently refurbished, and it's one of the most popular sections with children, mainly because of the dinosaur skeletons." },
+        { "speaker": "Guide", "voice": "en_US-ryan-high", "text": "On the west side of the hall, you'll find the art gallery. Please note that photography is not allowed in this part of the museum." },
+        { "speaker": "Guide", "voice": "en_US-ryan-high", "text": "Finally, the gift shop and toilets are in the north-east corner, next to the exit. The gift shop offers a ten percent discount to members." },
+        { "speaker": "Guide", "voice": "en_US-ryan-high", "text": "Right, if everyone's ready, we'll begin our walk towards the exhibition hall." }
+      ]
+    },
+    {
+      "part": 3,
+      "title": "Research project discussion",
+      "lines": [
+        { "speaker": "Tutor", "voice": "en_US-lessac-medium", "text": "Right, so let's hear how your research project is going. Maria, would you like to start?" },
+        { "speaker": "Maria", "voice": "en_US-lessac-medium", "text": "Sure. We're looking at how students use the university library, and whether the new online catalogue has changed their habits." },
+        { "speaker": "Tutor", "voice": "en_US-lessac-medium", "text": "And what have you found so far?" },
+        { "speaker": "Maria", "voice": "en_US-lessac-medium", "text": "Well, we did a survey of about two hundred students, and the results were quite surprising. We expected most students to prefer online resources, but actually a lot of them said they still like studying in the library itself, mainly because it's quiet." },
+        { "speaker": "Tom", "voice": "en_GB-northern_english_male-medium", "text": "Yes, and when we asked about the online catalogue, many students said they use it to find books, but then they borrow the physical copies rather than reading e-books." },
+        { "speaker": "Tutor", "voice": "en_US-lessac-medium", "text": "That's interesting. What about the group study rooms?" },
+        { "speaker": "Maria", "voice": "en_US-lessac-medium", "text": "Those are very popular. Students said they're often fully booked, especially during exam periods. We think the library should add more rooms." },
+        { "speaker": "Tom", "voice": "en_GB-northern_english_male-medium", "text": "We also found that opening hours are a problem. The library closes at ten, but many students want it to stay open until midnight, especially postgraduate students." },
+        { "speaker": "Tutor", "voice": "en_US-lessac-medium", "text": "And how are you planning to present this?" },
+        { "speaker": "Maria", "voice": "en_US-lessac-medium", "text": "We're going to produce a report with charts showing the survey results, and we'll give a short presentation to the library committee next month." },
+        { "speaker": "Tutor", "voice": "en_US-lessac-medium", "text": "That sounds sensible. Make sure you include some direct quotes from students — they make the report more persuasive." },
+        { "speaker": "Tom", "voice": "en_GB-northern_english_male-medium", "text": "Good idea. We'll do that." },
+        { "speaker": "Tutor", "voice": "en_US-lessac-medium", "text": "One more thing — have you thought about the limitations of your study?" },
+        { "speaker": "Maria", "voice": "en_US-lessac-medium", "text": "Yes, we know the survey only covered one week, so it might not reflect the whole year. We'll mention that in the report." }
+      ]
+    },
+    {
+      "part": 4,
+      "title": "Urban heat islands",
+      "lines": [
+        { "speaker": "Lecturer", "voice": "en_US-ryan-high", "text": "Good morning. Today I'd like to talk about urban heat islands — a phenomenon that affects nearly every large city in the world." },
+        { "speaker": "Lecturer", "voice": "en_US-ryan-high", "text": "An urban heat island occurs when a city is significantly warmer than the surrounding countryside. The difference can be as much as five or six degrees Celsius on a calm summer night. This may not sound dramatic, but it has real consequences: higher energy use for air conditioning, greater strain on power grids, and increased health risks during heatwaves." },
+        { "speaker": "Lecturer", "voice": "en_US-ryan-high", "text": "So why do cities get so hot? There are several reasons. First, dark surfaces. Asphalt roads and dark rooftops absorb sunlight and store heat, then release it slowly after sunset. In contrast, rural areas with vegetation reflect more sunlight and cool down quickly through evaporation." },
+        { "speaker": "Lecturer", "voice": "en_US-ryan-high", "text": "Second, cities lack vegetation. Trees and plants cool the air through a process called evapotranspiration, in which water evaporates from leaves and takes heat with it. When a city replaces parks with concrete, it loses this natural cooling." },
+        { "speaker": "Lecturer", "voice": "en_US-ryan-high", "text": "Third, waste heat from human activity. Cars, air conditioners and factories all release heat directly into the urban environment." },
+        { "speaker": "Lecturer", "voice": "en_US-ryan-high", "text": "Fortunately, there are solutions. One of the most effective is planting more trees and creating green roofs — roofs covered with vegetation that absorb less heat and provide insulation. Another approach is using light-coloured materials for roads and buildings, which reflect sunlight instead of absorbing it. Some cities have also introduced 'cool roofs', which are coated with reflective paint." },
+        { "speaker": "Lecturer", "voice": "en_US-ryan-high", "text": "Research suggests that a combination of these measures could reduce urban temperatures by several degrees, making cities more comfortable and more resilient as the climate warms. The challenge, of course, is funding and political will — but as heatwaves become more frequent, the case for action grows stronger every year." }
+      ]
+    }
+  ]
+}

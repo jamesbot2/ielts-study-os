@@ -1,0 +1,28 @@
+{
+  "parts": [
+    {
+      "part": 1,
+      "title": "Hotel booking",
+      "src": "/audio/listening-1/part1.mp3",
+      "sizeBytes": 802106
+    },
+    {
+      "part": 2,
+      "title": "City museum tour",
+      "src": "/audio/listening-1/part2.mp3",
+      "sizeBytes": 581633
+    },
+    {
+      "part": 3,
+      "title": "Research project discussion",
+      "src": "/audio/listening-1/part3.mp3",
+      "sizeBytes": 718723
+    },
+    {
+      "part": 4,
+      "title": "Urban heat islands",
+      "src": "/audio/listening-1/part4.mp3",
+      "sizeBytes": 849545
+    }
+  ]
+}
