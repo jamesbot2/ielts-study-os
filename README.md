@@ -9,6 +9,8 @@ planning, analytics, and realistic computer-delivered mock exams.
 **No account. No backend. No API key required.** The entire core product runs
 in your browser and stores your data locally in IndexedDB.
 
+**Live:** https://ielts-study-os.vercel.app
+
 **Disclaimer:** This project is an independent learning tool and is **not**
 affiliated with, endorsed by, or approved by IELTS, British Council, IDP, or
 Cambridge University Press & Assessment. AI-generated band scores are estimates,
