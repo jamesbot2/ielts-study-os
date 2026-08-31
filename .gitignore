@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/playwright-report
+/test-results
 
 # next.js
 /.next/
@@ -32,6 +34,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +42,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ============ IELTS Study OS — user data & privacy ============
+# Local SQLite database (user progress, settings, vocabulary, mistakes)
+/data/
+
+# User recordings, uploads and imported materials (NEVER commit these)
+/data/uploads/
+recordings/
+uploads/
+
+# Locally generated TTS audio / practice content
+content/generated/
+
+# Playwright browser artifacts
+/blob-report/
