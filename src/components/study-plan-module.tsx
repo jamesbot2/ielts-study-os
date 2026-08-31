@@ -10,6 +10,7 @@ import {
   updateStudyTask,
 } from "@/lib/storage/repository";
 import { generatePlan } from "@/lib/study-plan/generate";
+import { studyGuides } from "@/lib/content/study-guides";
 import type { StudyProfile, StudyTask } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
 
@@ -76,6 +77,8 @@ export function StudyPlanModule() {
         </div>
       </div>
 
+      <StudyGuidesSection />
+
       {profile && (
         <div className="mb-4 rounded-md border border-border bg-surface p-3 text-sm">
           Target {profile.targetBand} · {profile.weeklyHours}h/week
@@ -123,4 +126,37 @@ function groupBy<T>(items: T[], key: (item: T) => string): Record<string, T[]> {
     (out[k] ??= []).push(item);
   }
   return out;
+}
+
+function StudyGuidesSection() {
+  const { locale } = useI18n();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <section className="mb-5">
+      <button className="flex w-full items-center justify-between rounded-md border border-border bg-surface px-4 py-3 text-left" onClick={() => setOpen((o) => !o)}>
+        <span className="text-sm font-semibold">{locale === "zh" ? "内置学习计划模板" : "Built-in study plan templates"}</span>
+        <span className="text-xs text-muted">{open ? "−" : "+"}</span>
+      </button>
+      {open && (
+        <div className="mt-2 grid gap-2 md:grid-cols-2">
+          {studyGuides.map((g) => (
+            <div key={g.id} className="card card-pad">
+              <p className="font-medium">{locale === "zh" ? g.titleZh : g.titleEn}</p>
+              <p className="mt-1 text-sm text-muted">{locale === "zh" ? g.summaryZh : g.summaryEn}</p>
+              {g.target && <span className="badge badge-accent mt-2">{g.target.from} → {g.target.to}</span>}
+              <ul className="mt-2 space-y-1 text-sm text-muted">
+                {g.schedule.map((s, i) => (
+                  <li key={i}>
+                    <span className="font-medium text-foreground">{locale === "zh" ? s.phaseZh : s.phase}</span>
+                    {" · "}{locale === "zh" ? s.focusZh : s.focus}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }

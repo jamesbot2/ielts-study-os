@@ -23,12 +23,33 @@ export interface LessonTable {
   rows: Lc[][];
 }
 
+// Rich callout types for pedagogical depth.
+export type CalloutKind =
+  | "examTip"
+  | "commonMistake"
+  | "example"
+  | "warning"
+  | "officialNote"
+  | "checklist"
+  | "bandComparison"
+  | "vocabBox"
+  | "grammarBox";
+
+export interface Callout {
+  kind: CalloutKind;
+  title?: Lc;
+  // body can be paragraphs or a list
+  text?: Lc[];
+  items?: Lc[];
+}
+
 export interface LessonSection {
   heading: Lc;
   paragraphs?: Lc[];
   bullets?: Lc[];
   table?: LessonTable;
   code?: string;
+  callouts?: Callout[];
 }
 
 export interface Lesson {
@@ -42,6 +63,8 @@ export interface Lesson {
   sections: LessonSection[];
   relatedQuestionTypes?: string[];
   estimatedMinutes?: number;
+  difficulty?: 1 | 2 | 3;
+  sourceIds?: string[];
 }
 
 export interface VocabTopic {

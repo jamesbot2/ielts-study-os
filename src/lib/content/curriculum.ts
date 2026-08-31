@@ -6,6 +6,7 @@ import { writingLessons } from "./lessons/writing";
 import { speakingLessons } from "./lessons/speaking";
 import { grammarLessons } from "./lessons/grammar";
 import { strategiesLessons } from "./lessons/strategies";
+import { deepQuestionTypeLessons } from "./lessons/question-types";
 
 export type { Category, Lesson } from "./types";
 
@@ -17,6 +18,7 @@ export const allLessons: Lesson[] = [
   ...speakingLessons,
   ...grammarLessons,
   ...strategiesLessons,
+  ...deepQuestionTypeLessons,
 ];
 
 export const categories: { id: Category; labelEn: string; labelZh: string }[] = [

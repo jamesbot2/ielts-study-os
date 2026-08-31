@@ -8,6 +8,8 @@ import {
   listVocabCards,
   recordVocabReview,
 } from "@/lib/storage/repository";
+import { vocabTopics } from "@/lib/content/vocabulary";
+import { collocationGroups } from "@/lib/content/collocations";
 import type { VocabularyCard } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
 
@@ -18,6 +20,8 @@ export function VocabularyModule() {
   const [loading, setLoading] = useState(true);
   const [reviewing, setReviewing] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [showCollocations, setShowCollocations] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
@@ -101,13 +105,22 @@ export function VocabularyModule() {
               {t("vocabulary.review")} ({dueCards.length})
             </button>
           )}
-          <button className="btn-secondary" onClick={() => setShowAdd((s) => !s)}>
+          <button className="btn-secondary" onClick={() => { setShowAdd((s) => !s); setShowLibrary(false); }}>
             + {t("vocabulary.addWord")}
+          </button>
+          <button className="btn-secondary" onClick={() => setShowLibrary((s) => !s)}>
+            📚 {t("vocabulary.library")}
+          </button>
+          <button className="btn-secondary" onClick={() => setShowCollocations((s) => !s)}>
+            ✍️ Collocations
           </button>
         </div>
       </div>
 
       {showAdd && <AddWordForm onAdded={() => { setShowAdd(false); load(); }} />}
+
+      {showLibrary && <VocabularyLibrary onAdded={load} />}
+      {showCollocations && <CollocationsSection />}
 
       {cards.length === 0 ? (
         <div className="card card-pad text-center text-muted">{t("vocabulary.noCards")}</div>
@@ -159,6 +172,102 @@ function AddWordForm({ onAdded }: { onAdded: () => void }) {
       <button className="btn-primary sm:col-span-3" onClick={submit} disabled={saving || !word.trim()}>
         {saving ? <Spinner /> : t("common.save")}
       </button>
+    </div>
+  );
+}
+
+function VocabularyLibrary({ onAdded }: { onAdded: () => void }) {
+  const { t, locale } = useI18n();
+  const [openTopic, setOpenTopic] = useState<string | null>(vocabTopics[0]?.id ?? null);
+  const [added, setAdded] = useState<Set<string>>(new Set());
+
+  async function addWord(word: string, topicName: string) {
+    await createVocabCard({
+      word,
+      chineseMeaning: "",
+      sourceContext: `Built-in library · ${topicName}`,
+      sourceSkill: "vocabulary",
+    });
+    setAdded((s) => new Set(s).add(word));
+    onAdded();
+  }
+
+  return (
+    <div className="card card-pad mb-4">
+      <p className="mb-2 text-sm font-semibold">{t("vocabulary.library")}</p>
+      <div className="flex flex-wrap gap-1">
+        {vocabTopics.map((topic) => (
+          <button
+            key={topic.id}
+            onClick={() => setOpenTopic(topic.id === openTopic ? null : topic.id)}
+            className={`rounded-md border px-2.5 py-1.5 text-xs ${openTopic === topic.id ? "border-accent bg-accent-soft text-foreground" : "border-border text-muted hover:bg-gray-50"}`}
+          >
+            {locale === "zh" ? topic.nameZh : topic.nameEn}
+          </button>
+        ))}
+      </div>
+
+      {openTopic && (
+        <div className="mt-3 space-y-1.5">
+          {vocabTopics.find((tp) => tp.id === openTopic)?.words.map((w) => (
+            <div key={w.word} className="flex items-start justify-between gap-3 rounded-md border border-border px-3 py-2">
+              <div className="min-w-0 text-sm">
+                <p>
+                  <span className="font-medium">{w.word}</span>{" "}
+                  <span className="text-xs text-muted italic">{w.pos}</span>
+                  {w.band !== "core" && <span className="ml-1 badge">{w.band}</span>}
+                </p>
+                <p className="text-xs text-muted">
+                  {locale === "zh" ? w.meaningZh : w.definitionEn}
+                </p>
+                {w.collocations.length > 0 && (
+                  <p className="text-xs text-muted">collocations: {w.collocations.join(", ")}</p>
+                )}
+              </div>
+              <button
+                className="btn-secondary shrink-0 px-2.5 py-1 text-xs"
+                disabled={added.has(w.word)}
+                onClick={() => addWord(w.word, vocabTopics.find((tp) => tp.id === openTopic)?.nameEn ?? "")}
+              >
+                {added.has(w.word) ? "✓" : `+ ${t("vocabulary.addToDeck")}`}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CollocationsSection() {
+  const { locale } = useI18n();
+  const [open, setOpen] = useState<string | null>(collocationGroups[0]?.id ?? null);
+
+  return (
+    <div className="card card-pad mb-4">
+      <p className="mb-2 text-sm font-semibold">Collocations</p>
+      <div className="flex flex-wrap gap-1">
+        {collocationGroups.map((g) => (
+          <button
+            key={g.id}
+            onClick={() => setOpen(g.id === open ? null : g.id)}
+            className={`rounded-md border px-2.5 py-1.5 text-xs ${open === g.id ? "border-accent bg-accent-soft text-foreground" : "border-border text-muted hover:bg-gray-50"}`}
+          >
+            {locale === "zh" ? g.nameZh : g.nameEn}
+          </button>
+        ))}
+      </div>
+      {open && (
+        <div className="mt-3 space-y-1.5">
+          {collocationGroups.find((g) => g.id === open)?.items.map((it) => (
+            <div key={it.phrase} className="rounded-md border border-border px-3 py-2 text-sm">
+              <p className="font-medium">{it.phrase}</p>
+              <p className="text-xs text-muted italic">“{it.example}”</p>
+              {it.noteZh && locale === "zh" && <p className="text-xs text-muted">{it.noteZh}</p>}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
