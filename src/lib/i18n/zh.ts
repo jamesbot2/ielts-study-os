@@ -448,7 +448,7 @@ export const zh: Dict = {
     model: "模型",
     testConnection: "测试连接",
     providerHint: "任意 OpenAI 兼容接口均可（OpenAI、DeepSeek、OpenRouter、本地…）。",
-    keyServerOnly: "密钥仅保存在服务端，绝不会发送到浏览器。",
+    keyServerOnly: "浏览器绝不保存服务商密钥——只保存公开的代理 URL。",
     speechToText: "语音转文字",
     textToSpeech: "文字转语音",
     pronunciation: "发音评估",

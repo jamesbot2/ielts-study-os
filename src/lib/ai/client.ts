@@ -127,8 +127,13 @@ export class RemoteAiProxyClient implements AiClient {
 
 let client: AiClient = new DisabledAiClient();
 
+// Minimal subscriber list so UI can react to AI availability changes.
+type Listener = () => void;
+const listeners = new Set<Listener>();
+
 export function configureAiClient(next: AiClient): void {
   client = next;
+  listeners.forEach((l) => l());
 }
 
 export function getAiClient(): AiClient {
@@ -137,4 +142,9 @@ export function getAiClient(): AiClient {
 
 export function isAiAvailable(): boolean {
   return client.available;
+}
+
+export function subscribeAiClient(listener: Listener): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
 }

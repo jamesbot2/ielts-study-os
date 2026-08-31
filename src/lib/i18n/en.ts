@@ -455,7 +455,7 @@ export const en = {
     testConnection: "Test connection",
     providerHint:
       "Any OpenAI-compatible endpoint works (OpenAI, DeepSeek, OpenRouter, local…).",
-    keyServerOnly: "Your key is stored server-side and never sent to the browser.",
+    keyServerOnly: "The browser never stores a provider key — only a public proxy URL.",
     speechToText: "Speech-to-text",
     textToSpeech: "Text-to-speech",
     pronunciation: "Pronunciation assessment",

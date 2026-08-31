@@ -86,7 +86,7 @@ test.describe("IELTS Study OS — interaction flows", () => {
     await textarea.fill("In my opinion, technology has transformed education.");
     await page.waitForTimeout(1200); // debounce autosave
     await page.reload();
-    await page.getByText("Practice mode").click();
+    // The session resumes directly into the editor (no mode selection screen).
     await expect(page.locator("textarea").first()).toHaveValue(/transformed education/);
   });
 

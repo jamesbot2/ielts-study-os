@@ -8,7 +8,7 @@ import {
   listVocabCards,
   recordVocabReview,
 } from "@/lib/storage/repository";
-import { vocabTopics } from "@/lib/content/vocabulary";
+import { vocabTopics, type VocabEntry } from "@/lib/content/vocabulary";
 import { collocationGroups } from "@/lib/content/collocations";
 import type { VocabularyCard } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
@@ -181,14 +181,26 @@ function VocabularyLibrary({ onAdded }: { onAdded: () => void }) {
   const [openTopic, setOpenTopic] = useState<string | null>(vocabTopics[0]?.id ?? null);
   const [added, setAdded] = useState<Set<string>>(new Set());
 
-  async function addWord(word: string, topicName: string) {
+  // Mark words already in the deck as added, to prevent duplicates after reload.
+  useEffect(() => {
+    listVocabCards().then((cards) => {
+      setAdded(new Set(cards.map((c) => c.word.trim().toLowerCase())));
+    });
+  }, []);
+
+  async function addWord(entry: VocabEntry, topicName: string) {
     await createVocabCard({
-      word,
-      chineseMeaning: "",
+      word: entry.word,
+      partOfSpeech: entry.pos,
+      chineseMeaning: entry.meaningZh,
+      englishDefinition: entry.definitionEn,
+      collocations: entry.collocations,
+      example: entry.example,
       sourceContext: `Built-in library · ${topicName}`,
       sourceSkill: "vocabulary",
+      tags: [entry.band],
     });
-    setAdded((s) => new Set(s).add(word));
+    setAdded((s) => new Set(s).add(entry.word.trim().toLowerCase()));
     onAdded();
   }
 
@@ -226,10 +238,10 @@ function VocabularyLibrary({ onAdded }: { onAdded: () => void }) {
               </div>
               <button
                 className="btn-secondary shrink-0 px-2.5 py-1 text-xs"
-                disabled={added.has(w.word)}
-                onClick={() => addWord(w.word, vocabTopics.find((tp) => tp.id === openTopic)?.nameEn ?? "")}
+                disabled={added.has(w.word.trim().toLowerCase())}
+                onClick={() => addWord(w, vocabTopics.find((tp) => tp.id === openTopic)?.nameEn ?? "")}
               >
-                {added.has(w.word) ? "✓" : `+ ${t("vocabulary.addToDeck")}`}
+                {added.has(w.word.trim().toLowerCase()) ? "✓" : `+ ${t("vocabulary.addToDeck")}`}
               </button>
             </div>
           ))}
