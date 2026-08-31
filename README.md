@@ -31,8 +31,9 @@ not official IELTS scores.
 - **Speaking** — topic library, MediaRecorder, manual transcript, speech
   metrics, full Part 1→2→3 mock flow. Pronunciation is *never* fabricated from
   text.
-- **Vocabulary** — FSRS spaced repetition (Again/Hard/Good/Easy).
+- **Vocabulary** — FSRS spaced repetition (Again/Hard/Good/Easy) + a built-in library (~96 words across 12 topics) and a collocation bank.
 - **Grammar** — lessons + 23 IELTS-oriented practice exercises.
+- **Resource Center** — built-in catalog of official IELTS / British Council / IDP resources and audited open-source projects, with search and filters.
 - **Mistake Book** — unified mistakes from every skill.
 - **AI Coach / Writing / Speaking evaluation** — optional, via a remote proxy;
   deterministic band combination; clearly labelled estimates.
@@ -41,6 +42,7 @@ not official IELTS scores.
 - **Analytics & Study Plan** — based on real persisted activity.
 - **Material Library** — import your own legally-owned materials.
 - **Data export / import / reset** — versioned JSON backup.
+- **Study guides** — built-in 30/60/90-day and band-improvement plans.
 
 ## Architecture
 

@@ -33,8 +33,8 @@ passage).
 | Writing (Academic T1) | graphs/charts/tables/maps/processes | ✅ | ✅ 4 prompts | ✅ (AI, optional) | ✅ |
 | Writing (General T1) | formal/semi-formal/informal letters | ✅ | ✅ 3 prompts | ✅ (AI, optional) | ✅ |
 | Writing T2 | all essay types | ✅ | ✅ 6 prompts | ✅ (AI, optional) | ✅ |
-| Speaking | Parts 1/2/3, 4 criteria, strategies | ✅ | ✅ topic library + full mock flow | ✅ (AI, optional) | ✅ |
-| Vocabulary | FSRS, rich cards | ✅ | ✅ | ✅ | ✅ |
+| Speaking | Parts 1/2/3, 4 criteria, strategies | ✅ | ✅ 47-topic library + full mock flow | ✅ (AI, optional) | ✅ |
+| Vocabulary | FSRS, rich cards | ✅ | ✅ built-in library (~96 words) + collocation bank | ✅ | ✅ |
 | Grammar | 20+ topics + IELTS error types | ✅ | ✅ 23 exercises | ✅ (self-check) | ✅ |
 | Strategies | per-skill checklists | ✅ | — | — | ✅ |
 
@@ -56,6 +56,8 @@ passage).
 | Analytics (real activity) | ✅ |
 | Study plan (deterministic, editable) | ✅ |
 | Material library (text/Markdown/JSON import, AI-labelled generation) | ✅ |
+| Resource Center (built-in official + open-source catalog, search/filter) | ✅ |
+| Study guides (30/60/90-day + band-improvement plans) | ✅ |
 | Settings (profile, optional AI/speech proxy, export/import/reset) | ✅ |
 | i18n (English + Simplified Chinese) | ✅ |
 
