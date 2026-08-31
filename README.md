@@ -101,15 +101,18 @@ npm run test:e2e     # Playwright against the static build
 
 ## Testing
 
-- 66 unit/integration tests (scoring, normalisation, word limits, rounding,
-  FSRS, study plan, storage, backup, content validation, coverage).
-- 11 Playwright E2E tests run against the static export.
+- Unit/integration tests cover scoring, normalisation, word limits, rounding,
+  FSRS, study plan, storage, backup, listening playback state, content
+  validation and coverage (run `npm test` for the current count).
+- Playwright E2E tests run against the static export (`npm run test:e2e`).
 
 ## Status
 
-A working, static-first V0.2: complete 40-question Listening/Reading tests with
-real audio, full speaking mock, grammar practice, IndexedDB persistence, backup
-and CI. See `docs/CONTENT_COVERAGE.md` for the precise, honest coverage matrix.
+A working, static-first IELTS learning platform: complete 40-question
+Listening/Reading tests with real audio, a full Speaking mock, grammar practice,
+built-in vocabulary and Resource Center, reactive Academic/General state,
+IndexedDB persistence, backup and CI. See `docs/CONTENT_COVERAGE.md` for the
+precise, honest coverage matrix.
 
 ## License
 

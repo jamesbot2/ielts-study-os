@@ -16,18 +16,27 @@ export function SettingsModule() {
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [aiUrl, setAiUrl] = useState("");
   const [testResult, setTestResult] = useState<string | null>(null);
+  const [verified, setVerified] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [importMode, setImportMode] = useState<ImportMode>("merge");
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [resetting, setResetting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const aiUrlEditedRef = useRef(false);
 
   // Speech settings are loaded locally (not part of the profile/ai providers).
   useEffect(() => {
     getSettings().then(setSettings);
-    setAiUrl(aiSettings?.ai.proxyUrl ?? "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Hydrate the AI URL from the AiProvider once settings load, without
+  // overwriting any unsaved user edits made before hydration.
+  useEffect(() => {
+    if (aiSettings && !aiUrlEditedRef.current) {
+      setAiUrl(aiSettings.ai.proxyUrl ?? "");
+    }
+  }, [aiSettings]);
 
   const flashSaved = useCallback(() => {
     setSaved(true);
@@ -35,11 +44,12 @@ export function SettingsModule() {
   }, []);
 
   async function patchProfile(patch: Partial<import("@/lib/storage/types").StudyProfile>) {
+    setSaveError(null);
     try {
       await updateProfile(patch);
       flashSaved();
-    } catch {
-      flashSaved();
+    } catch (e) {
+      setSaveError((e as Error).message || "Save failed");
     }
   }
 
@@ -82,6 +92,7 @@ export function SettingsModule() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t("settings.title")}</h1>
         {saved && <span className="text-sm text-green-600">{t("settings.saved")} ✓</span>}
+        {saveError && <span className="text-sm text-red-600">{saveError}</span>}
       </div>
 
       {/* Profile */}
@@ -132,14 +143,18 @@ export function SettingsModule() {
             className="input mt-1"
             value={aiUrl}
             placeholder="https://your-proxy.example.com"
-            onChange={(e) => setAiUrl(e.target.value)}
+            onChange={(e) => { aiUrlEditedRef.current = true; setAiUrl(e.target.value); }}
             autoComplete="off"
           />
         </label>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button className="btn-primary" onClick={async () => { await saveAi({ proxyUrl: aiUrl }); flashSaved(); }}>{t("common.save")}</button>
-          <button className="btn-secondary" onClick={async () => { setTestResult("Testing…"); const r = await testProxy(aiUrl); setTestResult(r.ok ? r.message : r.message); }}>{t("settings.testConnection")}</button>
-          {aiAvailable ? <span className="text-xs text-green-600">● proxy configured</span> : <span className="text-xs text-muted">● AI unavailable</span>}
+          <button className="btn-secondary" onClick={async () => { setTestResult("Testing…"); setVerified(false); const r = await testProxy(aiUrl); setVerified(r.ok); setTestResult(r.message); }}>{t("settings.testConnection")}</button>
+          {aiAvailable
+            ? (verified
+              ? <span className="text-xs text-green-600">● connected &amp; verified</span>
+              : <span className="text-xs text-amber-600">● configured (not verified)</span>)
+            : <span className="text-xs text-muted">● AI unavailable</span>}
         </div>
         {testResult && <p className="mt-2 text-sm text-muted">{testResult}</p>}
       </section>

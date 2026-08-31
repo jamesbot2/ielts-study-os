@@ -197,8 +197,13 @@ export function OnboardingWizard() {
           <div className="space-y-3">
             <p className="text-sm">{t("onboarding.diagnosticDesc")}</p>
             <p className="text-sm text-muted">
-              Start with the Academic Reading set (40 questions) to estimate your
-              starting band. You can also skip this.
+              {form.testType === "academic"
+                ? (locale === "zh"
+                  ? "从学术类阅读（40 题）开始，估算你的起始分数。也可以跳过。"
+                  : "Start with the Academic Reading set (40 questions) to estimate your starting band. You can also skip this.")
+                : (locale === "zh"
+                  ? "从培训类阅读（40 题）开始，估算你的起始分数。也可以跳过。"
+                  : "Start with the General Training Reading set (40 questions) to estimate your starting band. You can also skip this.")}
             </p>
           </div>
         )}

@@ -32,11 +32,14 @@ export async function submitPractice(
   timeSpentSeconds: number,
   flags: Record<string, boolean> = {},
   questionTimes: Record<string, number> = {},
+  learnerTestType: "academic" | "general" = "academic",
 ): Promise<PracticeResult> {
+  const effectiveTestType =
+    set.meta.testType === "both" ? learnerTestType : set.meta.testType;
   const attemptId = await createPracticeAttempt(
     set.meta.id,
     set.kind,
-    set.meta.testType === "both" ? "academic" : set.meta.testType,
+    effectiveTestType,
     mode,
     answers,
   );
@@ -56,8 +59,7 @@ export async function submitPractice(
 
   const rawScore = results.filter((r) => r.correct).length;
   const total = set.questions.length;
-  const testType = set.meta.testType === "both" ? "academic" : set.meta.testType;
-  const band = set.kind === "listening" ? listeningBand(rawScore) : readingBand(rawScore, testType);
+  const band = set.kind === "listening" ? listeningBand(rawScore) : readingBand(rawScore, effectiveTestType);
 
   await completePracticeAttempt(
     attemptId,

@@ -17,6 +17,8 @@ import { DEFAULT_PROFILE } from "@/lib/storage/types";
 interface StudyProfileContextValue {
   profile: StudyProfile;
   loading: boolean;
+  error: string | null;
+  retry: () => void;
   testType: "academic" | "general";
   updateProfile: (patch: Partial<StudyProfile>) => Promise<void>;
 }
@@ -26,21 +28,34 @@ const StudyProfileContext = createContext<StudyProfileContextValue | null>(null)
 export function StudyProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<StudyProfile>(DEFAULT_PROFILE);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const profileRef = useRef<StudyProfile>(DEFAULT_PROFILE);
 
-  // Load once on mount.
+  // Load once on mount (and again on retry).
   useEffect(() => {
     let cancelled = false;
-    getProfile().then((p) => {
-      if (cancelled) return;
-      setProfile(p);
-      profileRef.current = p;
-      setLoading(false);
-    });
+    setLoading(true);
+    setError(null);
+    getProfile()
+      .then((p) => {
+        if (cancelled) return;
+        setProfile(p);
+        profileRef.current = p;
+        setLoading(false);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        // Fall back to defaults and surface the error rather than loading forever.
+        setProfile(DEFAULT_PROFILE);
+        profileRef.current = DEFAULT_PROFILE;
+        setError((e as Error).message || "Failed to load profile");
+        setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
   const updateProfile = useCallback(
     async (patch: Partial<StudyProfile>) => {
@@ -64,10 +79,12 @@ export function StudyProfileProvider({ children }: { children: ReactNode }) {
     () => ({
       profile,
       loading,
+      error,
+      retry: () => setReloadKey((k) => k + 1),
       testType: profile.testType,
       updateProfile,
     }),
-    [profile, loading, updateProfile],
+    [profile, loading, error, updateProfile],
   );
 
   return <StudyProfileContext.Provider value={value}>{children}</StudyProfileContext.Provider>;
