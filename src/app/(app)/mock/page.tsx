@@ -30,11 +30,11 @@ const MOCKS: MockDef[] = [
 export default function MockPage() {
   const { t, locale } = useI18n();
   const { testType } = useStudyProfile();
-  const [attempts, setAttempts] = useState<{ id: string; kind: string; status: string; overallBand: number | null; startedAt: string }[] | null>(null);
+  const [attempts, setAttempts] = useState<{ id: string; kind: string; status: string; gradedAverage: number | null; startedAt: string }[] | null>(null);
 
   const load = useCallback(() => {
     listMockAttempts().then((a) =>
-      setAttempts(a.map((x) => ({ id: x.id, kind: x.kind, status: x.status, overallBand: x.overallBand, startedAt: x.startedAt }))),
+      setAttempts(a.map((x) => ({ id: x.id, kind: x.kind, status: x.status, gradedAverage: x.gradedAverage, startedAt: x.startedAt }))),
     );
   }, []);
 
@@ -116,10 +116,10 @@ export default function MockPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {isCompleted && a.overallBand != null && (
+                    {isCompleted && a.gradedAverage != null && (
                       <span className="text-xs text-muted">
                         {locale === "zh" ? "听力/阅读平均" : "L/R graded avg"}{" "}
-                        <span className="font-semibold">{a.overallBand.toFixed(1)}</span>
+                        <span className="font-semibold">{a.gradedAverage.toFixed(1)}</span>
                       </span>
                     )}
                     {isActive ? (

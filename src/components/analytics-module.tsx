@@ -65,7 +65,7 @@ export function AnalyticsModule() {
                   <p className="text-sm font-medium capitalize">{m.kind.replace(/_/g, " ")}</p>
                   <p className="text-xs text-muted">{new Date(m.startedAt).toLocaleDateString()}</p>
                 </div>
-                {m.status === "completed" ? <BandBadge band={m.overallBand} /> : <span className="text-xs text-muted">in progress</span>}
+                {m.status === "completed" ? <BandBadge band={m.gradedAverage} /> : <span className="text-xs text-muted">in progress</span>}
               </div>
             ))}
           </div>

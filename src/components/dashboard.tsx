@@ -21,7 +21,7 @@ export function Dashboard() {
   const [progress, setProgress] = useState<Record<string, string> | null>(null);
   const [due, setDue] = useState(0);
   const [mistakes, setMistakes] = useState(0);
-  const [mocks, setMocks] = useState<{ id: string; kind: string; status: string; overallBand: number | null; startedAt: string }[]>([]);
+  const [mocks, setMocks] = useState<{ id: string; kind: string; status: string; gradedAverage: number | null; startedAt: string }[]>([]);
   const [attempts, setAttempts] = useState(0);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function Dashboard() {
         setProgress(p);
         setDue(d.length);
         setMistakes(m.length);
-        setMocks(mk.slice(0, 5).map((x) => ({ id: x.id, kind: x.kind, status: x.status, overallBand: x.overallBand, startedAt: x.startedAt })));
+        setMocks(mk.slice(0, 5).map((x) => ({ id: x.id, kind: x.kind, status: x.status, gradedAverage: x.gradedAverage, startedAt: x.startedAt })));
         setAttempts(a.filter((x) => x.completedAt).length);
       },
     );
@@ -154,7 +154,7 @@ export function Dashboard() {
                   <p className="text-sm font-medium capitalize">{m.kind.replace(/_/g, " ")}</p>
                   <p className="text-xs text-muted">{new Date(m.startedAt).toLocaleDateString()}</p>
                 </div>
-                {m.status === "completed" ? <BandBadge band={m.overallBand} /> : <span className="text-xs text-muted">{t("mock.inProgress")}</span>}
+                {m.status === "completed" ? <BandBadge band={m.gradedAverage} /> : <span className="text-xs text-muted">{t("mock.inProgress")}</span>}
               </div>
             ))}
           </div>

@@ -64,7 +64,7 @@ export function MockRunner({
   const [listening, setListening] = useState<ListeningPlaybackState>(initialListeningPlaybackState());
   const [currentQuestion, setCurrentQuestion] = useState<Record<string, number>>({});
   const [results, setResults] = useState<Record<string, MockSectionResult> | null>(null);
-  const [overallBand, setOverallBand] = useState(0);
+  const [gradedAverage, setGradedAverage] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const resumedRef = useRef(false);
@@ -237,7 +237,7 @@ export function MockRunner({
       const res = await finishMock(attemptId!, testType, listeningSet, readingSet, input);
       localStorage.removeItem(storageKey(kind));
       setResults(res.sections);
-      setOverallBand(res.overallBand);
+      setGradedAverage(res.gradedAverage);
       setPhase("results");
     } catch (e) {
       setError(String(e));
@@ -359,7 +359,7 @@ export function MockRunner({
           <div className="card card-pad mt-4">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted">{t("mock.gradedSections")}</p>
-              <BandBadge band={overallBand} />
+              <BandBadge band={gradedAverage} />
             </div>
             <div className="mt-4 space-y-2">
               {sections.map((s) => {

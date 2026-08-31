@@ -34,7 +34,7 @@ export async function finishMock(
   listeningSet: PracticeSet | null,
   readingSet: PracticeSet | null,
   input: MockCompleteInput,
-): Promise<{ overallBand: number; sections: Record<string, MockSectionResult> }> {
+): Promise<{ gradedAverage: number; sections: Record<string, MockSectionResult> }> {
   const sections: Record<string, MockSectionResult> = {};
 
   if (input.listening && listeningSet) {
@@ -51,15 +51,16 @@ export async function finishMock(
     sections.writing = { band: input.writing.band };
   }
 
-  const bands = [sections.listening?.band, sections.reading?.band, sections.writing?.band]
+  // Objective (Listening/Reading) graded average. This is NOT an official
+  // Overall IELTS Band (which requires Writing + Speaking too).
+  const objectiveBands = [sections.listening?.band, sections.reading?.band]
     .filter((b): b is number => typeof b === "number" && b >= 0);
+  const gradedAverage = objectiveBands.length
+    ? Math.round((objectiveBands.reduce((a, b) => a + b, 0) / objectiveBands.length) * 2) / 2
+    : 0;
 
-  // Average of completed skills (NOT an official overall band unless all four
-  // skills — including Speaking — are present).
-  const overallBand = bands.length ? Math.round((bands.reduce((a, b) => a + b, 0) / bands.length) * 2) / 2 : 0;
-
-  await completeMockAttempt(attemptId, overallBand);
-  return { overallBand, sections };
+  await completeMockAttempt(attemptId, gradedAverage);
+  return { gradedAverage, sections };
 }
 
 function scoreSet(set: PracticeSet, answers: Record<string, AnswerValue>) {

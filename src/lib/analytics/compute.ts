@@ -24,7 +24,7 @@ export interface AnalyticsData {
   profile: { targetBand: number | null; currentBand: number | null; testType: string };
   summary: AnalyticsSummary;
   recentAttempts: { id: string; skill: string; band: number | null; rawScore: number | null; startedAt: string }[];
-  mocks: { id: string; kind: string; overallBand: number | null; status: string; startedAt: string }[];
+  mocks: { id: string; kind: string; gradedAverage: number | null; status: string; startedAt: string }[];
   mistakesBySkill: Record<string, number>;
   mistakesByType: Record<string, number>;
 }
@@ -69,7 +69,7 @@ export async function computeAnalytics(): Promise<AnalyticsData> {
     mocks: mocks.slice(0, 20).map((m) => ({
       id: m.id,
       kind: m.kind,
-      overallBand: m.overallBand,
+      gradedAverage: m.gradedAverage,
       status: m.status,
       startedAt: m.startedAt,
     })),
