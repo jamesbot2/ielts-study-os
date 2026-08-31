@@ -1,30 +1,29 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useI18n } from "@/components/i18n-provider";
+import { useStudyProfile } from "@/components/study-profile-provider";
 import {
   createStudyTask,
   deleteStudyTask,
-  getProfile,
   listStudyTasks,
   updateStudyTask,
 } from "@/lib/storage/repository";
 import { generatePlan } from "@/lib/study-plan/generate";
 import { studyGuides } from "@/lib/content/study-guides";
-import type { StudyProfile, StudyTask } from "@/lib/storage/types";
+import type { StudyTask } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
 
 export function StudyPlanModule() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const { profile, loading: profileLoading } = useStudyProfile();
   const [tasks, setTasks] = useState<StudyTask[]>([]);
-  const [profile, setProfile] = useState<StudyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
 
   const load = useCallback(async () => {
-    const [tasks, p] = await Promise.all([listStudyTasks(), getProfile()]);
-    setTasks(tasks);
-    setProfile(p);
+    setTasks(await listStudyTasks());
     setLoading(false);
   }, []);
 
@@ -33,14 +32,17 @@ export function StudyPlanModule() {
   }, [load]);
 
   async function generate() {
-    if (!profile) return;
     setGenerating(true);
     const plan = generatePlan(profile);
     for (const task of tasks) {
       if (task.category !== "daily") await deleteStudyTask(task.id);
     }
     for (const item of plan) {
-      await createStudyTask(item.title, item.category, item.scheduledFor ?? undefined);
+      await createStudyTask(item.title, item.category, item.scheduledFor ?? undefined, {
+        titleZh: item.titleZh,
+        href: item.href ?? undefined,
+        estimatedMinutes: item.estimatedMinutes,
+      });
     }
     setGenerating(false);
     await load();
@@ -52,13 +54,13 @@ export function StudyPlanModule() {
   }
 
   async function addTask() {
-    const title = prompt("Task title");
+    const title = prompt(locale === "zh" ? "任务标题" : "Task title");
     if (!title) return;
     await createStudyTask(title, "daily", new Date().toISOString().slice(0, 10));
     await load();
   }
 
-  if (loading) return <div className="container-page"><Spinner /></div>;
+  if (profileLoading || loading) return <div className="container-page"><Spinner /></div>;
 
   const grouped = groupBy(tasks, (task) => task.scheduledFor ?? "unscheduled");
 
@@ -103,7 +105,14 @@ export function StudyPlanModule() {
                       className="h-4 w-4 accent-[var(--accent)]"
                       aria-label={task.title}
                     />
-                    <span className={`flex-1 text-sm ${task.completed ? "line-through text-muted" : ""}`}>{task.title}</span>
+                    <span className={`flex-1 text-sm ${task.completed ? "line-through text-muted" : ""}`}>
+                      {task.href ? (
+                        <Link href={task.href} className="hover:underline">
+                          {locale === "zh" && task.titleZh ? task.titleZh : task.title}
+                        </Link>
+                      ) : locale === "zh" && task.titleZh ? task.titleZh : task.title}
+                    </span>
+                    {task.estimatedMinutes != null && <span className="text-xs text-muted">{task.estimatedMinutes}m</span>}
                     <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-muted">{task.category}</span>
                     <button className="text-xs text-muted hover:text-red-600" onClick={async () => { await deleteStudyTask(task.id); await load(); }}>
                       ✕

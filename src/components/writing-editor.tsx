@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import type { WritingPrompt, WritingEvaluation } from "@/types/ielts";
 import { useI18n } from "@/components/i18n-provider";
 import { getAiClient, isAiAvailable } from "@/lib/ai/client";
@@ -19,7 +20,7 @@ const SESSION_KEY = (promptId: string) => `ielts-writing-session:${promptId}`;
 export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
   const { t, locale } = useI18n();
   const [mode, setMode] = useState<"practice" | "exam">("practice");
-  const [phase, setPhase] = useState<"intro" | "writing" | "evaluating" | "done">("intro");
+  const [phase, setPhase] = useState<"intro" | "writing" | "expired" | "evaluating" | "done">("intro");
   const [text, setText] = useState("");
   const [timeLeft, setTimeLeft] = useState(prompt.suggestedMinutes * 60);
   const [deadline, setDeadline] = useState<number | null>(null);
@@ -88,6 +89,7 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
         if (remaining <= 0) {
           clearInterval(interval);
           saveWritingDraft(prompt.id, text);
+          setPhase("expired");
         }
       } else {
         setTimeLeft(Math.round((Date.now() - startedAt.current) / 1000));
@@ -168,7 +170,6 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
       // draft already persisted
     }
     setSaving(false);
-    localStorage.removeItem(SESSION_KEY(prompt.id));
     alert(t("common.save") + " ✓");
   }
 
@@ -229,6 +230,30 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
 
   if (phase === "done" && evaluation) {
     return <EvaluationView evaluation={evaluation} prompt={prompt} onBack={() => setPhase("writing")} />;
+  }
+
+  if (phase === "expired") {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <h1 className="text-2xl font-semibold">{locale === "zh" ? "时间到" : "Time is up"}</h1>
+        <p className="mt-2 text-sm text-muted">
+          {locale === "zh"
+            ? "考试时间已结束。你的作文已保存，不能再继续编辑。"
+            : "Your exam time has ended. Your answer has been saved and is no longer editable."}
+        </p>
+        <div className="card card-pad mt-6">
+          <p className="mb-2 text-sm font-medium">{prompt.title}</p>
+          <p className="mb-3 text-xs text-muted">{wordCount} {t("writing.wordCount")}</p>
+          <div className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-md bg-gray-50 p-4 text-sm leading-relaxed">
+            {text || <em className="text-muted">{locale === "zh" ? "（无内容）" : "(no content)"}</em>}
+          </div>
+        </div>
+        <div className="mt-6 flex gap-3">
+          <button className="btn-primary" onClick={evaluate}>{t("writing.evaluate")}</button>
+          <Link href="/practice/writing" className="btn-secondary">{locale === "zh" ? "返回写作" : "Back to writing"}</Link>
+        </div>
+      </div>
+    );
   }
 
   return (

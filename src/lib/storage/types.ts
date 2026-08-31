@@ -39,11 +39,14 @@ export const DEFAULT_PROFILE: StudyProfile = {
 export interface StudyTask {
   id: string;
   title: string;
+  titleZh: string | null;
   category: string;
   scheduledFor: string | null;
   completed: number;
   completedAt: string | null;
   createdAt: string;
+  href: string | null;
+  estimatedMinutes: number | null;
 }
 
 export interface LessonProgress {
@@ -182,11 +185,11 @@ export interface MockAttempt {
   id: string;
   kind: string;
   testType: TestType;
-  status: "in_progress" | "completed";
+  status: "in_progress" | "completed" | "abandoned";
   startedAt: string;
   completedAt: string | null;
   state: Record<string, unknown>;
-  overallBand: number | null;
+  overallBand: number | null; // Listening/Reading graded average (not an official overall band)
 }
 
 export interface AiConversation {

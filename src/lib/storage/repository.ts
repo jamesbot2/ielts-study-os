@@ -385,6 +385,14 @@ export async function completeMockAttempt(id: string, overallBand: number): Prom
   await db().mockAttempts.update(id, { status: "completed", completedAt: nowIso(), overallBand });
 }
 
+export async function abandonMockAttempt(id: string): Promise<void> {
+  await db().mockAttempts.update(id, { status: "abandoned", completedAt: nowIso() });
+}
+
+export async function deleteMockAttempt(id: string): Promise<void> {
+  await db().mockAttempts.delete(id);
+}
+
 export async function listMockAttempts(): Promise<MockAttempt[]> {
   return db().mockAttempts.orderBy("startedAt").reverse().toArray();
 }
@@ -410,15 +418,23 @@ export async function listStudyTasks(): Promise<StudyTask[]> {
   return db().studyTasks.orderBy("scheduledFor").toArray();
 }
 
-export async function createStudyTask(title: string, category: string, scheduledFor?: string): Promise<StudyTask> {
+export async function createStudyTask(
+  title: string,
+  category: string,
+  scheduledFor?: string,
+  options?: { titleZh?: string; href?: string; estimatedMinutes?: number },
+): Promise<StudyTask> {
   const task: StudyTask = {
     id: newId(),
     title,
+    titleZh: options?.titleZh ?? null,
     category,
     scheduledFor: scheduledFor ?? null,
     completed: 0,
     completedAt: null,
     createdAt: nowIso(),
+    href: options?.href ?? null,
+    estimatedMinutes: options?.estimatedMinutes ?? null,
   };
   await db().studyTasks.add(task);
   return task;

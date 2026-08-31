@@ -2,8 +2,11 @@ import type { StudyProfile } from "@/lib/storage/types";
 
 export interface GeneratedTask {
   title: string;
+  titleZh: string;
   category: string;
   scheduledFor: string | null;
+  estimatedMinutes: number;
+  href: string | null;
 }
 
 function addDays(date: Date, days: number): Date {
@@ -16,8 +19,9 @@ function iso(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-// Deterministic study-plan generator. Produces a balanced weekly plan that
-// weighs weakest skills more heavily and schedules mock exams before the test.
+// Deterministic study-plan generator. Personalised by test type, target/current
+// band gap, per-skill targets, weak skills, weekly hours and test date.
+
 export function generatePlan(profile: StudyProfile): GeneratedTask[] {
   const tasks: GeneratedTask[] = [];
   const start = new Date();
@@ -26,43 +30,112 @@ export function generatePlan(profile: StudyProfile): GeneratedTask[] {
     ? Math.max(1, Math.ceil((targetDate.getTime() - start.getTime()) / (7 * 86_400_000)))
     : 8;
 
+  // Weekly time budget in minutes.
+  const weeklyMinutes = Math.max(60, (profile.weeklyHours || 6) * 60);
+
   const weakest = new Set(profile.weakestSkills ?? []);
-  const allSkills = ["listening", "reading", "writing", "speaking"] as const;
+
+  // Skill priority from the target/current gap plus explicit weakness.
+  const current = (profile.currentBand ?? profile.targetBand ?? 5) as number;
+  const target = profile.targetBand ?? 6.5;
+  const overallGap = Math.max(0, target - current);
+
+  function skillGap(skill: "listening" | "reading" | "writing" | "speaking"): number {
+    const targetMap = {
+      listening: profile.targetListening,
+      reading: profile.targetReading,
+      writing: profile.targetWriting,
+      speaking: profile.targetSpeaking,
+    } as const;
+    const t = targetMap[skill] ?? target;
+    return Math.max(0, t - current);
+  }
+
+  // Base sessions per skill per week, boosted by gap and explicit weakness.
+  function weeklySessions(skill: "listening" | "reading" | "writing" | "speaking"): number {
+    let n = skill === "writing" || skill === "speaking" ? 2 : 1;
+    if (weakest.has(skill)) n += 1;
+    if (skillGap(skill) >= 1) n += 1;
+    if (skillGap(skill) >= 2) n += 1;
+    return Math.min(n, 4);
+  }
+
+  const readingHref =
+    profile.testType === "general" ? "/practice/reading/general-reading-1" : "/practice/reading/academic-reading-1";
+  const writingHref = "/practice/writing";
+  const fullMockHref = profile.testType === "general" ? "/mock/run/general_full" : "/mock/run/academic_full";
+
+  const sessionMinutes: Record<string, number> = {
+    listening: 35,
+    reading: 45,
+    writing: 45,
+    speaking: 30,
+    vocabulary: 15,
+    review: 20,
+    mock: 120,
+  };
 
   for (let w = 0; w < weeks; w++) {
     const weekStart = addDays(start, w * 7);
 
-    // Weigh weakest skills with extra sessions
-    for (const skill of allSkills) {
-      const extra = weakest.has(skill) ? 1 : 0;
-      const sessions = skill === "writing" || skill === "speaking" ? 2 + extra : 1 + extra;
-      for (let i = 0; i < sessions; i++) {
-        tasks.push({
-          title: `${capitalize(skill)} practice session ${i + 1}`,
+    // Cap total weekly minutes by scaling if the default allocation exceeds the budget.
+    let weekTasks: GeneratedTask[] = [];
+
+    const push = (t: Omit<GeneratedTask, "scheduledFor"> & { scheduledFor: string }) =>
+      weekTasks.push({ ...t, scheduledFor: t.scheduledFor });
+
+    for (const skill of ["listening", "reading", "writing", "speaking"] as const) {
+      const n = weeklySessions(skill);
+      for (let i = 0; i < n; i++) {
+        const isWriting = skill === "writing";
+        const isReading = skill === "reading";
+        push({
+          title: `${capitalize(skill)} practice ${i + 1}${isWriting ? (profile.testType === "general" ? " (letter)" : " (Task 1/2)") : ""}`,
+          titleZh: `${skillZh(skill)}练习 ${i + 1}${isWriting ? (profile.testType === "general" ? "（书信）" : "（Task 1/2）") : ""}`,
           category: skill,
+          estimatedMinutes: sessionMinutes[skill],
+          href: isReading ? readingHref : isWriting ? writingHref : skill === "listening" ? "/practice/listening/listening-1" : "/practice/speaking",
           scheduledFor: iso(addDays(weekStart, i * 2)),
         });
       }
     }
 
-    tasks.push({
+    push({
       title: "Vocabulary review (spaced repetition)",
+      titleZh: "词汇复习（间隔重复）",
       category: "vocabulary",
+      estimatedMinutes: sessionMinutes.vocabulary,
+      href: "/vocabulary",
       scheduledFor: iso(addDays(weekStart, 1)),
     });
-    tasks.push({
+    push({
       title: "Review mistake book",
+      titleZh: "复习错题本",
       category: "review",
+      estimatedMinutes: sessionMinutes.review,
+      href: "/mistakes",
       scheduledFor: iso(addDays(weekStart, 3)),
     });
 
     if (w % 2 === 1) {
-      tasks.push({
-        title: `Mock exam (${w === weeks - 2 ? "final" : "timed"} full test)`,
+      push({
+        title: `Full mock exam (${profile.testType === "general" ? "General Training" : "Academic"})`,
+        titleZh: `全真模拟考试（${profile.testType === "general" ? "培训类" : "学术类"}）`,
         category: "mock",
+        estimatedMinutes: sessionMinutes.mock,
+        href: fullMockHref,
         scheduledFor: iso(addDays(weekStart, 5)),
       });
     }
+
+    // Scale down to the weekly budget if necessary.
+    const total = weekTasks.reduce((sum, t) => sum + t.estimatedMinutes, 0);
+    if (total > weeklyMinutes && weekTasks.length > 1) {
+      const scale = weeklyMinutes / total;
+      for (const t of weekTasks) t.estimatedMinutes = Math.max(10, Math.round(t.estimatedMinutes * scale));
+    }
+
+    tasks.push(...weekTasks);
   }
 
   return tasks;
@@ -70,4 +143,8 @@ export function generatePlan(profile: StudyProfile): GeneratedTask[] {
 
 function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function skillZh(skill: string): string {
+  return { listening: "听力", reading: "阅读", writing: "写作", speaking: "口语" }[skill] ?? skill;
 }

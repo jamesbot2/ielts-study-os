@@ -58,3 +58,42 @@ function addDays(days: number): string {
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
 }
+
+describe("study plan personalization", () => {
+  it("general training uses general reading and mock hrefs", () => {
+    const plan = generatePlan({ ...base, testType: "general" });
+    const reading = plan.find((t) => t.category === "reading");
+    const mock = plan.find((t) => t.category === "mock");
+    expect(reading?.href).toBe("/practice/reading/general-reading-1");
+    expect(mock?.href).toBe("/mock/run/general_full");
+  });
+
+  it("academic uses academic hrefs", () => {
+    const plan = generatePlan({ ...base, testType: "academic" });
+    const reading = plan.find((t) => t.category === "reading");
+    const mock = plan.find((t) => t.category === "mock");
+    expect(reading?.href).toBe("/practice/reading/academic-reading-1");
+    expect(mock?.href).toBe("/mock/run/academic_full");
+  });
+
+  it("weekly workload stays within the time budget", () => {
+    const plan = generatePlan({ ...base, weeklyHours: 3 });
+    const week0 = plan.filter((t) => t.scheduledFor?.startsWith(localDateOffset0()));
+    const total = week0.reduce((sum, t) => sum + t.estimatedMinutes, 0);
+    // 3h = 180 min; with scaling this should not wildly exceed the budget.
+    expect(total).toBeLessThanOrEqual(220);
+  });
+
+  it("every generated task has an href and estimated minutes", () => {
+    const plan = generatePlan(base);
+    for (const t of plan) {
+      expect(t.href).toBeTruthy();
+      expect(t.estimatedMinutes).toBeGreaterThan(0);
+    }
+  });
+});
+
+function localDateOffset0(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
