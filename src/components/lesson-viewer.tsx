@@ -4,20 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
 import type { Lesson } from "@/lib/content/curriculum";
+import { getAdjacentLessons, categories } from "@/lib/content/curriculum";
 import type { Callout } from "@/lib/content/types";
 import { getLessonProgress, setLessonProgress } from "@/lib/storage/repository";
+import { useStudyProfile } from "@/components/study-profile-provider";
 import { getSource } from "@/lib/content/sources";
 
-export function LessonViewer({
-  lesson,
-  next,
-  previous,
-}: {
-  lesson: Lesson;
-  next: { id: string; title: string } | null;
-  previous: { id: string; title: string } | null;
-}) {
-  const { locale } = useI18n();
+export function LessonViewer({ lesson }: { lesson: Lesson }) {
+  const { t, locale } = useI18n();
+  const { testType } = useStudyProfile();
   const [status, setStatus] = useState("not_started");
   const [saving, setSaving] = useState(false);
 
@@ -26,6 +21,8 @@ export function LessonViewer({
   }, [lesson.id]);
 
   const l = (s: { en: string; zh: string }) => s[locale];
+  const { previous, next } = getAdjacentLessons(lesson.id, testType);
+  const categoryLabel = categories.find((c) => c.id === lesson.category);
 
   async function markComplete() {
     setSaving(true);
@@ -47,11 +44,13 @@ export function LessonViewer({
         </Link>
         <div className="flex items-center gap-2 text-xs text-muted">
           {lesson.difficulty != null && <span>{"●".repeat(lesson.difficulty)}</span>}
-          {lesson.estimatedMinutes != null && <span>~{lesson.estimatedMinutes} min</span>}
+          {lesson.estimatedMinutes != null && <span>~{lesson.estimatedMinutes} {t("common.minutes")}</span>}
         </div>
       </div>
 
-      <p className="text-xs uppercase tracking-wide text-muted">{lesson.category}</p>
+      <p className="text-xs uppercase tracking-wide text-muted">
+        {locale === "zh" ? categoryLabel?.labelZh ?? lesson.category : categoryLabel?.labelEn ?? lesson.category}
+      </p>
       <h1 className="mt-1 text-2xl font-semibold tracking-tight">{l(lesson.title)}</h1>
       <p className="mt-2 text-[15px] text-muted">{l(lesson.summary)}</p>
 
@@ -108,7 +107,7 @@ export function LessonViewer({
       <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
         {previous ? (
           <Link href={`/learn/${previous.id}`} className="btn-secondary">
-            ← {previous.title}
+            ← {l(previous.title)}
           </Link>
         ) : (
           <span />
@@ -120,15 +119,15 @@ export function LessonViewer({
             disabled={saving}
             className={status === "completed" ? "btn-secondary" : "btn-primary"}
           >
-            {status === "completed" ? "✓ Completed" : "Mark as complete"}
+            {status === "completed" ? (locale === "zh" ? "✓ 已完成" : "✓ Completed") : t("learn.markComplete")}
           </button>
           {next ? (
             <Link href={`/learn/${next.id}`} className="btn-primary">
-              Next →
+              {locale === "zh" ? "下一课" : "Next"} →
             </Link>
           ) : (
             <Link href="/practice" className="btn-primary">
-              Start practice →
+              {locale === "zh" ? "开始练习" : "Start practice"} →
             </Link>
           )}
         </div>

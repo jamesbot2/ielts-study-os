@@ -32,28 +32,54 @@ export const categories: { id: Category; labelEn: string; labelZh: string }[] = 
   { id: "strategies", labelEn: "Strategies", labelZh: "策略" },
 ];
 
+const CATEGORY_ORDER: Record<Category, number> = Object.fromEntries(
+  categories.map((c, i) => [c.id, i]),
+) as Record<Category, number>;
+
+// A lesson applies to a learner if it is shared or matches their test type.
+function lessonApplies(lesson: Lesson, testType: "academic" | "general"): boolean {
+  return lesson.testType === "both" || lesson.testType === testType;
+}
+
+export type TestType = "academic" | "general";
+
+// Deterministic curriculum sequence: category order, then lesson order, then id.
+export function getOrderedLessons(options?: {
+  testType?: TestType;
+  category?: Category;
+}): Lesson[] {
+  return allLessons
+    .filter((l) => (options?.category ? l.category === options.category : true))
+    .filter((l) => (options?.testType ? lessonApplies(l, options.testType) : true))
+    .sort(
+      (a, b) =>
+        (CATEGORY_ORDER[a.category] ?? 99) - (CATEGORY_ORDER[b.category] ?? 99) ||
+        a.order - b.order ||
+        a.id.localeCompare(b.id),
+    );
+}
+
 export function getLesson(id: string): Lesson | undefined {
   return allLessons.find((l) => l.id === id);
 }
 
-export function getLessonsByCategory(category: Category): Lesson[] {
-  return allLessons
-    .filter((l) => l.category === category)
-    .sort((a, b) => a.order - b.order);
+export function getLessonsByCategory(category: Category, testType?: TestType): Lesson[] {
+  return getOrderedLessons({ category, testType });
 }
 
-export function getNextLesson(id: string): Lesson | undefined {
-  const idx = allLessons.findIndex((l) => l.id === id);
-  return idx >= 0 ? allLessons[idx + 1] : undefined;
+// Adjacent lessons within a test-type-aware sequence.
+export function getAdjacentLessons(
+  id: string,
+  testType: TestType,
+): { previous: Lesson | undefined; next: Lesson | undefined } {
+  const ordered = getOrderedLessons({ testType });
+  const idx = ordered.findIndex((l) => l.id === id);
+  if (idx < 0) return { previous: undefined, next: undefined };
+  return { previous: ordered[idx - 1], next: ordered[idx + 1] };
 }
 
-export function getPreviousLesson(id: string): Lesson | undefined {
-  const idx = allLessons.findIndex((l) => l.id === id);
-  return idx > 0 ? allLessons[idx - 1] : undefined;
-}
-
-export function lessonCountByCategory(): Record<Category, number> {
+export function lessonCountByCategory(testType?: TestType): Record<Category, number> {
   const out = {} as Record<Category, number>;
-  for (const c of categories) out[c.id] = getLessonsByCategory(c.id).length;
+  for (const c of categories) out[c.id] = getLessonsByCategory(c.id, testType).length;
   return out;
 }

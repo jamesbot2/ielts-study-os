@@ -9,8 +9,8 @@ import { Spinner } from "@/components/ui";
 type MockKind = "academic_full" | "general_full" | "listening" | "reading" | "reading_general";
 
 const MOCKS: { kind: MockKind; titleKey: string; descKey: string; skills: string[]; duration: string; count: string; testType: "academic" | "general" }[] = [
-  { kind: "academic_full", titleKey: "mock.academicFull", descKey: "mock.academicFullDesc", skills: ["Listening", "Reading", "Writing"], duration: "≈2h 35m", count: "82 questions", testType: "academic" },
-  { kind: "general_full", titleKey: "mock.generalFull", descKey: "mock.generalFullDesc", skills: ["Listening", "Reading", "Writing"], duration: "≈2h 35m", count: "82 questions", testType: "general" },
+  { kind: "academic_full", titleKey: "mock.academicFull", descKey: "mock.academicFullDesc", skills: ["Listening", "Reading", "Writing"], duration: "≈2h 35m", count: "80 questions + 2 writing tasks", testType: "academic" },
+  { kind: "general_full", titleKey: "mock.generalFull", descKey: "mock.generalFullDesc", skills: ["Listening", "Reading", "Writing"], duration: "≈2h 35m", count: "80 questions + 2 writing tasks", testType: "general" },
   { kind: "listening", titleKey: "mock.listening", descKey: "mock.listeningDesc", skills: ["Listening"], duration: "≈35m", count: "40 questions", testType: "academic" },
   { kind: "reading", titleKey: "mock.reading", descKey: "mock.readingDesc", skills: ["Reading"], duration: "60m", count: "40 questions", testType: "academic" },
   { kind: "reading_general", titleKey: "mock.reading", descKey: "mock.readingGeneralDesc", skills: ["Reading"], duration: "60m", count: "40 questions", testType: "general" },

@@ -3,52 +3,43 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
+import { useStudyProfile } from "@/components/study-profile-provider";
 import {
-  getProfile,
   getDueVocabCards,
+  getLessonProgress,
   listMistakes,
   listMockAttempts,
   listPracticeAttempts,
 } from "@/lib/storage/repository";
-import type { StudyProfile } from "@/lib/storage/types";
-import { categories, lessonCountByCategory } from "@/lib/content/curriculum";
+import { categories, getLessonsByCategory } from "@/lib/content/curriculum";
+import { daysUntil } from "@/lib/date";
 import { BandBadge, StatCard, Spinner } from "@/components/ui";
 
-function daysUntil(date: string | null): number | null {
-  if (!date) return null;
-  const target = new Date(date);
-  const now = new Date();
-  return Math.ceil((target.getTime() - now.getTime()) / 86_400_000);
-}
-
 export function Dashboard() {
-  const { t } = useI18n();
-  const [profile, setProfile] = useState<StudyProfile | null>(null);
+  const { t, locale } = useI18n();
+  const { profile, testType, loading } = useStudyProfile();
+  const [progress, setProgress] = useState<Record<string, string> | null>(null);
   const [due, setDue] = useState(0);
   const [mistakes, setMistakes] = useState(0);
   const [mocks, setMocks] = useState<{ id: string; kind: string; status: string; overallBand: number | null; startedAt: string }[]>([]);
   const [attempts, setAttempts] = useState(0);
 
   useEffect(() => {
-    Promise.all([
-      getProfile(),
-      getDueVocabCards(),
-      listMistakes(),
-      listMockAttempts(),
-      listPracticeAttempts(500),
-    ]).then(([p, d, m, mk, a]) => {
-      setProfile(p);
-      setDue(d.length);
-      setMistakes(m.length);
-      setMocks(mk.slice(0, 5).map((x) => ({ id: x.id, kind: x.kind, status: x.status, overallBand: x.overallBand, startedAt: x.startedAt })));
-      setAttempts(a.filter((x) => x.completedAt).length);
-    });
+    Promise.all([getLessonProgress(), getDueVocabCards(), listMistakes(), listMockAttempts(), listPracticeAttempts(500)]).then(
+      ([p, d, m, mk, a]) => {
+        setProgress(p);
+        setDue(d.length);
+        setMistakes(m.length);
+        setMocks(mk.slice(0, 5).map((x) => ({ id: x.id, kind: x.kind, status: x.status, overallBand: x.overallBand, startedAt: x.startedAt })));
+        setAttempts(a.filter((x) => x.completedAt).length);
+      },
+    );
   }, []);
 
-  if (!profile) return <div className="container-page"><Spinner /></div>;
+  if (loading || !progress) return <div className="container-page"><Spinner /></div>;
 
   const days = daysUntil(profile.testDate);
-  const lessonCounts = lessonCountByCategory();
+  const readingSet = testType === "academic" ? "academic-reading-1" : "general-reading-1";
 
   return (
     <div className="container-page">
@@ -56,20 +47,20 @@ export function Dashboard() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">IELTS Study OS</h1>
           <p className="mt-1 text-sm text-muted">
-            {profile.testType === "academic" ? "Academic" : "General Training"}
+            {testType === "academic" ? "Academic" : "General Training"}
             {profile.targetBand ? ` · ${t("dashboard.targetBand")} ${profile.targetBand}` : ""}
           </p>
         </div>
         {!profile.onboardingComplete ? (
-          <Link href="/onboarding" className="btn-primary">Set up my study profile</Link>
+          <Link href="/onboarding" className="btn-primary">{locale === "zh" ? "设置学习档案" : "Set up my study profile"}</Link>
         ) : (
-          <Link href="/settings" className="btn-secondary">Edit profile</Link>
+          <Link href="/settings" className="btn-secondary">{locale === "zh" ? "编辑档案" : "Edit profile"}</Link>
         )}
       </div>
 
       {!profile.onboardingComplete && (
-        <div className="card card-pad mb-6 border-blue-200 bg-blue-50">
-          <p className="text-sm">Welcome! Complete a short setup to get a personalised study plan and targets. You can skip and change everything later.</p>
+        <div className="card card-pad mb-6 border-border bg-accent-soft">
+          <p className="text-sm">{locale === "zh" ? "欢迎！完成简短的设置以获取个性化学习计划与目标。" : "Welcome! Complete a short setup to get a personalised study plan and targets."}</p>
         </div>
       )}
 
@@ -79,7 +70,7 @@ export function Dashboard() {
         <StatCard
           label={t("dashboard.testCountdown")}
           value={days == null ? "—" : Math.max(0, days)}
-          hint={days != null && days < 0 ? "past test date" : profile.testDate ? `${t("dashboard.daysLeft")}` : undefined}
+          hint={days != null && days < 0 ? (locale === "zh" ? "已过考试日期" : "past test date") : profile.testDate ? t("dashboard.daysLeft") : undefined}
         />
         <StatCard label={t("dashboard.weeklyMinutes")} value={`${profile.weeklyHours}h`} />
       </div>
@@ -87,13 +78,24 @@ export function Dashboard() {
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         <section className="card card-pad">
           <h2 className="mb-3 text-sm font-semibold">{t("dashboard.skillProgress")}</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {categories.map((c) => (
-              <div key={c.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2">
-                <span className="text-sm">{c.labelEn}</span>
-                <span className="text-sm text-muted">{lessonCounts[c.id]} lessons</span>
-              </div>
-            ))}
+          <div className="space-y-2">
+            {categories.map((c) => {
+              const lessons = getLessonsByCategory(c.id, testType);
+              if (lessons.length === 0) return null;
+              const done = lessons.filter((l) => progress[l.id] === "completed").length;
+              const pct = Math.round((done / lessons.length) * 100);
+              return (
+                <div key={c.id}>
+                  <div className="flex items-center justify-between text-sm">
+                    <span>{locale === "zh" ? c.labelZh : c.labelEn}</span>
+                    <span className="text-xs text-muted">{done}/{lessons.length} · {pct}%</span>
+                  </div>
+                  <div className="mt-1 h-1.5 w-full rounded-full bg-gray-100">
+                    <div className="h-1.5 rounded-full bg-accent" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -101,7 +103,7 @@ export function Dashboard() {
           <h2 className="mb-3 text-sm font-semibold">{t("dashboard.recentPractice")}</h2>
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-muted">Practice attempts</dt>
+              <dt className="text-muted">{locale === "zh" ? "练习次数" : "Practice attempts"}</dt>
               <dd>{attempts}</dd>
             </div>
             <div className="flex justify-between">
@@ -109,7 +111,7 @@ export function Dashboard() {
               <dd>{due}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted">Mistakes recorded</dt>
+              <dt className="text-muted">{locale === "zh" ? "错题数" : "Mistakes recorded"}</dt>
               <dd>{mistakes}</dd>
             </div>
             <div className="flex justify-between">
@@ -125,19 +127,19 @@ export function Dashboard() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/learn" className="card card-pad hover:border-accent">
             <p className="font-medium">1 · {t("nav.learn")}</p>
-            <p className="mt-1 text-sm text-muted">Understand structure and scoring first.</p>
+            <p className="mt-1 text-sm text-muted">{locale === "zh" ? "先理解考试结构与评分。" : "Understand structure and scoring first."}</p>
           </Link>
-          <Link href="/practice/reading/academic-reading-1" className="card card-pad hover:border-accent">
+          <Link href={`/practice/reading/${readingSet}`} className="card card-pad hover:border-accent">
             <p className="font-medium">2 · {t("nav.practice")}</p>
-            <p className="mt-1 text-sm text-muted">Academic Reading set.</p>
+            <p className="mt-1 text-sm text-muted">{testType === "academic" ? (locale === "zh" ? "学术类阅读。" : "Academic Reading set.") : (locale === "zh" ? "培训类阅读。" : "General Training Reading set.")}</p>
           </Link>
           <Link href="/practice/listening/listening-1" className="card card-pad hover:border-accent">
             <p className="font-medium">3 · Listening</p>
-            <p className="mt-1 text-sm text-muted">Four parts with audio.</p>
+            <p className="mt-1 text-sm text-muted">{locale === "zh" ? "四部分带音频。" : "Four parts with audio."}</p>
           </Link>
           <Link href="/mock" className="card card-pad hover:border-accent">
             <p className="font-medium">4 · {t("nav.mockExams")}</p>
-            <p className="mt-1 text-sm text-muted">Computer-style, timed.</p>
+            <p className="mt-1 text-sm text-muted">{locale === "zh" ? "机考风格、计时。" : "Computer-style, timed."}</p>
           </Link>
         </div>
       </section>
@@ -152,7 +154,7 @@ export function Dashboard() {
                   <p className="text-sm font-medium capitalize">{m.kind.replace(/_/g, " ")}</p>
                   <p className="text-xs text-muted">{new Date(m.startedAt).toLocaleDateString()}</p>
                 </div>
-                {m.status === "completed" ? <BandBadge band={m.overallBand} /> : <span className="text-xs text-muted">in progress</span>}
+                {m.status === "completed" ? <BandBadge band={m.overallBand} /> : <span className="text-xs text-muted">{t("mock.inProgress")}</span>}
               </div>
             ))}
           </div>

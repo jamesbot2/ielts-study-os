@@ -1,28 +1,47 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { writingPrompts } from "@/lib/content/practice/writing-prompts";
+import { useStudyProfile } from "@/components/study-profile-provider";
+import { useI18n } from "@/components/i18n-provider";
+import { Spinner } from "@/components/ui";
 
 export default function WritingPage() {
-  const acadTask1 = writingPrompts.filter((p) => p.testType === "academic" && p.task === 1);
-  const genTask1 = writingPrompts.filter((p) => p.testType === "general" && p.task === 1);
+  const { t, locale } = useI18n();
+  const { testType, loading } = useStudyProfile();
+  const [showAll, setShowAll] = useState(false);
+
+  if (loading) return <div className="container-page"><Spinner /></div>;
+
+  const task1 = writingPrompts.filter((p) => p.task === 1 && (showAll || p.testType === testType));
   const task2 = writingPrompts.filter((p) => p.task === 2);
 
   return (
     <div className="container-page">
-      <h1 className="text-2xl font-semibold tracking-tight">Writing</h1>
-      <p className="mt-1 text-sm text-muted">
-        Task 1 (Academic/General) and Task 2 essays with timer, word count and AI feedback.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{t("writing.title")}</h1>
+          <p className="mt-1 text-sm text-muted">
+            {locale === "zh" ? "含计时、字数和 AI 反馈的 Task 1 与 Task 2 作文。" : "Task 1 and Task 2 essays with timer, word count and AI feedback."}
+          </p>
+        </div>
+        <label className="flex items-center gap-1.5 text-sm text-muted">
+          <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
+          {locale === "zh" ? "显示全部类型" : "Show all IELTS types"}
+        </label>
+      </div>
 
       <section className="mt-6">
-        <h2 className="mb-3 text-base font-semibold">Academic Task 1</h2>
-        <PromptList prompts={acadTask1} />
+        <h2 className="mb-3 text-base font-semibold">
+          {testType === "academic"
+            ? (locale === "zh" ? "学术类 Task 1" : "Academic Task 1")
+            : (locale === "zh" ? "培训类 Task 1（书信）" : "General Training Task 1 (letters)")}
+        </h2>
+        <PromptList prompts={task1} />
       </section>
       <section className="mt-6">
-        <h2 className="mb-3 text-base font-semibold">General Training Task 1 (letters)</h2>
-        <PromptList prompts={genTask1} />
-      </section>
-      <section className="mt-6">
-        <h2 className="mb-3 text-base font-semibold">Task 2 (essays)</h2>
+        <h2 className="mb-3 text-base font-semibold">{t("writing.task2")}</h2>
         <PromptList prompts={task2} />
       </section>
     </div>
