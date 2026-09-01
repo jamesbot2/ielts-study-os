@@ -140,18 +140,22 @@ export function generatePlan(profile: StudyProfile): GeneratedTask[] {
           estimatedMinutes: sessionMinutes.mock,
           href: fullMockHref,
         },
-        priority: weeksUntilExam <= 4 ? 95 : 70,
-        required: weeksUntilExam <= 2,
+        // High priority in the final weeks, but NEVER forced: if it does not fit
+        // the budget it is deferred rather than breaking the week.
+        priority: weeksUntilExam <= 2 ? 200 : weeksUntilExam <= 4 ? 150 : 70,
+        required: false,
       });
     }
 
-    // Budget allocator: pick the highest-priority tasks that fit within the
-    // weekly time budget. Task durations are NEVER shortened.
-    candidates.sort((a, b) => b.priority - a.priority);
+    // Budget allocator: reserve budget for small must-do tasks first, then fill
+    // the remainder with the highest-priority deferrable tasks. Durations are
+    // never shortened.
+    const mustDo = candidates.filter((c) => c.required).sort((a, b) => b.priority - a.priority);
+    const deferrable = candidates.filter((c) => !c.required).sort((a, b) => b.priority - a.priority);
     let remaining = weeklyMinutes;
     const weekTasks: GeneratedTask[] = [];
-    for (const c of candidates) {
-      if (c.required || c.task.estimatedMinutes <= remaining) {
+    for (const c of [...mustDo, ...deferrable]) {
+      if (c.task.estimatedMinutes <= remaining) {
         weekTasks.push({ ...c.task, scheduledFor: iso(addDays(weekStart, weekTasks.length % 6)) });
         remaining -= c.task.estimatedMinutes;
       }

@@ -115,3 +115,43 @@ describe("study plan duration integrity", () => {
     }
   });
 });
+
+function dateRange(start: Date, days: number): Set<string> {
+  const out = new Set<string>();
+  for (let i = 0; i < days; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    out.add(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`);
+  }
+  return out;
+}
+
+describe("study plan full-week budget", () => {
+  function week0Total(weeklyHours: number, testType: "academic" | "general" = "academic"): number {
+    const plan = generatePlan({ ...base, weeklyHours, testType });
+    const week0 = dateRange(new Date(), 7);
+    return plan
+      .filter((t) => t.scheduledFor && week0.has(t.scheduledFor))
+      .reduce((sum, t) => sum + t.estimatedMinutes, 0);
+  }
+
+  it("weeklyHours=1 stays within 60 minutes", () => {
+    expect(week0Total(1)).toBeLessThanOrEqual(60);
+  });
+
+  it("weeklyHours=3 stays within 180 minutes", () => {
+    expect(week0Total(3)).toBeLessThanOrEqual(180);
+  });
+
+  it("weeklyHours=6 stays within 360 minutes", () => {
+    expect(week0Total(6)).toBeLessThanOrEqual(360);
+  });
+
+  it("weeklyHours=10 stays within 600 minutes", () => {
+    expect(week0Total(10)).toBeLessThanOrEqual(600);
+  });
+
+  it("general training week 0 is also within budget", () => {
+    expect(week0Total(2, "general")).toBeLessThanOrEqual(120);
+  });
+});
