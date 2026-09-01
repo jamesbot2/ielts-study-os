@@ -16,11 +16,14 @@ export interface ImportResult {
 }
 
 // Deduplicate by normalized word; never reset FSRS state or user notes.
+// `opts` may carry browsing context (selected book) so provenance is accurate.
 export async function addProviderEntryToPersonalVocabulary(
   entry: CanonicalVocabularyEntry,
+  opts: { bookId?: string } = {},
 ): Promise<ImportResult> {
   const norm = entry.word.trim().toLowerCase();
   const existing = (await listVocabCards()).find((c) => c.word.trim().toLowerCase() === norm);
+  const bookId = opts.bookId ?? entry.source.bookId;
 
   if (existing) {
     let merged = false;
@@ -31,7 +34,7 @@ export async function addProviderEntryToPersonalVocabulary(
           providerId: entry.source.providerId,
           providerName: entry.source.providerName,
           externalId: entry.source.externalId,
-          bookId: entry.source.bookId,
+          bookId,
           sourceUrl: entry.source.sourceUrl,
           attribution: entry.source.attribution,
           license: entry.source.license,
@@ -62,7 +65,7 @@ export async function addProviderEntryToPersonalVocabulary(
       providerId: entry.source.providerId,
       providerName: entry.source.providerName,
       externalId: entry.source.externalId,
-      bookId: entry.source.bookId,
+      bookId,
       sourceUrl: entry.source.sourceUrl,
       attribution: entry.source.attribution,
       license: entry.source.license,

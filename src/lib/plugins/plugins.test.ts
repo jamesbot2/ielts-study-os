@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { registerPlugin, listPlugins, getPlugin, findPluginsByCapability, findPluginsByKind, resetRegistry } from "./registry";
-import { normalizeProviderError, ProviderNetworkError, ProviderSchemaError } from "./errors";
+import { normalizeProviderError, ProviderNetworkError } from "./errors";
 import { builtinVocabularyProvider } from "./vocabulary/builtin-provider";
 import { BaicizhanVocabularyProvider } from "./vocabulary/baicizhan-provider";
 import type { IeltsPlugin } from "./types";

@@ -1,13 +1,14 @@
-// Vocabulary provider runtime: registration + resolution.
+// Vocabulary plugin registration + runtime resolution.
 
-import { registerPlugin } from "../registry";
+import { registerPlugin, findPluginsByKind } from "../registry";
 import { createPluginContext } from "../manager";
+import { getProviderConfig } from "@/lib/storage/repository";
 import type { IeltsPlugin } from "../types";
 import { builtinVocabularyProvider } from "./builtin-provider";
 import { BaicizhanVocabularyProvider } from "./baicizhan-provider";
 import type { VocabularyProvider } from "./types";
 
-export function registerAllPlugins(): void {
+export function registerVocabularyPlugins(): void {
   registerPlugin({
     id: builtinVocabularyProvider.id,
     name: builtinVocabularyProvider.name,
@@ -17,6 +18,10 @@ export function registerAllPlugins(): void {
     source: builtinVocabularyProvider.source,
     capabilities: [...builtinVocabularyProvider.capabilities],
     builtin: true,
+    // Built-in resolves through the same runtime path as any other provider.
+    async createRuntime() {
+      return builtinVocabularyProvider;
+    },
   });
 
   registerPlugin({
@@ -42,9 +47,8 @@ export function registerAllPlugins(): void {
 }
 
 export async function resolveVocabularyProvider(pluginId: string): Promise<VocabularyProvider | null> {
-  registerAllPlugins();
-  const { getPlugin } = await import("../registry");
-  const plugin = getPlugin(pluginId);
+  registerVocabularyPlugins();
+  const plugin = findPluginsByKind("vocabulary").find((p) => p.id === pluginId);
   if (!plugin || !plugin.createRuntime) return null;
   const context = await createPluginContext(pluginId);
   const runtime = await plugin.createRuntime(context);
@@ -52,28 +56,22 @@ export async function resolveVocabularyProvider(pluginId: string): Promise<Vocab
 }
 
 export async function listVocabularyPlugins(): Promise<IeltsPlugin[]> {
-  registerAllPlugins();
-  const { findPluginsByKind } = await import("../registry");
+  registerVocabularyPlugins();
   return findPluginsByKind("vocabulary");
 }
 
 export async function listEnabledVocabularyProviders(): Promise<VocabularyProvider[]> {
-  registerAllPlugins();
-  const { findPluginsByKind } = await import("../registry");
-  const { getProviderConfig } = await import("@/lib/storage/repository");
+  registerVocabularyPlugins();
   const plugins = findPluginsByKind("vocabulary");
   const providers: VocabularyProvider[] = [];
 
   for (const plugin of plugins) {
-    if (plugin.builtin) {
-      if (plugin.id === builtinVocabularyProvider.id) providers.push(builtinVocabularyProvider);
-      continue;
-    }
     const cfg = await getProviderConfig(plugin.id);
-    if (cfg?.enabled) {
-      const resolved = await resolveVocabularyProvider(plugin.id);
-      if (resolved) providers.push(resolved);
-    }
+    // Built-in providers are always enabled; others require an enabled config row.
+    const enabled = plugin.builtin ? true : cfg?.enabled === true;
+    if (!enabled || !plugin.createRuntime) continue;
+    const context = await createPluginContext(plugin.id);
+    providers.push((await plugin.createRuntime(context)) as VocabularyProvider);
   }
   return providers;
 }

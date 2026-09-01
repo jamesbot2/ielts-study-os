@@ -11,6 +11,7 @@ import {
 import type { ProviderConfig } from "@/lib/storage/types";
 import type { IeltsPlugin, PluginCache, PluginContext, PluginHealth } from "./types";
 import { normalizeProviderError } from "./errors";
+import { sanitizeProviderConfig } from "./config";
 
 export async function getConfig(pluginId: string): Promise<ProviderConfig | undefined> {
   return getProviderConfig(pluginId);
@@ -29,6 +30,10 @@ export async function setConfig(pluginId: string, patch: Partial<ProviderConfig>
     ...(existing ?? {}),
     ...patch,
   };
+  // Never persist secret config fields in the browser; coerce typed values.
+  if (next.config) {
+    next.config = sanitizeProviderConfig(getPlugin(pluginId), next.config);
+  }
   await saveProviderConfig(next);
   return next;
 }

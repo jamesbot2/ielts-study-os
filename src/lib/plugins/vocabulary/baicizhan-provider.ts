@@ -13,7 +13,7 @@ import type {
   VocabularyProvider,
 } from "./types";
 import type { PluginContext, PluginHealth } from "../types";
-import { ProviderNetworkError } from "../errors";
+import { ProviderNetworkError, ProviderSchemaError } from "../errors";
 
 const PROVIDER_ID = "baicizhan";
 const DEFAULT_BASE_URL = "https://cdn.jsdelivr.net/gh/lyc8503/baicizhan-word-meaning-API/data";
@@ -77,18 +77,25 @@ export class BaicizhanVocabularyProvider implements VocabularyProvider {
     return res.json();
   }
 
+  // Real remote fetch + validation (bypasses cache). Used by health checks.
+  private async fetchRemoteWordList(): Promise<{ total: number; list: string[] }> {
+    const url = `${this.baseUrl()}/list.json`;
+    const raw = await this.fetchJson(url);
+    const parsed = BaicizhanListSchema.safeParse(raw);
+    if (!parsed.success) throw new ProviderSchemaError(parsed.error.message, PROVIDER_ID);
+    return parsed.data;
+  }
+
+  // Cache-first list (for browsing).
   private async getWordList(): Promise<{ total: number; list: string[] }> {
     const cache = this.cache();
     if (cache) {
       const cached = await cache.get<{ total: number; list: string[] }>("list");
       if (cached) return cached;
     }
-    const url = `${this.baseUrl()}/list.json`;
-    const raw = await this.fetchJson(url);
-    const parsed = BaicizhanListSchema.safeParse(raw);
-    if (!parsed.success) throw new ProviderNetworkError("Invalid list response", PROVIDER_ID);
-    if (cache) await cache.set("list", parsed.data, LIST_CACHE_TTL);
-    return parsed.data;
+    const data = await this.fetchRemoteWordList();
+    if (cache) await cache.set("list", data, LIST_CACHE_TTL);
+    return data;
   }
 
   async listBooks(): Promise<VocabularyBook[]> {
@@ -115,12 +122,14 @@ export class BaicizhanVocabularyProvider implements VocabularyProvider {
   }
 
   async listEntries(bookId: string, options: VocabularyPageOptions = {}): Promise<VocabularyPage> {
-    const { list, total } = await this.getWordList();
+    const { list } = await this.getWordList();
     const query = options.query?.trim().toLowerCase();
     const filtered = query ? list.filter((w) => w.toLowerCase().includes(query)) : list;
     const offset = options.offset ?? 0;
     const limit = options.limit ?? 50;
     const words = filtered.slice(offset, offset + limit);
+    // total reflects the filtered result count when searching.
+    const total = filtered.length;
 
     const entries: CanonicalVocabularyEntry[] = words.map((word) => ({
       id: `${PROVIDER_ID}:${word.toLowerCase()}`,
@@ -194,7 +203,8 @@ export class BaicizhanVocabularyProvider implements VocabularyProvider {
     const cache = this.cache();
     const hasCached = cache ? Boolean(await cache.get("list")) : false;
     try {
-      await this.getWordList();
+      // Health must check the REMOTE endpoint, never the cache.
+      await this.fetchRemoteWordList();
       return { status: "healthy", checkedAt: new Date().toISOString() };
     } catch {
       return {

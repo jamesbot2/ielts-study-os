@@ -53,4 +53,26 @@ describe("provider entry import", () => {
     expect(cards[0].source?.providerId).toBe("baicizhan");
     expect(first[0].id).toBe(cards[0].id);
   });
+
+  it("preserves an opaque externalId distinct from the display word", async () => {
+    const e = entry({
+      id: "provider:opaque-123",
+      word: "environment",
+      source: { providerId: "provider", providerName: "Provider", externalId: "opaque-123", rawSourceType: "provider" },
+    });
+    await addProviderEntryToPersonalVocabulary(e);
+    const cards = await listVocabCards();
+    expect(cards[0].word).toBe("environment");
+    expect(cards[0].source?.externalId).toBe("opaque-123");
+  });
+
+  it("preserves selected book provenance (bookId override)", async () => {
+    const e = entry({
+      source: { providerId: "provider", providerName: "Provider", externalId: "word", rawSourceType: "provider" },
+    });
+    await addProviderEntryToPersonalVocabulary(e, { bookId: "book-7" });
+    const cards = await listVocabCards();
+    expect(cards[0].source?.bookId).toBe("book-7");
+    expect(cards[0].source?.providerId).toBe("provider");
+  });
 });
