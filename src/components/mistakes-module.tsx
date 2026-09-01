@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
 import { listMistakes, updateMistake } from "@/lib/storage/repository";
 import type { Mistake } from "@/lib/storage/types";
+import Link from "next/link";
+import { coachLink } from "@/lib/coach/page-link";
 import { Spinner } from "@/components/ui";
 
 export function MistakesModule() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [mistakes, setMistakes] = useState<Mistake[]>([]);
   const [loading, setLoading] = useState(true);
   const [skillFilter, setSkillFilter] = useState("all");
@@ -66,6 +68,21 @@ export function MistakesModule() {
                     )}
                   </div>
                   {m.explanation && <p className="mt-2 rounded-md bg-gray-50 p-2 text-sm text-muted">{m.explanation}</p>}
+                  <Link
+                    href={coachLink({
+                      route: "/mistakes",
+                      kind: "mistake",
+                      mistakeId: m.id,
+                      questionType: m.questionType ?? undefined,
+                      question: m.question?.slice(0, 300),
+                      userAnswer: m.userAnswer?.slice(0, 300),
+                      correctAnswer: m.correctAnswer?.slice(0, 300),
+                      explanation: m.explanation?.slice(0, 300),
+                    })}
+                    className="mt-2 inline-block text-sm text-accent underline"
+                  >
+                    {locale === "zh" ? "问 AI 教练：解释这道错题" : "Ask AI Coach: explain this mistake"}
+                  </Link>
                 </div>
                 <select
                   className="input w-32 shrink-0"

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import json
-from typing import Any, AsyncIterator
+from collections.abc import AsyncIterator
+from typing import Any
 
 import httpx
 
@@ -33,12 +34,13 @@ class OpenAICompatibleLlm(LlmProvider):
 
     async def stream(self, messages: list[dict[str, str]], **kwargs: Any) -> AsyncIterator[str]:
         payload = {"model": self.model, "messages": messages, "stream": True, **kwargs}
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            async with client.stream("POST", f"{self.base_url}/chat/completions", headers=self._headers(), json=payload) as res:
-                res.raise_for_status()
-                async for line in res.aiter_lines():
-                    if not line.startswith("data:"):
-                        continue
+        async with httpx.AsyncClient(timeout=self.timeout) as client, client.stream(
+            "POST", f"{self.base_url}/chat/completions", headers=self._headers(), json=payload
+        ) as res:
+            res.raise_for_status()
+            async for line in res.aiter_lines():
+                if not line.startswith("data:"):
+                    continue
                     data = line[5:].strip()
                     if data == "[DONE]":
                         break

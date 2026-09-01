@@ -20,11 +20,11 @@ class SearchRequest(BaseModel):
 
 @router.post("/api/rag/search")
 async def search(body: SearchRequest, request: Request) -> dict:
-    ctx = request.app.state.rag  # AgentRuntime container set in main.py
+    ctx = request.app.state.rag  # RagContext set in main.py
     filters = SearchFilters(**{k: v for k, v in body.filters.items() if k in SearchFilters.__dataclass_fields__})
     top_k = min(body.top_k, 20)
     embedding = await ctx.embeddings.embed_query(body.query)
-    results = ctx.retriever.search(body.query, embedding, top_k=top_k, filters=filters)
+    results = ctx.search(body.query, embedding, filters, top_k=top_k)
     return {
         "results": [
             {

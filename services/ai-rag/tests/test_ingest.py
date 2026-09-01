@@ -3,11 +3,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import pytest  # noqa: E402
-from tests.fakes import FakeEmbeddings  # noqa: E402
-from app.storage.repository import InMemoryRepository  # noqa: E402
-from app.knowledge.ingest import ingest_manifest  # noqa: E402
+import pytest
 
+from app.knowledge.ingest import ingest_manifest
+from app.storage.repository import InMemoryRepository
+from tests.fakes import FakeEmbeddings
 
 MANIFEST = {
     "sources": [

@@ -1,7 +1,4 @@
-"""Writing / Speaking evaluation compatibility endpoints.
-
-The V0.6 service keeps the existing web contract so evaluation keeps working.
-Pronunciatiion is NEVER scored from text alone."""
+"""Writing / Speaking evaluation endpoints — real LLM evaluation + validation."""
 
 from __future__ import annotations
 
@@ -9,6 +6,8 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
+
+from ..evaluation import EvaluationServiceError, evaluate_speaking, evaluate_writing
 
 router = APIRouter()
 
@@ -34,32 +33,23 @@ class SpeakingRequest(BaseModel):
 
 @router.post("/api/writing/evaluate")
 async def writing_evaluate(body: WritingRequest, request: Request) -> dict:
-    ctx = request.app.state.rag
-    if ctx.llm is None:
+    rag = request.app.state.rag
+    if rag.llm is None:
         raise HTTPException(status_code=503, detail="LLM not configured")
-    # Reuse the web prompt contract; structured output is validated server-side
-    # in production deployments. Here we return an honest placeholder band shape.
-    return {
-        "evaluation": {
-            "criterionScores": {},
-            "comments": "Writing evaluation is available when an LLM is configured.",
-            "bandGapAnalysis": "",
-            "notOfficial": True,
-        }
-    }
+    try:
+        evaluation = await evaluate_writing(rag.llm, body)
+    except EvaluationServiceError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message) from e
+    return {"evaluation": evaluation.model_dump()}
 
 
 @router.post("/api/speaking/evaluate")
 async def speaking_evaluate(body: SpeakingRequest, request: Request) -> dict:
-    ctx = request.app.state.rag
-    if ctx.llm is None:
+    rag = request.app.state.rag
+    if rag.llm is None:
         raise HTTPException(status_code=503, detail="LLM not configured")
-    has_audio = bool((body.audioMetrics or {}).get("pronunciationScore") is not None)
-    return {
-        "evaluation": {
-            "criterionScores": {},
-            "pronunciation": {"supported": has_audio, "band": 0, "rationale": "not evaluated" if not has_audio else "audio metric"},
-            "comments": "Speaking evaluation is available when an LLM is configured.",
-            "notOfficial": True,
-        }
-    }
+    try:
+        evaluation = await evaluate_speaking(rag.llm, body)
+    except EvaluationServiceError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message) from e
+    return {"evaluation": evaluation.model_dump()}

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PracticeSet, Question } from "@/types/ielts";
 import { useI18n } from "@/components/i18n-provider";
+import Link from "next/link";
+import { coachLink } from "@/lib/coach/page-link";
 import { submitPractice } from "@/lib/practice/submit";
 import { BandBadge, Spinner } from "@/components/ui";
 import {
@@ -516,7 +518,7 @@ export function ResultsView({
   answers: Record<string, Answer>;
   mode: string;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [filter, setFilter] = useState<"all" | "incorrect" | "unanswered">("all");
   const correct = results.filter((r) => r.correct).length;
 
@@ -584,6 +586,24 @@ export function ResultsView({
                     <span className="font-medium">Evidence:</span> {q.evidence}
                   </p>
                 ) : null}
+                {!r.correct && (
+                  <Link
+                    href={coachLink({
+                      route: "/practice",
+                      kind: "practice",
+                      practiceSetId: set.meta.id,
+                      questionId: q.id,
+                      questionType: q.type,
+                      question: q.prompt.slice(0, 300),
+                      userAnswer: stringify(r.userAnswer).slice(0, 300),
+                      correctAnswer: r.correctAnswer.slice(0, 300),
+                      explanation: q.explanation.slice(0, 300),
+                    })}
+                    className="mt-2 inline-block text-accent underline"
+                  >
+                    {locale === "zh" ? "问 AI 教练：解释这道题" : "Ask AI Coach: explain this question"}
+                  </Link>
+                )}
               </div>
               <p className="mt-2 text-xs text-muted">
                 {t("reading.questionType")}: {q.type} · {t("reading.difficulty")}: {q.difficulty}/5

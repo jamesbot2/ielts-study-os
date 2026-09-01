@@ -27,9 +27,12 @@ indexed data — ingestion upserts per chunk hash in batches.
 
 ## Storage
 
-PostgreSQL + pgvector (`knowledge_sources`, `knowledge_chunks`,
-`ingestion_runs`). Retrieval logic is DB-agnostic (`app/rag/retrieval.py`) and
-tested against an in-memory store. Never commit embeddings or DB dumps.
+PostgreSQL + pgvector is implemented (`PostgresKnowledgeRepository` +
+SQLAlchemy models for `knowledge_sources`, `knowledge_chunks`, `ingestion_runs`).
+Vector search uses pgvector `cosine_distance`; lexical search uses PostgreSQL
+`websearch_to_tsquery`; the two are fused with Reciprocal Rank Fusion in
+`hybrid_search_repository`. Retrieval is DB-agnostic and tested against an
+in-memory store. Embeddings and DB dumps are never committed.
 
 ## Hybrid retrieval
 

@@ -6,8 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from ..rag.retrieval import HybridRetriever, SearchFilters
 from ..llm.base import EmbeddingProvider
+from ..rag.retrieval import SearchFilters, hybrid_search_repository
 
 SNAPSHOT = dict[str, Any]
 
@@ -15,7 +15,7 @@ SNAPSHOT = dict[str, Any]
 @dataclass
 class ToolContext:
     snapshot: SNAPSHOT
-    retriever: HybridRetriever
+    repository: object
     embeddings: EmbeddingProvider
     locale: str = "en"
 
@@ -32,7 +32,7 @@ async def search_knowledge_base(ctx: ToolContext, args: dict[str, Any]) -> dict[
     )
     top_k = min(int(args.get("top_k", 8)), 20)
     embedding = await ctx.embeddings.embed_query(query)
-    results = ctx.retriever.search(query, embedding, top_k=top_k, filters=filters)
+    results = hybrid_search_repository(ctx.repository, query, embedding, filters, top_k=top_k)
     return {
         "results": [
             {

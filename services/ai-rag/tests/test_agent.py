@@ -3,27 +3,37 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from tests.fakes import FakeLlm, FakeEmbeddings  # noqa: E402
-from app.rag.retrieval import HybridRetriever, ChunkRecord  # noqa: E402
-from app.agent.runtime import AgentRuntime  # noqa: E402
+from app.agent.runtime import AgentRuntime
+from app.storage.repository import (
+    InMemoryKnowledgeRepository,
+    KnowledgeChunk,
+    KnowledgeSource,
+)
+from tests.fakes import FakeEmbeddings, FakeLlm
 
 
 def make_runtime(script):
-    retriever = HybridRetriever(
+    emb = FakeEmbeddings()
+    repo = InMemoryKnowledgeRepository()
+    repo.upsert_source(
+        KnowledgeSource(
+            id="ielts-org", title="IELTS.org", provider="IELTS", url="https://ielts.org",
+            source_type="official", official=True, license=None, redistribution_policy="metadata_only",
+            language="en", skill="reading", test_type="academic", topics=["tfng"], last_verified="2026-09-01",
+        )
+    )
+    content = "False means the statement contradicts the passage; Not Given means it is not mentioned."
+    repo.upsert_chunks(
         [
-            ChunkRecord(
-                chunk_id="c1",
-                source_id="ielts-org",
-                title="IELTS.org",
-                url="https://ielts.org",
-                section="False vs Not Given",
-                content="False means the statement contradicts the passage; Not Given means it is not mentioned.",
-                embedding=[1.0],
-                fields={"skill": "reading", "test_type": "academic", "official": True, "question_types": ["tfng"], "language": "en"},
+            KnowledgeChunk(
+                id="c1", source_id="ielts-org", heading="False vs Not Given", content=content,
+                language="en", skill="reading", test_type="academic", topics=["tfng"],
+                question_types=["tfng"], chunk_index=0, content_hash="h1",
+                embedding=emb._embed(content),
             )
         ]
     )
-    return AgentRuntime(FakeLlm(script), retriever, FakeEmbeddings())
+    return AgentRuntime(FakeLlm(script), repo, emb)
 
 
 def test_agent_searches_then_cites_valid_source():

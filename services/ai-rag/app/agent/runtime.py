@@ -4,16 +4,16 @@ and prompt-injection guards. Streaming output is produced as NDJSON events."""
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator
+from typing import Any
 
 from ..config import settings
-from ..llm.base import LlmProvider, EmbeddingProvider
-from ..rag.retrieval import HybridRetriever
+from ..llm.base import EmbeddingProvider, LlmProvider
 from ..rag.citations import validate_citations
 from . import tools
-from .tools import ToolContext
 from .schemas import AGENT_STEP_SCHEMA
+from .tools import ToolContext
 
 SYSTEM_PROMPT = """You are an IELTS learning coach (not an official examiner, psychologist, or generic chatbot).
 
@@ -36,14 +36,14 @@ class AgentResult:
 
 
 class AgentRuntime:
-    def __init__(self, llm: LlmProvider, retriever: HybridRetriever, embeddings: EmbeddingProvider) -> None:
+    def __init__(self, llm: LlmProvider, repository: object, embeddings: EmbeddingProvider) -> None:
         self.llm = llm
-        self.retriever = retriever
+        self.repository = repository
         self.embeddings = embeddings
         self.max_steps = settings.max_tool_iterations
 
     async def run(self, message: str, snapshot: dict[str, Any], locale: str = "en") -> AgentResult:
-        ctx = ToolContext(snapshot=snapshot, retriever=self.retriever, embeddings=self.embeddings, locale=locale)
+        ctx = ToolContext(snapshot=snapshot, repository=self.repository, embeddings=self.embeddings, locale=locale)
         retrieved_for_citations: list = []
         tool_steps: list[str] = []
         transcript: list[dict[str, str]] = [

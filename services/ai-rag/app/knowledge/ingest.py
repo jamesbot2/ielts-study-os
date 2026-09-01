@@ -9,12 +9,12 @@ from __future__ import annotations
 from typing import Any
 
 from ..llm.base import EmbeddingProvider
-from ..rag.chunking import chunk_sections, SourceSection
+from ..rag.chunking import SourceSection, chunk_sections
 from ..storage.repository import (
-    InMemoryRepository,
-    KnowledgeChunk,
-    KnowledgeSource,
     IngestionResult,
+    KnowledgeChunk,
+    KnowledgeRepository,
+    KnowledgeSource,
 )
 from .manifest import load_manifest
 
@@ -35,7 +35,7 @@ def content_to_sections(doc: dict[str, Any]) -> list[SourceSection]:
 
 
 async def ingest_manifest(
-    repo: InMemoryRepository,
+    repo: KnowledgeRepository,
     manifest_data: dict[str, Any],
     embeddings: EmbeddingProvider,
     exported_docs: dict[str, dict[str, Any]],
@@ -97,3 +97,101 @@ async def ingest_manifest(
         total.unchanged += r.unchanged
         total.deleted += r.deleted
     return total
+
+
+def _find_knowledge_dir() -> str:
+    import os
+
+    for candidate in (
+        os.environ.get("KNOWLEDGE_DIR"),
+        os.path.join(os.getcwd(), "knowledge"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", "knowledge"),
+    ):
+        if candidate and os.path.isdir(candidate):
+            return os.path.abspath(candidate)
+    raise FileNotFoundError("knowledge/ directory not found; set KNOWLEDGE_DIR")
+
+
+def load_exported_docs(knowledge_dir: str) -> dict[str, dict[str, Any]]:
+    import json
+    import os
+
+    docs: dict[str, dict[str, Any]] = {}
+    # IELTS Study OS original curriculum → one combined doc (one source, many sections).
+    curriculum_path = os.path.join(knowledge_dir, "generated", "ielts-study-os.json")
+    curriculum_sections: list[dict[str, Any]] = []
+    curriculum_question_types: list[str] = []
+    if os.path.exists(curriculum_path):
+        with open(curriculum_path) as f:
+            payload = json.load(f)
+        for lesson in payload.get("lessons", []):
+            title = lesson.get("title", {}).get("en", lesson.get("id", ""))
+            for s in lesson.get("sections", []):
+                curriculum_sections.append(
+                    {
+                        "heading": f"{title} — {s.get('heading', {}).get('en', '')}".strip(" —"),
+                        "paragraphs": s.get("paragraphs", []),
+                        "bullets": s.get("bullets", []),
+                    }
+                )
+            for qt in lesson.get("relatedQuestionTypes", []):
+                if qt not in curriculum_question_types:
+                    curriculum_question_types.append(qt)
+    docs["ielts-study-os-original"] = {
+        "questionTypes": curriculum_question_types,
+        "sections": curriculum_sections,
+    }
+    # Official-format notes → one doc.
+    notes_path = os.path.join(knowledge_dir, "official-notes.json")
+    if os.path.exists(notes_path):
+        with open(notes_path) as f:
+            notes = json.load(f)
+        docs["ielts-study-os-official-notes"] = {
+            "questionTypes": [],
+            "sections": [
+                {"heading": n["heading"], "paragraphs": [{"en": n["content"]}], "bullets": []}
+                for n in notes.get("notes", [])
+            ],
+        }
+    return docs
+
+
+def main() -> None:
+    import asyncio
+    import os
+
+    from ..config import settings
+    from ..embeddings.openai_compatible import OpenAICompatibleEmbeddings
+    from ..storage.repository import InMemoryKnowledgeRepository, PostgresKnowledgeRepository
+    from .manifest import load_manifest
+
+    knowledge_dir = _find_knowledge_dir()
+    manifest_path = os.path.join(knowledge_dir, "sources.yml")
+    with open(manifest_path) as f:
+        import yaml
+
+        manifest_data = yaml.safe_load(f)
+
+    embeddings: EmbeddingProvider
+    if settings.embedding_base_url and settings.embedding_model:
+        embeddings = OpenAICompatibleEmbeddings(settings.embedding_base_url, settings.embedding_api_key, settings.embedding_model, settings.embedding_dimension)
+    else:
+        from ..main import _ZeroEmbeddings
+
+        embeddings = _ZeroEmbeddings()
+
+    if settings.database_url:
+        repo = PostgresKnowledgeRepository(settings.database_url)
+    else:
+        repo = InMemoryKnowledgeRepository()
+
+    docs = load_exported_docs(knowledge_dir)
+    result = asyncio.run(ingest_manifest(repo, manifest_data, embeddings, docs))
+    print(f"sources={len(load_manifest(manifest_data).sources)} "
+          f"chunks_eligible={sum(1 for d in docs.values() if d)} "
+          f"added={result.added} updated={result.updated} "
+          f"unchanged={result.unchanged} deleted={result.deleted}")
+
+
+if __name__ == "__main__":
+    main()

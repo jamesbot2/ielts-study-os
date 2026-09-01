@@ -2,25 +2,26 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from ..config import settings
 
 router = APIRouter()
 
 
-def get_health() -> dict:
+@router.get("/health")
+async def health(request: Request) -> dict:
+    rag = request.app.state.rag
+    h = rag.health
     return {
         "status": "ok",
         "service": "ielts-study-os-ai-rag",
-        "llm_configured": bool(settings.llm_base_url and settings.llm_model),
+        "version": "0.6.1",
+        "llm_configured": rag.llm is not None,
         "embeddings_configured": bool(settings.embedding_base_url and settings.embedding_model),
-        # Database/vector status is reported by deployments that wire a real DB;
-        # here we reflect configuration only and never expose secret values.
-        "database": "configured" if settings.database_url else "unset",
+        "rag": rag.rag_state,
+        "database_configured": bool(settings.database_url),
+        "database_reachable": h.reachable,
+        "pgvector_available": h.pgvector_available,
+        "knowledge_chunk_count": h.chunk_count,
     }
-
-
-@router.get("/health")
-async def health() -> dict:
-    return get_health()

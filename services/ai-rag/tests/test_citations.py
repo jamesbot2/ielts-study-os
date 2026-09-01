@@ -3,8 +3,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.rag.citations import validate_citations  # noqa: E402
-from app.rag.retrieval import RetrievedChunk  # noqa: E402
+from app.rag.citations import validate_citations
+from app.rag.retrieval import RetrievedChunk
 
 
 def make_retrieved():

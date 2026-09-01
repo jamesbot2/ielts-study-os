@@ -9,6 +9,7 @@ import type { Callout } from "@/lib/content/types";
 import { getLessonProgress, setLessonProgress } from "@/lib/storage/repository";
 import { useStudyProfile } from "@/components/study-profile-provider";
 import { getSource } from "@/lib/content/sources";
+import { coachLink } from "@/lib/coach/page-link";
 
 export function LessonViewer({ lesson }: { lesson: Lesson }) {
   const { t, locale } = useI18n();
@@ -42,9 +43,17 @@ export function LessonViewer({ lesson }: { lesson: Lesson }) {
         <Link href="/learn" className="text-sm text-muted underline">
           ← {locale === "zh" ? "返回学习" : "Learn"}
         </Link>
-        <div className="flex items-center gap-2 text-xs text-muted">
-          {lesson.difficulty != null && <span>{"●".repeat(lesson.difficulty)}</span>}
-          {lesson.estimatedMinutes != null && <span>~{lesson.estimatedMinutes} {t("common.minutes")}</span>}
+        <div className="flex items-center gap-3">
+          <Link
+            href={coachLink({ route: `/learn/${lesson.id}`, kind: "lesson", lessonId: lesson.id })}
+            className="text-sm text-accent underline"
+          >
+            {locale === "zh" ? "问 AI 教练" : "Ask AI Coach"}
+          </Link>
+          <div className="flex items-center gap-2 text-xs text-muted">
+            {lesson.difficulty != null && <span>{"●".repeat(lesson.difficulty)}</span>}
+            {lesson.estimatedMinutes != null && <span>~{lesson.estimatedMinutes} {t("common.minutes")}</span>}
+          </div>
         </div>
       </div>
 

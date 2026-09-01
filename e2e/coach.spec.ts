@@ -79,4 +79,28 @@ test.describe("AI Coach", () => {
     // The rest of the app shell is still present.
     await expect(page.getByRole("link", { name: /Dashboard/ })).toBeVisible();
   });
+
+  test("lesson Ask Coach passes PageContext", async ({ page }) => {
+    await page.route(AGENT_URL, (route) =>
+      route.fulfill({ status: 200, contentType: "application/x-ndjson", body: '{"type":"delta","text":"ok"}\n{"type":"done"}\n' }),
+    );
+    await configureAiProxy(page);
+    await page.goto("/learn/fund-what-is-ielts/");
+    const ask = page.getByRole("link", { name: /Ask AI Coach|问 AI 教练/ });
+    await expect(ask).toBeVisible();
+    await ask.click();
+    await expect(page).toHaveURL(/coach\/\?context=/);
+
+    // Capture the request body to prove PageContext is included.
+    let body: Record<string, unknown> | null = null;
+    page.on("request", (req) => {
+      if (req.url().includes("/api/coach/agent")) body = req.postDataJSON();
+    });
+    const input = page.getByPlaceholder(/Ask about a question|ask about|progress/i).first();
+    await input.fill("explain this lesson");
+    await input.press("Enter");
+    await expect(page.getByText(/^ok$/)).toBeVisible();
+    expect(body).not.toBeNull();
+    expect((body as unknown as Record<string, unknown>).pageContext).toMatchObject({ kind: "lesson", lessonId: "fund-what-is-ielts" });
+  });
 });

@@ -6,6 +6,7 @@ import { useI18n } from "@/components/i18n-provider";
 import { getAiClient, isAiAvailable } from "@/lib/ai/client";
 import { buildLearnerContextSnapshot, type PageContext } from "@/lib/coach/context";
 import { isAllowedInternalHref } from "@/lib/coach/links";
+import { parseCoachContext } from "@/lib/coach/page-link";
 import type { CitationRef, ActionProposal } from "@/lib/coach/types";
 import {
   createConversation,
@@ -28,16 +29,10 @@ interface UiMessage {
 }
 
 function parsePageContext(params: URLSearchParams): PageContext | undefined {
-  const raw = params.get("context");
-  if (!raw) {
-    const route = params.get("route");
-    return route ? { route } : undefined;
-  }
-  try {
-    return JSON.parse(raw) as PageContext;
-  } catch {
-    return undefined;
-  }
+  const parsed = parseCoachContext(params);
+  if (parsed) return parsed;
+  const route = params.get("route");
+  return route ? { route } : undefined;
 }
 
 export function CoachModule() {

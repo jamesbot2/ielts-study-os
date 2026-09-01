@@ -54,11 +54,11 @@ describe("recommend next activity", () => {
     lessons: { totalApplicable: 10, completed: 2, inProgress: 1, byCategory: {}, recentlyCompleted: [], nextUnfinished: [] },
     practice: { recentAttempts: [], accuracyBySkill: {}, weakQuestionTypes: [], frequentIncorrectTypes: [] },
     mistakes: { totalActive: 0, bySkill: {}, byQuestionType: {}, recurring: [], recent: [] },
-    vocabulary: { total: 0, dueNow: 0, reviewedRecently: 0, lowRepetition: 0, weakTags: [], sources: [] },
+    vocabulary: { total: 0, dueNow: 0, reviewedRecently: 0, lowRepetition: 0, commonTags: [], weakTags: [], sources: [] },
     mocks: { completed: [], listeningTrend: [], readingTrend: [] },
     writing: { recent: [], repeatedWeaknesses: [] },
     speaking: { recentParts: [], totalTurns: 0, hasTranscript: false, evaluatedCriteria: [], repeatedIssues: [] },
-    studyPlan: { today: [], completedToday: 0, nextDays: [], overdue: 0, categoryDistribution: {}, estimatedMinutes: 0 },
+    studyPlan: { today: [], completedToday: 0, nextDays: [], overdue: 0, categoryDistribution: {}, next7DaysEstimatedMinutes: 0 },
   };
 
   it("recommends diagnostic when nothing is known", () => {

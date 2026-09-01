@@ -4,14 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, AsyncIterator
-
 import sys
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.llm.base import LlmProvider, EmbeddingProvider  # noqa: E402
+from app.llm.base import EmbeddingProvider, LlmProvider
 
 
 class FakeLlm(LlmProvider):

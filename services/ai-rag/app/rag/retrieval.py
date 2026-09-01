@@ -69,7 +69,7 @@ def matches_filters(chunk_fields: dict[str, Any], filters: SearchFilters) -> boo
         return False
     if filters.question_type and filters.question_type not in (chunk_fields.get("question_types") or []):
         return False
-    if filters.language and chunk_fields.get("language") and chunk_fields.get("language") != filters.language:
+    if filters.language and chunk_fields.get("language") and chunk_fields.get("language") != filters.language:  # noqa: SIM103
         return False
     return True
 
@@ -92,7 +92,6 @@ class HybridRetriever:
 
     def __init__(self, records: list[ChunkRecord]) -> None:
         self.records = records
-
     def search(self, query: str, query_embedding: list[float], top_k: int = 8, filters: SearchFilters | None = None) -> list[RetrievedChunk]:
         flt = filters or SearchFilters()
         candidates = [r for r in self.records if matches_filters(r.fields, flt)]
@@ -125,3 +124,40 @@ class HybridRetriever:
             )
             for r in top
         ]
+
+
+def hybrid_search_repository(
+    repo,
+    query: str,
+    query_embedding: list[float],
+    filters: SearchFilters | None = None,
+    top_k: int = 8,
+) -> list[RetrievedChunk]:
+    """Fuse vector + lexical results from a KnowledgeRepository via RRF.
+    Shared by both in-memory and PostgreSQL backends."""
+    flt = filters or SearchFilters()
+    fetch_k = max(top_k * 3, top_k)
+    vector_hits = repo.search_vector(query_embedding, flt, fetch_k)
+    lexical_hits = repo.search_lexical(query, flt, fetch_k)
+
+    fused = reciprocal_rank_fusion(
+        [[h.chunk_id for h in vector_hits], [h.chunk_id for h in lexical_hits]]
+    )
+    merged: dict[str, ChunkRecord] = {}
+    for h in vector_hits + lexical_hits:
+        merged.setdefault(h.chunk_id, h)
+    ranked = sorted(merged.values(), key=lambda h: fused.get(h.chunk_id, 0.0), reverse=True)
+    top = ranked[:top_k]
+    return [
+        RetrievedChunk(
+            chunk_id=h.chunk_id,
+            source_id=h.source_id,
+            title=h.title,
+            url=h.url,
+            section=h.section,
+            content=h.content,
+            score=round(fused.get(h.chunk_id, 0.0), 6),
+            fields=h.fields,
+        )
+        for h in top
+    ]

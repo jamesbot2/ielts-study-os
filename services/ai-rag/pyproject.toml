@@ -1,6 +1,6 @@
 [project]
 name = "ielts-study-os-ai-rag"
-version = "0.6.0"
+version = "0.6.1"
 description = "Independent AI/RAG service for IELTS Study OS: knowledge retrieval, learner-aware coach, evaluation."
 requires-python = ">=3.12"
 dependencies = [
@@ -12,6 +12,7 @@ dependencies = [
     "sqlalchemy>=2.0",
     "pgvector>=0.3",
     "numpy>=1.26",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +25,9 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "postgres: requires a live PostgreSQL+pgvector database (POSTGRES_TEST_URL)",
+]
 
 [tool.ruff]
 line-length = 100

@@ -1,5 +1,13 @@
-"""FastAPI application factory. Wires providers from settings; stays fully
-importable without any real LLM/embedding/DB for offline tests."""
+"""FastAPI application factory.
+
+Startup wiring is explicit and never silently substitutes an empty RAG store for
+a failed production database:
+
+- no DATABASE_URL       → RAG unavailable (empty in-memory store, clearly flagged)
+- DATABASE_URL unreachable → RAG unavailable/degraded (service still boots for diagnostics)
+- reachable, 0 chunks   → RAG "knowledge_empty"
+- reachable, N chunks   → RAG healthy (uses PostgreSQL + pgvector)
+"""
 
 from __future__ import annotations
 
@@ -8,21 +16,31 @@ from dataclasses import dataclass
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .config import settings
-from .llm.base import LlmProvider, EmbeddingProvider
-from .llm.openai_compatible import OpenAICompatibleLlm
-from .embeddings.openai_compatible import OpenAICompatibleEmbeddings
-from .rag.retrieval import HybridRetriever
 from .agent.runtime import AgentRuntime
-from .api import health, rag, coach, writing
+from .api import coach, health, rag, writing
+from .config import settings
+from .embeddings.openai_compatible import OpenAICompatibleEmbeddings
+from .llm.base import EmbeddingProvider, LlmProvider
+from .llm.openai_compatible import OpenAICompatibleLlm
+from .rag.retrieval import hybrid_search_repository
+from .storage.repository import (
+    InMemoryKnowledgeRepository,
+    PostgresKnowledgeRepository,
+    RepositoryHealth,
+)
 
 
 @dataclass
 class RagContext:
     llm: LlmProvider | None
     embeddings: EmbeddingProvider
-    retriever: HybridRetriever
+    repository: object
+    rag_state: str  # healthy | knowledge_empty | unavailable | degraded
+    health: RepositoryHealth
     agent: AgentRuntime
+
+    def search(self, query: str, embedding: list[float], filters, top_k: int):
+        return hybrid_search_repository(self.repository, query, embedding, filters, top_k)
 
 
 def build_llm() -> LlmProvider | None:
@@ -39,41 +57,13 @@ def build_embeddings() -> EmbeddingProvider | None:
     return None
 
 
-def create_app(retriever: HybridRetriever | None = None, llm: LlmProvider | None = None, embeddings: EmbeddingProvider | None = None) -> FastAPI:
-    app = FastAPI(title="IELTS Study OS AI/RAG", version="0.6.0")
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.allowed_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+class _ZeroEmbeddings(EmbeddingProvider):
+    @property
+    def dimension(self) -> int:
+        return settings.embedding_dimension
 
-    retriever = retriever or HybridRetriever([])
-    llm = llm if llm is not None else build_llm()
-    embeddings = embeddings or build_embeddings()
-
-    if embeddings is None:
-        # Minimal zero-vector fallback so the service can still boot offline.
-        from .llm.base import EmbeddingProvider as EP
-
-        class _Zero(EP):
-            @property
-            def dimension(self) -> int:
-                return 1
-
-            async def embed_texts(self, texts):
-                return [[0.0] for _ in texts]
-
-        embeddings = _Zero()
-
-    app.state.rag = RagContext(llm=llm, embeddings=embeddings, retriever=retriever, agent=AgentRuntime(llm or _NoopLlm(), retriever, embeddings))
-
-    app.include_router(health.router)
-    app.include_router(rag.router)
-    app.include_router(coach.router)
-    app.include_router(writing.router)
-    return app
+    async def embed_texts(self, texts):
+        return [[0.0] * self.dimension for _ in texts]
 
 
 class _NoopLlm(LlmProvider):
@@ -86,6 +76,58 @@ class _NoopLlm(LlmProvider):
 
     async def structured(self, messages, schema, **kwargs):
         return {"text": "AI is not configured on this service.", "citations": [], "actions": []}
+
+
+def create_app(repository: object | None = None, llm: LlmProvider | None = None, embeddings: EmbeddingProvider | None = None) -> FastAPI:
+    app = FastAPI(title="IELTS Study OS AI/RAG", version="0.6.1")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # Resolve repository + health state.
+    repo = repository
+    health_state = RepositoryHealth(reachable=False, chunk_count=0)
+    rag_state = "unavailable"
+    if repo is None:
+        if settings.database_url:
+            pg = PostgresKnowledgeRepository(settings.database_url)
+            health_state = pg.health_check()
+            if health_state.reachable:
+                repo = pg
+                rag_state = "healthy" if health_state.chunk_count > 0 else "knowledge_empty"
+            else:
+                repo = InMemoryKnowledgeRepository()
+                rag_state = "degraded"
+        else:
+            repo = InMemoryKnowledgeRepository()
+            rag_state = "unavailable"
+    else:
+        health_state = getattr(repo, "health_check", lambda: RepositoryHealth(reachable=True, chunk_count=0))()
+        rag_state = "healthy" if health_state.chunk_count > 0 else "knowledge_empty"
+
+    llm_provider = llm if llm is not None else build_llm()
+    emb = embeddings or build_embeddings() or _ZeroEmbeddings()
+
+    ctx = RagContext(
+        llm=llm_provider,
+        embeddings=emb,
+        repository=repo,
+        rag_state=rag_state,
+        health=health_state,
+        agent=AgentRuntime(llm_provider or _NoopLlm(), repo, emb),
+    )
+    app.state.rag = ctx
+    app.state.settings = settings
+
+    app.include_router(health.router)
+    app.include_router(rag.router)
+    app.include_router(coach.router)
+    app.include_router(writing.router)
+    return app
 
 
 app = create_app()

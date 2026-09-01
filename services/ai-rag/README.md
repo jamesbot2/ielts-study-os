@@ -51,9 +51,38 @@ Tests use deterministic fake LLM/embedding providers and an in-memory store.
 
 1. Export the web curriculum: `npm run knowledge:export`
    → `knowledge/generated/ielts-study-os.json`
-2. Ingestion is idempotent: sources are upserted by content hash; re-running
-   reports `added / updated / unchanged / deleted`. Only sources whose
-   `ingestion_mode` is redistributable are chunked (never official pages).
+2. Ingest (idempotent, upserts by content hash, removes stale chunks for the
+   same source, prints added/updated/unchanged/deleted):
+
+```bash
+KNOWLEDGE_DIR=../knowledge python -m app.knowledge.ingest
+```
+
+Set `DATABASE_URL` to target PostgreSQL; otherwise it runs against an
+in-memory store for smoke-testing.
+
+## Database initialization
+
+The repository creates tables and enables `vector` on first use
+(`CREATE EXTENSION IF NOT EXISTS vector`, then `Base.metadata.create_all`).
+For a controlled setup you can also run the same via the ingestion command.
+
+## Health / smoke
+
+```bash
+curl http://localhost:8000/health
+curl -X POST http://localhost:8000/api/rag/search -H 'Content-Type: application/json' -d '{"query":"How long is Academic Reading?","top_k":8}'
+```
+
+`/health` reports `rag` state (`healthy` | `knowledge_empty` | `degraded` |
+`unavailable`), `database_reachable`, `pgvector_available` and
+`knowledge_chunk_count` — never secrets.
+
+## Optional PostgreSQL integration tests
+
+```bash
+POSTGRES_TEST_URL=postgresql+psycopg://user:pass@localhost:5432/ielts_rag_test python -m pytest -m postgres
+```
 
 ## API
 

@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.rag.chunking import chunk_sections, SourceSection, estimate_tokens  # noqa: E402
+from app.rag.chunking import SourceSection, chunk_sections, estimate_tokens
 
 
 def test_small_sections_kept_whole():

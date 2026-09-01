@@ -21,6 +21,7 @@ import {
   listStudyTasks,
 } from "@/lib/storage/repository";
 import { allLessons } from "@/lib/content/curriculum";
+import { allPracticeSets } from "@/lib/content/practice";
 import type { Skill, TestType } from "@/types/ielts";
 
 // ---- Bounds (size budget) ----
@@ -58,12 +59,12 @@ export interface LessonProgressContext {
 
 export interface SkillAccuracy {
   attempts: number;
-  accuracy: number;
+  accuracy: number; // correct questions / total questions (0..1)
   avgBand: number;
 }
 
 export interface PracticeContext {
-  recentAttempts: { id: string; skill: string; band: number | null; rawScore: number | null; startedAt: string }[];
+  recentAttempts: { id: string; skill: string; band: number | null; rawScore: number | null; total: number | null; startedAt: string }[];
   accuracyBySkill: Record<string, SkillAccuracy>;
   weakQuestionTypes: string[];
   frequentIncorrectTypes: string[];
@@ -82,6 +83,7 @@ export interface VocabularyContext {
   dueNow: number;
   reviewedRecently: number;
   lowRepetition: number;
+  commonTags: string[];
   weakTags: string[];
   sources: string[];
 }
@@ -93,7 +95,7 @@ export interface MockContext {
 }
 
 export interface WritingContext {
-  recent: { id: string; promptId: string; testType: string; task: number; wordCount: number; createdAt: string; bands: number[] | null }[];
+  recent: { id: string; promptId: string; testType: string; task: number; wordCount: number; createdAt: string; bands: number[] }[];
   repeatedWeaknesses: string[];
 }
 
@@ -111,7 +113,7 @@ export interface StudyPlanContext {
   nextDays: { title: string; scheduledFor: string | null; completed: boolean }[];
   overdue: number;
   categoryDistribution: Record<string, number>;
-  estimatedMinutes: number;
+  next7DaysEstimatedMinutes: number;
 }
 
 export interface PageContext {
@@ -145,16 +147,23 @@ export interface LearnerContextSnapshot {
   page?: PageContext;
 }
 
-function skillAccuracy(rows: { skill: string; correct: number; band: number | null }[]): Record<string, SkillAccuracy> {
-  const out: Record<string, SkillAccuracy> = {};
-  for (const r of rows) {
-    const e = out[r.skill] ?? { attempts: 0, accuracy: 0, avgBand: 0 };
-    e.attempts += 1;
-    e.accuracy = (e.accuracy * (e.attempts - 1) + r.correct) / e.attempts;
-    e.avgBand = (e.avgBand * (e.attempts - 1) + (r.band ?? 0)) / e.attempts;
-    out[r.skill] = e;
+// Resolve questionId → question type from the canonical practice-set registry.
+function buildQuestionTypeMap(): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const set of allPracticeSets) {
+    for (const q of set.questions) map.set(q.id, q.type);
   }
-  return out;
+  return map;
+}
+
+interface WritingEvalLike {
+  criterionScores?: Array<{ criterion: string; band: number }> | Record<string, number>;
+}
+interface SpeakingEvalLike {
+  criterionScores?: Array<{ criterion: string; band: number; supported?: boolean }> | Record<string, number>;
+  weaknesses?: string[];
+  grammarIssues?: string[];
+  weakestCriterion?: string;
 }
 
 export async function buildLearnerContextSnapshot(page?: PageContext): Promise<LearnerContextSnapshot> {
@@ -191,31 +200,50 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
   const recentlyCompleted = [...completedLessons].reverse().slice(0, 5);
 
   // ---- Practice ----
-  const completedAttempts = attempts.filter((a) => a.completedAt);
-  const qaRows: { skill: string; correct: number; band: number | null }[] = [];
-  const qTypeCounts: Record<string, number> = {};
-  const qTypeWrong: Record<string, number> = {};
-  for (const a of completedAttempts.slice(0, CONTEXT_BOUNDS.recentAttempts)) {
+  const questionTypeMap = buildQuestionTypeMap();
+  // listPracticeAttempts is already newest-first (orderBy startedAt reverse).
+  const completedAttempts = attempts.filter((a) => a.completedAt).slice(0, CONTEXT_BOUNDS.recentAttempts);
+  const accuracyBySkill: Record<string, SkillAccuracy> = {};
+  const typeWrong: Record<string, number> = {};
+  const typeTotal: Record<string, number> = {};
+  const recentAttempts: PracticeContext["recentAttempts"] = [];
+
+  for (const a of completedAttempts) {
     const qas = await getQuestionAttempts(a.id);
     const correct = qas.filter((q) => q.correct === 1).length;
-    qaRows.push({ skill: a.skill, correct, band: a.band });
+    const total = qas.length;
+    const accuracy = total > 0 ? correct / total : 0;
+    const skill = a.skill;
+    const e = accuracyBySkill[skill] ?? { attempts: 0, accuracy: 0, avgBand: 0 };
+    // Aggregate accuracy as total correct / total questions (not averaged proportions).
+    const newAttempts = e.attempts + 1;
+    e.accuracy = (e.accuracy * e.attempts + accuracy) / newAttempts;
+    e.avgBand = (e.avgBand * e.attempts + (a.band ?? 0)) / newAttempts;
+    e.attempts = newAttempts;
+    accuracyBySkill[skill] = e;
+    recentAttempts.push({ id: a.id, skill: a.skill, band: a.band, rawScore: a.rawScore, total, startedAt: a.startedAt });
+
     for (const q of qas) {
-      const t = (q.questionId || "unknown");
-      qTypeCounts[t] = (qTypeCounts[t] ?? 0) + 1;
-      if (q.correct !== 1) qTypeWrong[t] = (qTypeWrong[t] ?? 0) + 1;
+      const type = questionTypeMap.get(q.questionId) ?? "unknown";
+      typeTotal[type] = (typeTotal[type] ?? 0) + 1;
+      if (q.correct !== 1) typeWrong[type] = (typeWrong[type] ?? 0) + 1;
     }
   }
-  const weakQuestionTypes = Object.entries(qTypeWrong)
+  const weakQuestionTypes = Object.entries(typeWrong)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)
     .map(([t]) => t);
-  const frequentIncorrectTypes = Object.entries(qTypeWrong)
-    .sort((a, b) => (b[1] / (qTypeCounts[b[0]] || 1)) - (a[1] / (qTypeCounts[a[0]] || 1)))
+  const frequentIncorrectTypes = Object.entries(typeWrong)
+    .filter(([t]) => (typeTotal[t] ?? 0) > 0)
+    .sort((a, b) => (b[1] / (typeTotal[b[0]] || 1)) - (a[1] / (typeTotal[a[0]] || 1)))
     .slice(0, 6)
     .map(([t]) => t);
 
   // ---- Mistakes ----
-  const activeMistakes = mistakes.filter((m) => m.mastery !== "mastered");
+  // listMistakes returns newest-first; keep chronological ordering explicit via sort.
+  const activeMistakes = [...mistakes]
+    .filter((m) => m.mastery !== "mastered")
+    .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
   const recurring = activeMistakes
     .filter((m) => m.recurrenceCount > 1)
     .sort((a, b) => b.recurrenceCount - a.recurrenceCount)
@@ -234,52 +262,101 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
   const reviewedRecently = cards.filter((c) => c.lastReviewedAt && new Date(c.lastReviewedAt).getTime() > weekAgo).length;
   const lowRepetition = cards.filter((c) => c.fsrs && c.fsrs.reps < 3).length;
   const tagCounts: Record<string, number> = {};
+  const weakTagCounts: Record<string, number> = {};
   const srcSet = new Set<string>();
   for (const c of cards) {
     for (const tag of c.tags) tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+    // Weakness = FSRS evidence (lapses or high difficulty), not mere frequency.
+    const fsrs = c.fsrs as { lapses?: number; difficulty?: number } | null;
+    const isWeak = fsrs && ((fsrs.lapses ?? 0) > 0 || (fsrs.difficulty ?? 0) >= 7);
+    if (isWeak) for (const tag of c.tags) weakTagCounts[tag] = (weakTagCounts[tag] ?? 0) + 1;
     if (c.source?.providerId) srcSet.add(c.source.providerId);
   }
-  const weakTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => t);
+  const commonTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => t);
+  const weakTags = Object.entries(weakTagCounts).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => t);
 
   // ---- Mocks ----
-  const completedMocks = mocks.filter((m) => m.status === "completed");
-  const listeningTrend = completedMocks.filter((m) => m.kind === "listening").slice(0, 10).map((m) => m.gradedAverage ?? 0);
-  const readingTrend = completedMocks.filter((m) => m.kind === "reading").slice(0, 10).map((m) => m.gradedAverage ?? 0);
-
-  // ---- Writing ----
-  const recentWriting = writing.slice(0, CONTEXT_BOUNDS.recentWriting).map((w) => {
-    const ev = w.evaluation as { criterionScores?: Record<string, number> } | null;
-    const bands = ev?.criterionScores ? Object.values(ev.criterionScores).filter((v): v is number => typeof v === "number") : null;
-    return { id: w.id, promptId: w.promptId, testType: w.testType, task: w.task, wordCount: w.wordCount, createdAt: w.createdAt, bands };
-  });
-  const writingWeak: string[] = [];
-  for (const w of writing.slice(0, CONTEXT_BOUNDS.recentWriting)) {
-    const ev = w.evaluation as { criterionScores?: Record<string, number> } | null;
-    if (ev?.criterionScores) {
-      const lowest = Object.entries(ev.criterionScores).sort((a, b) => a[1] - b[1])[0];
-      if (lowest) writingWeak.push(lowest[0]);
+  // listMockAttempts is newest-first.
+  const completedMocks = mocks.filter((m) => m.status === "completed").slice(0, CONTEXT_BOUNDS.recentMocks);
+  const listeningTrend: number[] = [];
+  const readingTrend: number[] = [];
+  for (const m of completedMocks) {
+    const sections = (m.state?.sections ?? {}) as { listening?: { band?: number }; reading?: { band?: number } };
+    if (m.kind === "listening" && m.gradedAverage != null) listeningTrend.push(m.gradedAverage);
+    else if (m.kind === "reading" && m.gradedAverage != null) readingTrend.push(m.gradedAverage);
+    else if (m.kind === "full") {
+      if (typeof sections.listening?.band === "number") listeningTrend.push(sections.listening.band);
+      if (typeof sections.reading?.band === "number") readingTrend.push(sections.reading.band);
     }
   }
-  const repeatedWeaknesses = [...new Set(writingWeak)].slice(0, 4);
+
+  // ---- Writing ----
+  const writingSorted = [...writing].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+  const recentWriting = writingSorted.slice(0, CONTEXT_BOUNDS.recentWriting).map((w) => {
+    const bands = extractWritingBands(w.evaluation);
+    return { id: w.id, promptId: w.promptId, testType: w.testType, task: w.task, wordCount: w.wordCount, createdAt: w.createdAt, bands };
+  });
+  const writingWeakCounts: Record<string, number> = {};
+  for (const w of writingSorted.slice(0, CONTEXT_BOUNDS.recentWriting)) {
+    const ev = w.evaluation as WritingEvalLike | null;
+    const scores = ev?.criterionScores;
+    if (Array.isArray(scores) && scores.length > 0) {
+      const lowest = [...scores].sort((a, b) => a.band - b.band)[0];
+      if (lowest) writingWeakCounts[lowest.criterion] = (writingWeakCounts[lowest.criterion] ?? 0) + 1;
+    }
+  }
+  const repeatedWeaknesses = Object.entries(writingWeakCounts)
+    .filter(([, n]) => n > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([c]) => c);
 
   // ---- Speaking ----
-  const recentParts = speaking.slice(0, CONTEXT_BOUNDS.recentSpeaking).map((s) => s.part);
-  const speakingEvaluated = speaking.filter((s) => s.evaluation).length;
-  const repeatedIssues: string[] = [];
+  const speakingSorted = [...speaking].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""));
+  const recentParts = speakingSorted.slice(0, CONTEXT_BOUNDS.recentSpeaking).map((s) => s.part);
+  const evaluatedCriteria = new Set<string>();
+  const issueCounts: Record<string, number> = {};
+  let hasTranscript = false;
+  for (const s of speakingSorted.slice(0, CONTEXT_BOUNDS.recentSpeaking)) {
+    if (s.transcript) hasTranscript = true;
+    const ev = s.evaluation as SpeakingEvalLike | null;
+    const scores = ev?.criterionScores;
+    if (Array.isArray(scores)) {
+      for (const sc of scores) {
+        // Pronunciation is only "evaluated" when actually supported.
+        if (sc.criterion === "pronunciation" && sc.supported !== true) continue;
+        if (sc.supported === false) continue;
+        evaluatedCriteria.add(sc.criterion);
+      }
+    }
+    for (const issue of [...(ev?.grammarIssues ?? []), ...(ev?.weaknesses ?? []), ...(ev?.weakestCriterion ? [ev.weakestCriterion] : [])]) {
+      const key = issue.slice(0, 120);
+      issueCounts[key] = (issueCounts[key] ?? 0) + 1;
+    }
+  }
+  const repeatedIssues = Object.entries(issueCounts)
+    .filter(([, n]) => n > 1)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([i]) => i);
 
   // ---- Study plan ----
-  const today = new Date().toISOString().slice(0, 10);
-  const todayTasks = tasks.filter((t) => t.scheduledFor?.slice(0, 10) === today);
+  const today = new Date();
+  const todayStr = toDateKey(today);
+  const todayTasks = tasks.filter((t) => t.scheduledFor?.slice(0, 10) === todayStr);
+  const plus7 = new Date(today);
+  plus7.setDate(today.getDate() + CONTEXT_BOUNDS.studyDays);
+  const plus7Str = toDateKey(plus7);
+  // True next-7-days window: today <= scheduledFor < today + 7.
   const nextDays = tasks
-    .filter((t) => !t.completedAt)
-    .sort((a, b) => (a.scheduledFor ?? "").localeCompare(b.scheduledFor ?? ""))
-    .slice(0, CONTEXT_BOUNDS.studyDays * 3);
-  const overdue = tasks.filter((t) => !t.completedAt && t.scheduledFor && t.scheduledFor.slice(0, 10) < today).length;
+    .filter((t) => !t.completedAt && t.scheduledFor && t.scheduledFor.slice(0, 10) >= todayStr && t.scheduledFor.slice(0, 10) < plus7Str)
+    .sort((a, b) => (a.scheduledFor ?? "").localeCompare(b.scheduledFor ?? ""));
+  const overdue = tasks.filter((t) => !t.completedAt && t.scheduledFor && t.scheduledFor.slice(0, 10) < todayStr).length;
   const categoryDistribution: Record<string, number> = {};
-  let estimatedMinutes = 0;
-  for (const t of tasks.filter((t) => !t.completedAt)) {
+  let next7Minutes = 0;
+  for (const t of nextDays) {
     categoryDistribution[t.category] = (categoryDistribution[t.category] ?? 0) + 1;
-    estimatedMinutes += t.estimatedMinutes ?? 0;
+    next7Minutes += t.estimatedMinutes ?? 0;
   }
 
   return {
@@ -305,14 +382,7 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
       recentlyCompleted,
       nextUnfinished: unfinished.slice(0, 5),
     },
-    practice: {
-      recentAttempts: completedAttempts.slice(0, CONTEXT_BOUNDS.recentAttempts).map((a) => ({
-        id: a.id, skill: a.skill, band: a.band, rawScore: a.rawScore, startedAt: a.startedAt,
-      })),
-      accuracyBySkill: skillAccuracy(qaRows),
-      weakQuestionTypes,
-      frequentIncorrectTypes,
-    },
+    practice: { recentAttempts, accuracyBySkill, weakQuestionTypes, frequentIncorrectTypes },
     mistakes: {
       totalActive: activeMistakes.length,
       bySkill: countBy(activeMistakes, "skill"),
@@ -327,11 +397,12 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
       dueNow: due.length,
       reviewedRecently,
       lowRepetition,
+      commonTags,
       weakTags,
       sources: [...srcSet],
     },
     mocks: {
-      completed: completedMocks.slice(0, CONTEXT_BOUNDS.recentMocks).map((m) => ({
+      completed: completedMocks.map((m) => ({
         id: m.id, kind: m.kind, gradedAverage: m.gradedAverage, status: m.status, startedAt: m.startedAt,
       })),
       listeningTrend,
@@ -341,8 +412,8 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
     speaking: {
       recentParts,
       totalTurns: speaking.length,
-      hasTranscript: speaking.some((s) => s.transcript),
-      evaluatedCriteria: speakingEvaluated > 0 ? ["fluency", "lexical", "grammar"] : [],
+      hasTranscript,
+      evaluatedCriteria: [...evaluatedCriteria],
       repeatedIssues,
     },
     studyPlan: {
@@ -351,10 +422,18 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
       nextDays: nextDays.map((t) => ({ title: t.title, scheduledFor: t.scheduledFor, completed: t.completedAt != null })),
       overdue,
       categoryDistribution,
-      estimatedMinutes,
+      next7DaysEstimatedMinutes: next7Minutes,
     },
     page,
   };
+}
+
+function extractWritingBands(evaluation: unknown): number[] {
+  if (!evaluation) return [];
+  const scores = (evaluation as WritingEvalLike).criterionScores;
+  if (Array.isArray(scores)) return scores.map((s) => s.band).filter((b): b is number => typeof b === "number");
+  if (scores && typeof scores === "object") return Object.values(scores).filter((b): b is number => typeof b === "number");
+  return [];
 }
 
 function countBy(rows: unknown[], key: string): Record<string, number> {
@@ -364,6 +443,10 @@ function countBy(rows: unknown[], key: string): Record<string, number> {
     out[v] = (out[v] ?? 0) + 1;
   }
   return out;
+}
+
+function toDateKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 // Estimated serialized size guard (used in tests to prove the snapshot is bounded).
