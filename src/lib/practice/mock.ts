@@ -60,6 +60,7 @@ export async function finishMock(
     : 0;
 
   await completeMockAttempt(attemptId, gradedAverage);
+  await updateMockState(attemptId, { sections });
   return { gradedAverage, sections };
 }
 

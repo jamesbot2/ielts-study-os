@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
 
+function toSeconds(text: string): number {
+  const [m, s] = text.trim().split(":").map(Number);
+  return (m ?? 0) * 60 + (s ?? 0);
+}
+
 // Real reliability flows. Test names match what they actually assert:
 // a test only claims "reload"/"persists" when it actually reloads/reopens.
 
@@ -31,7 +36,7 @@ test.describe("profile persistence across reload", () => {
 });
 
 test.describe("reading refresh recovery", () => {
-  test("exam answers, flags and current question survive a reload", async ({ page }) => {
+  test("answers, flags, current question and timer survive a reload", async ({ page }) => {
     await page.goto("/practice/reading/academic-reading-1/");
     await page.getByText("Exam mode").click();
 
@@ -42,17 +47,27 @@ test.describe("reading refresh recovery", () => {
     const input = page.locator('input[placeholder="Type your answer"]').first();
     await input.fill("false");
 
-    // Flag the next question.
+    // Flag the next question (question 9).
     await page.getByRole("button", { name: /Next/ }).click();
     await page.getByRole("button", { name: /Flag/ }).first().click();
 
-    await page.waitForTimeout(600);
-    await page.reload({ waitUntil: "networkidle" });
+    // Wait so the deadline advances, then reload.
+    await page.waitForTimeout(2500);
 
-    // Resume screen must appear.
+    await page.reload({ waitUntil: "networkidle" });
     await expect(page.getByText(/Resume in-progress reading|继续进行中的阅读/).first()).toBeVisible();
     await page.getByRole("button", { name: /Resume|继续/ }).first().click();
     await page.waitForTimeout(500);
+
+    // Current question is restored to question 9 (the flagged one).
+    await expect(page.getByText(/Question 9 of 40/).first()).toBeVisible();
+
+    // Flag state is restored.
+    await expect(page.getByRole("button", { name: /Flag for review/ }).first()).toContainText(/Flag/);
+
+    // Timer did not reset to a fresh 60:00.
+    const timerAfter = await page.locator("text=/^\\d{1,2}:\\d{2}$/").first().innerText();
+    expect(toSeconds(timerAfter)).toBeLessThan(3600);
 
     // Navigate back one step to the answered question and verify it survived.
     await page.getByRole("button", { name: /Previous/ }).click();
@@ -62,16 +77,34 @@ test.describe("reading refresh recovery", () => {
 });
 
 test.describe("standalone speaking text-only persistence", () => {
-  test("manual transcript saves without a recording and appears in history", async ({ page }) => {
+  test("manual transcript persists across a reload", async ({ page }) => {
     await page.goto("/practice/speaking/");
-    // A fresh prompt is shown; type a transcript and save it.
     const textarea = page.locator("textarea").first();
     await textarea.fill("My hometown is a small but lively city.");
     await page.getByRole("button", { name: /Save transcript|保存逐字稿/ }).click();
     await page.waitForTimeout(600);
 
-    // Open history and confirm the turn exists with transcript status.
+    // Reload, then verify the persisted turn appears in history.
+    await page.reload({ waitUntil: "networkidle" });
     await page.getByRole("button", { name: /History|历史记录/ }).click();
     await expect(page.getByText(/My hometown is a small/).first()).toBeVisible();
+  });
+});
+
+test.describe("writing exam session recovery", () => {
+  test("Save Draft does not end an active exam; reload resumes it", async ({ page }) => {
+    await page.goto("/practice/writing/t2-agree/");
+    await page.getByRole("button", { name: /Exam mode/ }).click();
+    const textarea = page.locator("textarea").first();
+    await textarea.fill("Technology has transformed education in fundamental ways.");
+    await page.waitForTimeout(800);
+
+    // Save Draft (must NOT clear the exam session).
+    await page.getByRole("button", { name: /Save/ }).first().click();
+    await page.waitForTimeout(400);
+
+    await page.reload({ waitUntil: "networkidle" });
+    // After reload the session should resume directly into the editor.
+    await expect(page.locator("textarea").first()).toHaveValue(/transformed education/);
   });
 });

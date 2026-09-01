@@ -136,7 +136,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   useEffect(() => {
     if (phase !== "running") return;
     startRef.current = startRef.current ?? Date.now();
-    const interval = setInterval(() => {
+    const tick = () => {
       if (mode === "exam") {
         const d = deadline ?? Date.now() + 60 * 60 * 1000;
         const remaining = Math.max(0, Math.round((d - Date.now()) / 1000));
@@ -148,7 +148,10 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
       } else {
         setTimeLeft(Math.round((Date.now() - startRef.current!) / 1000));
       }
-    }, 1000);
+    };
+    // Set the correct time immediately (not after the first interval tick).
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [phase, mode, submit, answers, deadline]);
 

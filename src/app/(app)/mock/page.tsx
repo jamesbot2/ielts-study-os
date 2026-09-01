@@ -30,11 +30,15 @@ const MOCKS: MockDef[] = [
 export default function MockPage() {
   const { t, locale } = useI18n();
   const { testType } = useStudyProfile();
-  const [attempts, setAttempts] = useState<{ id: string; kind: string; status: string; gradedAverage: number | null; startedAt: string }[] | null>(null);
+  const [attempts, setAttempts] = useState<{ id: string; kind: string; status: string; gradedAverage: number | null; officialOverallBand: number | null; startedAt: string; completedAt: string | null; state: Record<string, unknown> }[] | null>(null);
+  const [viewing, setViewing] = useState<string | null>(null);
 
   const load = useCallback(() => {
     listMockAttempts().then((a) =>
-      setAttempts(a.map((x) => ({ id: x.id, kind: x.kind, status: x.status, gradedAverage: x.gradedAverage, startedAt: x.startedAt }))),
+      setAttempts(a.map((x) => ({
+        id: x.id, kind: x.kind, status: x.status, gradedAverage: x.gradedAverage, officialOverallBand: x.officialOverallBand,
+        startedAt: x.startedAt, completedAt: x.completedAt, state: x.state,
+      }))),
     );
   }, []);
 
@@ -134,6 +138,7 @@ export default function MockPage() {
                       </>
                     ) : (
                       <>
+                        <button className="btn-secondary px-3 py-1.5 text-xs" onClick={() => setViewing(viewing === a.id ? null : a.id)}>{t("mock.viewResult")}</button>
                         <Link href={`/mock/run/${a.kind}`} className="btn-secondary px-3 py-1.5 text-xs">{t("mock.retake")}</Link>
                         <button
                           className="btn-ghost px-2 py-1.5 text-xs text-muted hover:text-red-600"
@@ -148,6 +153,33 @@ export default function MockPage() {
               );
             })}
           </div>
+
+          {viewing && (() => {
+            const a = attempts.find((x) => x.id === viewing);
+            if (!a) return null;
+            const sections = (a.state.sections ?? {}) as Record<string, { rawScore?: number; total?: number; band?: number }>;
+            return (
+              <div className="card card-pad mt-3">
+                <h3 className="mb-2 text-sm font-semibold">{locale === "zh" ? "成绩详情" : "Result details"}</h3>
+                <div className="space-y-1 text-sm">
+                  {(["listening", "reading", "writing"] as const).map((s) => {
+                    const r = sections[s];
+                    return (
+                      <div key={s} className="flex items-center justify-between">
+                        <span className="capitalize text-muted">{s === "listening" ? "Listening" : s === "reading" ? "Reading" : "Writing"}</span>
+                        {r?.band != null ? <span className="font-semibold">Band {r.band.toFixed(1)}{r.rawScore != null ? ` (${r.rawScore}/${r.total})` : ""}</span> : <span className="text-xs text-muted">—</span>}
+                      </div>
+                    );
+                  })}
+                  <div className="flex items-center justify-between border-t border-border pt-2">
+                    <span className="text-muted">{locale === "zh" ? "听力/阅读已评分平均分" : "Listening/Reading graded average"}</span>
+                    <span className="font-semibold">{a.gradedAverage != null ? a.gradedAverage.toFixed(1) : "—"}</span>
+                  </div>
+                  <p className="text-xs text-muted">{locale === "zh" ? "这并非官方雅思总分（需要四项技能）。" : "This is not an official Overall IELTS Band (requires all four skills)."}</p>
+                </div>
+              </div>
+            );
+          })()}
         </section>
       )}
     </div>

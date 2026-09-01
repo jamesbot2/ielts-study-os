@@ -324,7 +324,7 @@ export const en = {
     minutes: "min",
     strictMode: "Strict mode",
     retake: "Retake",
-    viewResult: "View result",
+    viewResult: "View results",
     section: "Section",
     part: "Part",
     instructions: "Instructions",
