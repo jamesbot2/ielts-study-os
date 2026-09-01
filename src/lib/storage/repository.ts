@@ -19,12 +19,14 @@ import type {
   SpeakingTurn,
   MockAttempt,
   AiMessage,
+  AiConversation,
   ImportedMaterial,
   UserSettings,
   ProviderConfig,
   PersonalVocabularySource,
   AnswerValue,
 } from "./types";
+import type { CitationRef, ActionProposal } from "@/lib/coach/types";
 import { DEFAULT_PROFILE } from "./types";
 
 const db = () => getDb();
@@ -484,8 +486,41 @@ export async function createConversation(kind: string, title?: string): Promise<
   return id;
 }
 
-export async function addMessage(conversationId: string, role: AiMessage["role"], content: string): Promise<void> {
-  await db().aiMessages.add({ id: newId(), conversationId, role, content, createdAt: nowIso() });
+export async function listConversations(kind?: string): Promise<AiConversation[]> {
+  const all = await db().aiConversations.orderBy("updatedAt").reverse().toArray();
+  return kind ? all.filter((c) => c.kind === kind) : all;
+}
+
+export async function getConversation(id: string): Promise<AiConversation | undefined> {
+  return db().aiConversations.get(id);
+}
+
+export async function renameConversation(id: string, title: string): Promise<void> {
+  await db().aiConversations.update(id, { title, updatedAt: nowIso() });
+}
+
+export async function deleteConversation(id: string): Promise<void> {
+  await db().transaction("rw", [db().aiConversations, db().aiMessages], async () => {
+    await db().aiMessages.where("conversationId").equals(id).delete();
+    await db().aiConversations.delete(id);
+  });
+}
+
+export async function addMessage(
+  conversationId: string,
+  role: AiMessage["role"],
+  content: string,
+  extra?: { citations?: CitationRef[]; actions?: ActionProposal[] },
+): Promise<void> {
+  await db().aiMessages.add({
+    id: newId(),
+    conversationId,
+    role,
+    content,
+    createdAt: nowIso(),
+    citations: extra?.citations,
+    actions: extra?.actions,
+  });
   await db().aiConversations.update(conversationId, { updatedAt: nowIso() });
 }
 

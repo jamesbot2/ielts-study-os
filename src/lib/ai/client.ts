@@ -5,6 +5,7 @@
 // works without AI.
 
 import type { WritingEvaluation, SpeakingEvaluation } from "@/types/ielts";
+import type { CitationRef, ActionProposal, CoachStreamEvent } from "@/lib/coach/types";
 
 export interface WritingEvalInput {
   testType: "academic" | "general";
@@ -40,6 +41,20 @@ export interface AiClient {
     onDelta: (delta: string) => void,
     signal?: AbortSignal,
   ): Promise<string>;
+  coachAgent(
+    request: CoachAgentRequest,
+    onEvent: (event: CoachStreamEvent) => void,
+    signal?: AbortSignal,
+  ): Promise<{ text: string; citations: CitationRef[]; actions: ActionProposal[] }>;
+}
+
+export interface CoachAgentRequest {
+  conversationId?: string;
+  message: string;
+  learnerContext: unknown;
+  pageContext?: unknown;
+  locale: "en" | "zh";
+  history?: { role: "user" | "assistant"; content: string }[];
 }
 
 export class AiUnavailableError extends Error {
@@ -59,6 +74,9 @@ export class DisabledAiClient implements AiClient {
     throw new AiUnavailableError();
   }
   async chat(): Promise<string> {
+    throw new AiUnavailableError();
+  }
+  async coachAgent(): Promise<never> {
     throw new AiUnavailableError();
   }
 }
@@ -122,6 +140,55 @@ export class RemoteAiProxyClient implements AiClient {
       onDelta(chunk);
     }
     return acc;
+  }
+
+  async coachAgent(
+    request: CoachAgentRequest,
+    onEvent: (event: CoachStreamEvent) => void,
+    signal?: AbortSignal,
+  ): Promise<{ text: string; citations: CitationRef[]; actions: ActionProposal[] }> {
+    const res = await fetch(`${this.baseUrl.replace(/\/$/, "")}/api/coach/agent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      signal,
+    });
+    if (!res.ok || !res.body) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`AI proxy returned ${res.status}: ${text.slice(0, 200)}`);
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let text = "";
+    const citations: CitationRef[] = [];
+    const actions: ActionProposal[] = [];
+    const emit = (event: CoachStreamEvent) => {
+      onEvent(event);
+      if (event.type === "delta") text += event.text;
+      if (event.type === "citation") citations.push(event.citation);
+      if (event.type === "action_proposal") actions.push(event.action);
+    };
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        try {
+          emit(JSON.parse(trimmed) as CoachStreamEvent);
+        } catch {
+          // Skip malformed lines; never crash the client.
+        }
+      }
+    }
+    if (buffer.trim()) {
+      try { emit(JSON.parse(buffer.trim()) as CoachStreamEvent); } catch { /* ignore */ }
+    }
+    return { text, citations, actions };
   }
 }
 

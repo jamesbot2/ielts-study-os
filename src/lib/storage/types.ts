@@ -237,6 +237,8 @@ export interface AiMessage {
   conversationId: string;
   role: "user" | "assistant" | "system";
   content: string;
+  citations?: { id: string; sourceId: string; title: string; url?: string; section?: string; sourceType?: string }[];
+  actions?: { type: string; title: string; titleZh?: string; href?: string; date?: string; estimatedMinutes?: number; description?: string }[];
   createdAt: string;
 }
 
