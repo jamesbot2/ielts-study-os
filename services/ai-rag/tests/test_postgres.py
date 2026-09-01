@@ -134,11 +134,21 @@ def test_metadata_update_and_idempotency(repo):
     # Same content hash, changed metadata → updated, not duplicated.
     changed = KnowledgeChunk(
         id=f"{prefix}-c", source_id=f"{prefix}-src", heading="H2", content=content, language="en",
-        skill="writing", test_type="academic", topics=[], question_types=["matching_headings"],
+        skill="writing", test_type="academic", topics=["writing"], question_types=["matching_headings"],
         chunk_index=0, content_hash=f"{prefix}-hash", embedding=[0.21] * dim, embedding_fingerprint="fp1",
     )
     r3 = repo.upsert_chunks([changed])
     assert r3.updated == 1 and r3.added == 0
+
+    # Verify the stored row's actual metadata changed (not just the counter).
+    from app.storage.models import KnowledgeChunkRow
+
+    with repo._session_factory() as session:
+        row = session.get(KnowledgeChunkRow, f"{prefix}-c")
+        assert row.heading == "H2"
+        assert row.skill == "writing"
+        assert row.topics == ["writing"]
+        assert row.question_types == ["matching_headings"]
 
     # Same content, new fingerprint → re-embedded (updated).
     reembed = KnowledgeChunk(

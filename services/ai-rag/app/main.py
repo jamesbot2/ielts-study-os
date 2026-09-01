@@ -81,7 +81,7 @@ class _NoopLlm(LlmProvider):
 
 
 def create_app(repository: object | None = None, llm: LlmProvider | None = None, embeddings: EmbeddingProvider | None = None) -> FastAPI:
-    app = FastAPI(title="IELTS Study OS AI/RAG", version="0.6.3")
+    app = FastAPI(title="IELTS Study OS AI/RAG", version="0.6.4")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,

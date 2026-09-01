@@ -19,6 +19,15 @@ def hash_text(text: str) -> str:
     return hashlib.sha256(text.strip().encode()).hexdigest()
 
 
+CHUNK_METADATA_FIELDS = ("heading", "language", "skill", "test_type", "topics", "question_types", "chunk_index")
+
+
+def chunk_metadata_changed(a: KnowledgeChunk, b: KnowledgeChunk) -> bool:
+    """True when canonical non-embedding metadata differs. Content text is
+    already equal via content_hash; only metadata is compared here."""
+    return any(getattr(a, f) != getattr(b, f) for f in CHUNK_METADATA_FIELDS)
+
+
 @dataclass
 class KnowledgeSource:
     id: str
@@ -89,7 +98,6 @@ class InMemoryKnowledgeRepository:
         self.sources: dict[str, KnowledgeSource] = {}
         self.chunks: dict[str, KnowledgeChunk] = {}
         self.runs: list[dict] = []
-
     def start_ingestion_run(self, fingerprint: str) -> int:
         run_id = len(self.runs) + 1
         self.runs.append({"id": run_id, "status": "running", "fingerprint": fingerprint, "started_at": "now"})
@@ -125,10 +133,18 @@ class InMemoryKnowledgeRepository:
         for c in chunks:
             if c.content_hash in existing_by_hash:
                 existing = existing_by_hash[c.content_hash]
-                # Re-embed when fingerprint changed or embedding missing/invalid.
-                if existing.embedding_fingerprint != c.embedding_fingerprint or not existing.embedding:
+                changed = False
+                # Update changed metadata even when content hash + fingerprint are unchanged.
+                if chunk_metadata_changed(existing, c):
+                    for f in CHUNK_METADATA_FIELDS:
+                        setattr(existing, f, getattr(c, f))
+                    changed = True
+                # Re-embed when fingerprint changed or embedding was missing.
+                if existing.embedding_fingerprint != c.embedding_fingerprint or (not existing.embedding and c.embedding):
                     existing.embedding = c.embedding
                     existing.embedding_fingerprint = c.embedding_fingerprint
+                    changed = True
+                if changed:
                     result.updated += 1
                 else:
                     result.unchanged += 1
@@ -261,10 +277,18 @@ class PostgresKnowledgeRepository:
             for c in chunks:
                 row = existing.get(c.content_hash)
                 if row:
-                    # Re-embed when fingerprint changed or embedding is missing.
-                    if row.embedding_fingerprint != c.embedding_fingerprint or not row.embedding:
+                    changed = False
+                    # Update changed metadata even when content hash + fingerprint unchanged.
+                    if any(getattr(row, f) != getattr(c, f) for f in CHUNK_METADATA_FIELDS):
+                        for f in CHUNK_METADATA_FIELDS:
+                            setattr(row, f, getattr(c, f))
+                        changed = True
+                    # Re-embed when fingerprint changed or embedding was missing.
+                    if row.embedding_fingerprint != c.embedding_fingerprint or (not row.embedding and c.embedding):
                         row.embedding = c.embedding
                         row.embedding_fingerprint = c.embedding_fingerprint
+                        changed = True
+                    if changed:
                         result.updated += 1
                     else:
                         result.unchanged += 1

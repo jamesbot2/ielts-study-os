@@ -54,10 +54,20 @@ export function computeCoverage(): {
   speakingParts: { part1: number; part2: number; part3: number };
   grammarLessons: number;
   grammarExercises: number;
+  readingFullSets: number;
+  readingTargetedSets: number;
+  readingTargetedByType: Record<string, number>;
+  listeningFullSets: number;
+  listeningTargetedSets: number;
+  listeningTargetedByType: Record<string, number>;
   allQuestionTypes: Record<string, { label: string; present: boolean; count: number }>;
 } {
   const reading = computeSkill("reading", "reading");
   const listening = computeSkill("listening", "listening");
+  const readingTargetedByType = targetedByType("reading");
+  const listeningTargetedByType = targetedByType("listening");
+  const readingFullSets = allPracticeSets.filter((s) => s.kind === "reading" && (s.practiceMode ?? "full") === "full").length;
+  const listeningFullSets = allPracticeSets.filter((s) => s.kind === "listening" && (s.practiceMode ?? "full") === "full").length;
 
   const allQuestionTypes = {} as Record<string, { label: string; present: boolean; count: number }>;
   for (const [type, label] of Object.entries(QUESTION_TYPE_LABELS)) {
@@ -86,8 +96,24 @@ export function computeCoverage(): {
     },
     grammarLessons: allLessons.filter((l) => l.category === "grammar").length,
     grammarExercises: grammarExercises.length,
+    readingFullSets,
+    readingTargetedSets: Object.values(readingTargetedByType).reduce((n, x) => n + x, 0),
+    readingTargetedByType,
+    listeningFullSets,
+    listeningTargetedSets: Object.values(listeningTargetedByType).reduce((n, x) => n + x, 0),
+    listeningTargetedByType,
     allQuestionTypes,
   };
+}
+
+function targetedByType(kind: "reading" | "listening"): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const set of allPracticeSets) {
+    if (set.kind !== kind || set.practiceMode !== "targeted") continue;
+    const t = set.targetQuestionType ?? "unknown";
+    out[t] = (out[t] ?? 0) + 1;
+  }
+  return out;
 }
 
 function computeSkill(skill: Skill, kind: "reading" | "listening"): SkillCoverage {

@@ -140,6 +140,8 @@ export interface ContentMeta {
   reviewStatus: "draft" | "reviewed" | "published";
 }
 
+export type PracticeMode = "full" | "targeted";
+
 export interface PracticeSet {
   meta: ContentMeta;
   kind: "reading" | "listening";
@@ -148,6 +150,9 @@ export interface PracticeSet {
   questions: Question[];
   // Grouping for synchronized question display (listening parts)
   groups?: { id: string; title: string; questionIds: string[] }[];
+  // Targeted drill metadata. Full tests are practiceMode "full".
+  practiceMode?: PracticeMode;
+  targetQuestionType?: QuestionType;
 }
 
 // --- Writing ---
