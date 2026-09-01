@@ -60,3 +60,9 @@ scripts/tts/voices/
 
 # Playwright browser artifacts
 /blob-report/
+
+# Python (AI/RAG service)
+__pycache__/
+*.py[cod]
+.venv/
+services/ai-rag/.env

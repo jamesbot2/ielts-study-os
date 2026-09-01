@@ -108,7 +108,7 @@ npm run test:e2e     # Playwright against the static build
 
 ## Status
 
-A working, static-first IELTS learning platform (V0.5.2): complete 40-question
+A working, static-first IELTS learning platform (V0.6.0): complete 40-question
 Listening/Reading tests with real audio, Speaking practice, grammar practice,
 built-in vocabulary, a Resource Center, a plugin/provider architecture with an
 optional Baicizhan vocabulary provider (community, unofficial), reactive
