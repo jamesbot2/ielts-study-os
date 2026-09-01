@@ -108,12 +108,12 @@ npm run test:e2e     # Playwright against the static build
 
 ## Status
 
-A working, static-first IELTS learning platform (V0.4.2): complete 40-question
-Listening/Reading tests with real audio, a full Speaking mock and standalone
-Speaking practice with a canonical turn model, grammar practice, built-in
-vocabulary and Resource Center, reactive Academic/General state, IndexedDB
-persistence with backup and migration, and CI. See `docs/CONTENT_COVERAGE.md`
-for the precise coverage matrix.
+A working, static-first IELTS learning platform (V0.5.0): complete 40-question
+Listening/Reading tests with real audio, Speaking practice, grammar practice,
+built-in vocabulary, a Resource Center, a plugin/provider architecture with an
+optional Baicizhan vocabulary provider (community, unofficial), reactive
+Academic/General state, IndexedDB persistence with backup and migration, and CI.
+See `docs/CONTENT_COVERAGE.md` for the coverage matrix.
 
 ## License
 
