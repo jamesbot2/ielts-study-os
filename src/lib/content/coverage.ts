@@ -5,6 +5,7 @@ import { allLessons, categories, type Category } from "./curriculum";
 import { allPracticeSets } from "./practice";
 import { writingPrompts } from "./practice/writing-prompts";
 import { speakingTopics } from "./practice/speaking-topics";
+import { grammarExercises } from "./practice/grammar-exercises";
 import type { QuestionType, Skill } from "@/types/ielts";
 
 export interface SkillCoverage {
@@ -50,7 +51,9 @@ export function computeCoverage(): {
   listening: SkillCoverage;
   writingPrompts: { academic: number; general: number; task2: number };
   speakingTopics: number;
+  speakingParts: { part1: number; part2: number; part3: number };
   grammarLessons: number;
+  grammarExercises: number;
   allQuestionTypes: Record<string, { label: string; present: boolean; count: number }>;
 } {
   const reading = computeSkill("reading", "reading");
@@ -76,7 +79,13 @@ export function computeCoverage(): {
       task2: writingPrompts.filter((p) => p.task === 2).length,
     },
     speakingTopics: speakingTopics.length,
+    speakingParts: {
+      part1: speakingTopics.reduce((n, t) => n + t.part1Questions.length, 0),
+      part2: speakingTopics.reduce((n, t) => n + t.part2CueCards.length, 0),
+      part3: speakingTopics.reduce((n, t) => n + t.part3Questions.length, 0),
+    },
     grammarLessons: allLessons.filter((l) => l.category === "grammar").length,
+    grammarExercises: grammarExercises.length,
     allQuestionTypes,
   };
 }
