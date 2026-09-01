@@ -68,15 +68,26 @@ Per-provider config persists to IndexedDB `providerConfigs` via
 `manager.setConfig`. `configFields` describe browser-safe fields generically
 (ProviderManager renders them; secret fields must not be stored in the browser).
 
-### Health vs sync
+### Health vs sync vs cache
 
-`healthCheck()` updates `lastHealthCheckedAt` only. `markSynced()` updates
-`lastSyncAt`. These are distinct.
+- `healthCheck()` performs a **remote request** and updates
+  `lastHealthCheckedAt` only. It must NOT return `healthy` from a cached read:
+  remote success → `healthy`; remote failure + valid cache → `degraded`;
+  remote failure + no cache → `unavailable`.
+- `markSynced()` updates `lastSyncAt` (separate from health).
+- Cache is for **browsing resilience**, not health. Split remote fetch from
+  cached read (e.g. `fetchRemoteX()` vs `getX()` with cache-first policy).
 
 ### Cache
 
 Providers receive a **provider-scoped** cache (`${pluginId}:${key}`) via
 `PluginContext.cache`. Use it for remote metadata/content with sensible TTLs.
+
+### Configuration & secrets
+
+`configFields` describe browser-safe fields generically (`text | url | number |
+boolean | select`). Fields with `secret: true` are never rendered as inputs and
+are **dropped** by `sanitizeProviderConfig()` before any IndexedDB write.
 
 ### Provenance
 

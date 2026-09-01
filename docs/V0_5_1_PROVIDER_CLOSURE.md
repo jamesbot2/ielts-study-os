@@ -1,5 +1,11 @@
 # V0.5.1 Provider Closure
 
+> **Correction (V0.5.2):** item 3 below was not fully fixed in V0.5.1.
+> `healthCheck()` still called `getWordList()`, which returned the cache before
+> any network request — so remote failure with a valid cache could still report
+> `healthy`. V0.5.2 splits remote fetch from cached read and makes health check
+> the REMOTE endpoint only. See `docs/V0_5_2_PROVIDER_FREEZE.md`.
+
 Architecture-correction release. Records each issue found in the V0.5 source
 audit, root cause, fix and test evidence.
 
