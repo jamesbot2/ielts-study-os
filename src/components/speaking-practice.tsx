@@ -211,7 +211,12 @@ export function SpeakingPractice() {
       if (!res.ok) throw new Error(data.error ?? "STT failed");
       const text = data.text ?? data.transcript ?? "";
       setTranscript(text);
-      setMetrics(computeTranscriptMetrics(text, turnDuration || durationSeconds));
+      const m = computeTranscriptMetrics(text, turnDuration || durationSeconds);
+      setMetrics(m);
+      // STT must attach to the SAME turn as the recording.
+      if (turnIdRef.current) {
+        await updateSpeakingTurn(turnIdRef.current, { transcript: text, transcriptSource: "stt", metrics: m });
+      }
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -219,21 +224,33 @@ export function SpeakingPractice() {
     }
   }
 
-  // Save a text-only response (no recording required).
+  // Save the current response's transcript. If a recording already created a
+  // turn, update it (one response = one turn). Otherwise create a text-only turn.
   async function saveTextOnly() {
     setError(null);
     try {
-      const sessionId = await ensureSession();
-      const turn = await createSpeakingTurn({
-        sessionId,
-        part,
-        prompt,
-        transcript: transcript.trim() || null,
-        transcriptSource: transcript.trim() ? "manual" : "none",
-        durationSeconds: turnDuration || null,
-        metrics: metrics ?? (transcript.trim() ? computeTranscriptMetrics(transcript, turnDuration || durationSeconds) : null),
-      });
-      turnIdRef.current = turn.id;
+      const transcriptText = transcript.trim();
+      const m = metrics ?? (transcriptText ? computeTranscriptMetrics(transcriptText, turnDuration || durationSeconds) : null);
+      if (turnIdRef.current) {
+        await updateSpeakingTurn(turnIdRef.current, {
+          transcript: transcriptText || null,
+          transcriptSource: transcriptText ? "manual" : "none",
+          metrics: m,
+          durationSeconds: turnDuration || undefined,
+        });
+      } else {
+        const sessionId = await ensureSession();
+        const turn = await createSpeakingTurn({
+          sessionId,
+          part,
+          prompt,
+          transcript: transcriptText || null,
+          transcriptSource: transcriptText ? "manual" : "none",
+          durationSeconds: turnDuration || null,
+          metrics: m,
+        });
+        turnIdRef.current = turn.id;
+      }
       setSavedState("transcriptSaved");
       loadHistory();
     } catch (e) {
