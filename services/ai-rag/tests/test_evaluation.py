@@ -113,3 +113,25 @@ async def test_speaking_with_audio_metric_allows_pronunciation():
     llm = FakeLlm([SPEAKING_OK])
     out = await evaluate_speaking(llm, body)
     assert isinstance(out, SpeakingEvaluation)
+
+
+@pytest.mark.asyncio
+async def test_speaking_repair_cannot_reintroduce_pronunciation():
+    # First response malformed → repair claims pronunciation band 8 → final must be suppressed.
+    malformed = {"criterionScores": "not-a-list"}
+    repair = {
+        "criterionScores": [
+            {"criterion": "fluencyCoherence", "band": 6.0, "rationale": "ok", "supported": True},
+            {"criterion": "lexicalResource", "band": 6.0, "rationale": "ok", "supported": True},
+            {"criterion": "grammaticalRange", "band": 6.0, "rationale": "ok", "supported": True},
+            {"criterion": "pronunciation", "band": 8.0, "rationale": "guessed", "supported": True},
+        ],
+        "strengths": [], "weaknesses": [], "grammarIssues": [], "betterVocabulary": [],
+        "improvedVersions": [], "answerDevelopmentSuggestions": [], "weakestCriterion": "grammaticalRange",
+        "nextRecommendedDrills": [],
+    }
+    llm = FakeLlm([malformed, repair])
+    out = await evaluate_speaking(llm, _Body())
+    pron = next(c for c in out.criterionScores if c.criterion == "pronunciation")
+    assert pron.supported is False
+    assert pron.band == 0

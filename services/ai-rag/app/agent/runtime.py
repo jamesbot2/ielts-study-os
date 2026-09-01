@@ -12,7 +12,7 @@ from ..config import settings
 from ..llm.base import EmbeddingProvider, LlmProvider
 from ..rag.citations import validate_citations
 from . import tools
-from .schemas import AGENT_STEP_SCHEMA
+from .schemas import AGENT_STEP_SCHEMA, validate_actions
 from .tools import ToolContext
 
 SYSTEM_PROMPT = """You are an IELTS learning coach (not an official examiner, psychologist, or generic chatbot).
@@ -42,14 +42,21 @@ class AgentRuntime:
         self.embeddings = embeddings
         self.max_steps = settings.max_tool_iterations
 
-    async def run(self, message: str, snapshot: dict[str, Any], locale: str = "en") -> AgentResult:
+    async def run(
+        self,
+        message: str,
+        snapshot: dict[str, Any],
+        locale: str = "en",
+        history: list[dict[str, str]] | None = None,
+    ) -> AgentResult:
         ctx = ToolContext(snapshot=snapshot, repository=self.repository, embeddings=self.embeddings, locale=locale)
         retrieved_for_citations: list = []
         tool_steps: list[str] = []
         transcript: list[dict[str, str]] = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": json.dumps({"message": message, "learnerContext": snapshot}, ensure_ascii=False)},
         ]
+        transcript.extend(sanitize_history(history or []))
+        transcript.append({"role": "user", "content": json.dumps({"message": message, "learnerContext": snapshot}, ensure_ascii=False)})
 
         for _ in range(self.max_steps):
             step = await self.llm.structured(transcript, AGENT_STEP_SCHEMA, temperature=0.2)
@@ -77,7 +84,7 @@ class AgentRuntime:
             # Final answer
             text = str(step.get("text") or "")
             raw_citations = step.get("citations") or []
-            actions = step.get("actions") or []
+            actions = validate_actions(step.get("actions") or [])
             citations = validate_citations(raw_citations, retrieved_for_citations)
             citation_dicts = [
                 {
@@ -100,13 +107,19 @@ class AgentRuntime:
             tool_steps=tool_steps,
         )
 
-    def run_sync(self, message: str, snapshot: dict[str, Any], locale: str = "en") -> AgentResult:
+    def run_sync(self, message: str, snapshot: dict[str, Any], locale: str = "en", history: list[dict[str, str]] | None = None) -> AgentResult:
         import asyncio
 
-        return asyncio.run(self.run(message, snapshot, locale))
+        return asyncio.run(self.run(message, snapshot, locale, history))
 
-    async def stream(self, message: str, snapshot: dict[str, Any], locale: str = "en") -> AsyncIterator[dict[str, Any]]:
-        result = await self.run(message, snapshot, locale)
+    async def stream(
+        self,
+        message: str,
+        snapshot: dict[str, Any],
+        locale: str = "en",
+        history: list[dict[str, str]] | None = None,
+    ) -> AsyncIterator[dict[str, Any]]:
+        result = await self.run(message, snapshot, locale, history)
         for tool in result.tool_steps:
             yield {"type": "tool_status", "name": tool, "status": "done"}
         # Stream text in small pieces (deterministic for tests, chunked in production).
@@ -135,4 +148,27 @@ def _to_retrieved(results: list[dict[str, Any]]) -> list:
                 score=r.get("score", 0.0),
             )
         )
+    return out
+
+
+def sanitize_history(history: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Bounded, role-sanitized conversation history. Only user/assistant roles
+    are allowed; the current turn is never duplicated here."""
+    from ..config import settings
+
+    out: list[dict[str, str]] = []
+    total_chars = 0
+    for turn in history:
+        role = turn.get("role")
+        if role not in ("user", "assistant"):
+            continue
+        content = str(turn.get("content") or "")[: settings.max_message_length]
+        if not content:
+            continue
+        total_chars += len(content)
+        if total_chars > settings.max_context_size:
+            break
+        out.append({"role": role, "content": content})
+        if len(out) >= settings.max_history_size:
+            break
     return out

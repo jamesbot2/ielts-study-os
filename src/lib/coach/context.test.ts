@@ -16,7 +16,7 @@ beforeEach(async () => {
   await resetDb();
 });
 
-async function seedAttempt(correct: number, total: number, questionIds: string[] = []) {
+async function seedAttempt(correct: number, total: number, questionIds: string[] = [], band: number | null = 5) {
   const id = await createPracticeAttempt("academic-reading-1", "reading", "academic", "practice", {});
   const qas = Array.from({ length: total }, (_, i) => ({
     questionId: questionIds[i] ?? `q-${i}`,
@@ -25,7 +25,8 @@ async function seedAttempt(correct: number, total: number, questionIds: string[]
     timeSpentSeconds: 10,
     flagged: 0,
   }));
-  await completePracticeAttempt(id, correct, 5, {}, qas, total * 10);
+  await completePracticeAttempt(id, correct, band ?? 0, {}, qas, total * 10);
+  if (band == null) await getDb().practiceAttempts.update(id, { band: null });
 }
 
 describe("practice accuracy semantics", () => {
@@ -36,6 +37,21 @@ describe("practice accuracy semantics", () => {
     expect(reading).toBeDefined();
     expect(reading.accuracy).toBeCloseTo(0.625, 3);
     expect(reading.attempts).toBe(1);
+  });
+
+  it("aggregates as total correct / total questions (1/1 + 0/40 = 1/41)", async () => {
+    await seedAttempt(1, 1);
+    await seedAttempt(0, 40);
+    const snap = await buildLearnerContextSnapshot();
+    expect(snap.practice.accuracyBySkill.reading.accuracy).toBeCloseTo(1 / 41, 4);
+  });
+
+  it("missing band does not drag avgBand toward zero", async () => {
+    // First attempt completes without a band; second has band 6.
+    await seedAttempt(2, 5, [], null);
+    await seedAttempt(4, 5, [], 6);
+    const snap = await buildLearnerContextSnapshot();
+    expect(snap.practice.accuracyBySkill.reading.avgBand).toBeCloseTo(6, 3);
   });
 });
 

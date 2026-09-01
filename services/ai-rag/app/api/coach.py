@@ -24,10 +24,15 @@ class CoachAgentRequest(BaseModel):
 
 
 def _validate_request(body: CoachAgentRequest) -> None:
+    import json
+
     if len(body.message) > settings.max_message_length:
         raise HTTPException(status_code=413, detail="Message too long")
     if len(body.history) > settings.max_history_size:
         raise HTTPException(status_code=413, detail="History too large")
+    context_size = len(json.dumps(body.learnerContext)) + len(json.dumps(body.pageContext or {}))
+    if context_size > settings.max_context_size:
+        raise HTTPException(status_code=413, detail="Learner context too large")
 
 
 @router.post("/api/coach/agent")
@@ -42,7 +47,7 @@ async def coach_agent(body: CoachAgentRequest, request: Request) -> StreamingRes
         snapshot = {**snapshot, "page": body.pageContext}
 
     async def gen():
-        async for event in ctx.agent.stream(body.message, snapshot, body.locale):
+        async for event in ctx.agent.stream(body.message, snapshot, body.locale, body.history):
             yield json.dumps(event, ensure_ascii=False) + "\n"
 
     return StreamingResponse(gen(), media_type="application/x-ndjson")

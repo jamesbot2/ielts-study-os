@@ -34,12 +34,31 @@ from .storage.repository import (
 class RagContext:
     llm: LlmProvider | None
     embeddings: EmbeddingProvider
+    embeddings_configured: bool
     repository: object
-    rag_state: str  # healthy | knowledge_empty | unavailable | degraded
+    rag_state: str  # healthy | lexical_only | knowledge_empty | database_unavailable | unavailable
+    retrieval_mode: str  # hybrid | lexical_only
     health: RepositoryHealth
     agent: AgentRuntime
 
     def search(self, query: str, embedding: list[float], filters, top_k: int):
+        from .rag.retrieval import RetrievedChunk
+
+        if self.retrieval_mode == "lexical_only":
+            hits = self.repository.search_lexical(query, filters, top_k)
+            return [
+                RetrievedChunk(
+                    chunk_id=h.chunk_id,
+                    source_id=h.source_id,
+                    title=h.title,
+                    url=h.url,
+                    section=h.section,
+                    content=h.content,
+                    score=0.0,
+                    fields=h.fields,
+                )
+                for h in hits
+            ]
         return hybrid_search_repository(self.repository, query, embedding, filters, top_k)
 
 
@@ -79,7 +98,7 @@ class _NoopLlm(LlmProvider):
 
 
 def create_app(repository: object | None = None, llm: LlmProvider | None = None, embeddings: EmbeddingProvider | None = None) -> FastAPI:
-    app = FastAPI(title="IELTS Study OS AI/RAG", version="0.6.1")
+    app = FastAPI(title="IELTS Study OS AI/RAG", version="0.6.2")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
@@ -91,6 +110,7 @@ def create_app(repository: object | None = None, llm: LlmProvider | None = None,
     # Resolve repository + health state.
     repo = repository
     health_state = RepositoryHealth(reachable=False, chunk_count=0)
+    embeddings_configured = (embeddings is not None) or bool(settings.embedding_base_url and settings.embedding_model)
     rag_state = "unavailable"
     if repo is None:
         if settings.database_url:
@@ -98,25 +118,32 @@ def create_app(repository: object | None = None, llm: LlmProvider | None = None,
             health_state = pg.health_check()
             if health_state.reachable:
                 repo = pg
-                rag_state = "healthy" if health_state.chunk_count > 0 else "knowledge_empty"
+                if health_state.chunk_count == 0:
+                    rag_state = "knowledge_empty"
+                else:
+                    rag_state = "healthy" if embeddings_configured else "lexical_only"
             else:
                 repo = InMemoryKnowledgeRepository()
-                rag_state = "degraded"
+                rag_state = "database_unavailable"
         else:
             repo = InMemoryKnowledgeRepository()
             rag_state = "unavailable"
     else:
         health_state = getattr(repo, "health_check", lambda: RepositoryHealth(reachable=True, chunk_count=0))()
-        rag_state = "healthy" if health_state.chunk_count > 0 else "knowledge_empty"
+        if health_state.reachable:
+            rag_state = "knowledge_empty" if health_state.chunk_count == 0 else ("healthy" if embeddings_configured else "lexical_only")
 
     llm_provider = llm if llm is not None else build_llm()
     emb = embeddings or build_embeddings() or _ZeroEmbeddings()
+    retrieval_mode = "lexical_only" if not embeddings_configured else "hybrid"
 
     ctx = RagContext(
         llm=llm_provider,
         embeddings=emb,
+        embeddings_configured=embeddings_configured,
         repository=repo,
         rag_state=rag_state,
+        retrieval_mode=retrieval_mode,
         health=health_state,
         agent=AgentRuntime(llm_provider or _NoopLlm(), repo, emb),
     )

@@ -44,7 +44,7 @@ def test_normal_app_startup_serves_indexed_knowledge():
     client = TestClient(app)
 
     h = client.get("/health").json()
-    assert h["rag"] == "healthy"
+    assert h["rag_status"] in ("healthy", "knowledge_empty")
     assert h["knowledge_chunk_count"] == 1
 
     r = client.post("/api/rag/search", json={"query": "How long is Academic Reading?", "top_k": 5}).json()
@@ -61,6 +61,26 @@ def test_health_reports_unreachable_database():
     h = client.get("/health").json()
     assert h["database_configured"] is True
     assert h["database_reachable"] is False
-    assert h["rag"] in ("unavailable", "degraded")
+    assert h["rag_status"] in ("unavailable", "database_unavailable")
     # reset to avoid leaking into other tests
     config.settings.database_url = ""
+
+
+def test_lexical_only_mode_without_embeddings():
+    repo, _ = make_repo()
+    app = create_app(repository=repo, embeddings=None, llm=None)
+    client = TestClient(app)
+    h = client.get("/health").json()
+    assert h["embeddings_configured"] is False
+    assert h["retrieval_mode"] == "lexical_only"
+    r = client.post("/api/rag/search", json={"query": "Academic Reading", "top_k": 5}).json()
+    assert len(r["results"]) >= 1
+
+
+def test_oversized_context_rejected_with_413():
+    repo, emb = make_repo()
+    app = create_app(repository=repo, embeddings=emb, llm=None)
+    client = TestClient(app)
+    big = {"x": "a" * 70_000}
+    r = client.post("/api/coach/agent", json={"message": "hi", "learnerContext": big})
+    assert r.status_code == 413

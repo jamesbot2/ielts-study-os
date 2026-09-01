@@ -1,6 +1,6 @@
 [project]
 name = "ielts-study-os-ai-rag"
-version = "0.6.1"
+version = "0.6.2"
 description = "Independent AI/RAG service for IELTS Study OS: knowledge retrieval, learner-aware coach, evaluation."
 requires-python = ">=3.12"
 dependencies = [

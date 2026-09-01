@@ -63,6 +63,20 @@ class EvaluationServiceError(Exception):
         self.message = message
 
 
+def enforce_pronunciation_safety(raw: dict[str, Any], has_audio: bool) -> dict[str, Any]:
+    """Always re-applied (before validation, after repair, before returning).
+    Without audio evidence, pronunciation must be supported=false and band=0."""
+    if has_audio:
+        return raw
+    scores = raw.get("criterionScores")
+    if isinstance(scores, list):
+        for sc in scores:
+            if isinstance(sc, dict) and sc.get("criterion") == "pronunciation":
+                sc["band"] = 0
+                sc["supported"] = False
+    return raw
+
+
 def _writing_system(task: int, test_type: str) -> str:
     criterion = "Task Achievement" if task == 1 else "Task Response"
     return (
@@ -117,13 +131,7 @@ async def evaluate_speaking(llm: LlmProvider, body: Any) -> SpeakingEvaluation:
     ]
     schema = SpeakingEvaluation.model_json_schema()
     raw = await llm.structured(messages, schema, temperature=0.2)
-    # Enforce pronunciation safety regardless of the model output.
-    if not has_audio:
-        scores = raw.get("criterionScores", [])
-        for sc in scores:
-            if sc.get("criterion") == "pronunciation":
-                sc["band"] = 0
-                sc["supported"] = False
+    raw = enforce_pronunciation_safety(raw, has_audio)
     try:
         return SpeakingEvaluation.model_validate(raw)
     except ValidationError:
@@ -132,6 +140,8 @@ async def evaluate_speaking(llm: LlmProvider, body: Any) -> SpeakingEvaluation:
             schema,
             temperature=0.0,
         )
+        # Re-apply safety AFTER repair so repair cannot reintroduce a fabricated score.
+        repaired = enforce_pronunciation_safety(repaired, has_audio)
         try:
             return SpeakingEvaluation.model_validate(repaired)
         except ValidationError as e:

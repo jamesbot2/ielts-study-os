@@ -39,6 +39,7 @@ async def ingest_manifest(
     manifest_data: dict[str, Any],
     embeddings: EmbeddingProvider,
     exported_docs: dict[str, dict[str, Any]],
+    embedding_fingerprint: str = "",
 ) -> IngestionResult:
     manifest = load_manifest(manifest_data)
     total = IngestionResult(0, 0, 0, 0)
@@ -89,6 +90,7 @@ async def ingest_manifest(
                     chunk_index=i,
                     content_hash=c.content_hash,
                     embedding=vectors[i] if i < len(vectors) else None,
+                    embedding_fingerprint=embedding_fingerprint,
                 )
             )
         r = repo.upsert_chunks(chunk_records)
@@ -173,20 +175,26 @@ def main() -> None:
         manifest_data = yaml.safe_load(f)
 
     embeddings: EmbeddingProvider
+    fingerprint: str
     if settings.embedding_base_url and settings.embedding_model:
         embeddings = OpenAICompatibleEmbeddings(settings.embedding_base_url, settings.embedding_api_key, settings.embedding_model, settings.embedding_dimension)
+        fingerprint = f"{settings.embedding_model}:{settings.embedding_dimension}:v1"
     else:
         from ..main import _ZeroEmbeddings
 
         embeddings = _ZeroEmbeddings()
+        fingerprint = "zero:0:v1"
 
     if settings.database_url:
+        # Production PostgreSQL ingestion must never write zero vectors.
+        if fingerprint.startswith("zero"):
+            raise SystemExit("Embedding provider is required for PostgreSQL knowledge ingestion. Set EMBEDDING_BASE_URL/EMBEDDING_MODEL.")
         repo = PostgresKnowledgeRepository(settings.database_url)
     else:
         repo = InMemoryKnowledgeRepository()
 
     docs = load_exported_docs(knowledge_dir)
-    result = asyncio.run(ingest_manifest(repo, manifest_data, embeddings, docs))
+    result = asyncio.run(ingest_manifest(repo, manifest_data, embeddings, docs, fingerprint))
     print(f"sources={len(load_manifest(manifest_data).sources)} "
           f"chunks_eligible={sum(1 for d in docs.values() if d)} "
           f"added={result.added} updated={result.updated} "

@@ -72,6 +72,7 @@ class KnowledgeChunkRow(Base):
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     embedding: Mapped[list | None] = mapped_column(EMBEDDING_TYPE, nullable=True)
+    embedding_fingerprint: Mapped[str] = mapped_column(String(200), default="", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
 
@@ -81,7 +82,11 @@ class IngestionRunRow(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="running", nullable=False)
+    embedding_fingerprint: Mapped[str] = mapped_column(String(200), default="", nullable=False)
     added: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     updated: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     unchanged: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     deleted: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)

@@ -50,6 +50,7 @@ class KnowledgeChunk:
     chunk_index: int
     content_hash: str
     embedding: list[float] | None = None
+    embedding_fingerprint: str = ""
 
 
 @dataclass
@@ -104,8 +105,11 @@ class InMemoryKnowledgeRepository:
 
         for c in chunks:
             if c.content_hash in existing_by_hash:
-                if existing_by_hash[c.content_hash].id != c.id:
-                    self.chunks[c.id] = c
+                existing = existing_by_hash[c.content_hash]
+                # Re-embed when fingerprint changed or embedding missing/invalid.
+                if existing.embedding_fingerprint != c.embedding_fingerprint or not existing.embedding:
+                    existing.embedding = c.embedding
+                    existing.embedding_fingerprint = c.embedding_fingerprint
                     result.updated += 1
                 else:
                     result.unchanged += 1
@@ -212,16 +216,23 @@ class PostgresKnowledgeRepository:
         self._lazy_init()
         from sqlalchemy import select
 
+        from ..config import settings
         from .models import KnowledgeChunkRow
 
         result = IngestionResult()
         if not chunks:
             return result
+        # Dimension validation: never let PostgreSQL fail with an opaque vector error.
+        dim = settings.embedding_dimension
+        for c in chunks:
+            if c.embedding is not None and len(c.embedding) != dim:
+                raise ValueError(
+                    f"Embedding dimension mismatch for chunk {c.id}: got {len(c.embedding)}, expected {dim}"
+                )
         source_id = chunks[0].source_id
         incoming_hashes = {c.content_hash for c in chunks}
         with self._session_factory() as session:
             existing = {r.content_hash: r for r in session.scalars(select(KnowledgeChunkRow).where(KnowledgeChunkRow.source_id == source_id)).all()}
-            # Delete stale chunks for this source only.
             stale = [r.id for h, r in existing.items() if h not in incoming_hashes]
             for cid in stale:
                 row = session.get(KnowledgeChunkRow, cid)
@@ -231,10 +242,10 @@ class PostgresKnowledgeRepository:
             for c in chunks:
                 row = existing.get(c.content_hash)
                 if row:
-                    if row.id != c.id:
-                        row.heading = c.heading
-                        row.content = c.content
+                    # Re-embed when fingerprint changed or embedding is missing.
+                    if row.embedding_fingerprint != c.embedding_fingerprint or not row.embedding:
                         row.embedding = c.embedding
+                        row.embedding_fingerprint = c.embedding_fingerprint
                         result.updated += 1
                     else:
                         result.unchanged += 1
@@ -253,92 +264,97 @@ class PostgresKnowledgeRepository:
                             chunk_index=c.chunk_index,
                             content_hash=c.content_hash,
                             embedding=c.embedding,
+                            embedding_fingerprint=c.embedding_fingerprint,
                         )
                     )
                     result.added += 1
             session.commit()
         return result
 
-    def _filter_where(self, stmt, filters: SearchFilters, row_cls):
-        if filters.skill:
-            stmt = stmt.where(row_cls.skill.in_([filters.skill, "all"]))
-        if filters.test_type:
-            stmt = stmt.where(row_cls.test_type.in_([filters.test_type, "both"]))
-        if filters.source_type:
-            from .models import KnowledgeSourceRow
+    def _apply_filters(self, stmt, filters: SearchFilters, chunk_cls, source_cls):
+        from sqlalchemy import func
+        from sqlalchemy.dialects.postgresql import JSONB
 
-            stmt = stmt.join(KnowledgeSourceRow).where(KnowledgeSourceRow.source_type == filters.source_type)
+        if filters.skill:
+            stmt = stmt.where(chunk_cls.skill.in_([filters.skill, "all"]))
+        if filters.test_type:
+            stmt = stmt.where(chunk_cls.test_type.in_([filters.test_type, "both"]))
         if filters.language:
-            stmt = stmt.where(row_cls.language == filters.language)
+            stmt = stmt.where(chunk_cls.language == filters.language)
+        if filters.question_type:
+            stmt = stmt.where(func.cast(chunk_cls.question_types, JSONB).contains([filters.question_type]))
+        if filters.source_type is not None or filters.official is not None:
+            stmt = stmt.join(source_cls, chunk_cls.source_id == source_cls.id)
+            if filters.source_type is not None:
+                stmt = stmt.where(source_cls.source_type == filters.source_type)
+            if filters.official is not None:
+                stmt = stmt.where(source_cls.official == filters.official)
         return stmt
 
     def search_vector(self, query_embedding: list[float], filters: SearchFilters, top_k: int) -> list[ChunkRecord]:
         self._lazy_init()
         from sqlalchemy import select
 
-        from .models import KnowledgeChunkRow
+        from .models import KnowledgeChunkRow, KnowledgeSourceRow
 
         stmt = select(KnowledgeChunkRow).order_by(KnowledgeChunkRow.embedding.cosine_distance(query_embedding)).limit(top_k)
-        stmt = self._filter_where(stmt, filters, KnowledgeChunkRow)
+        stmt = self._apply_filters(stmt, filters, KnowledgeChunkRow, KnowledgeSourceRow)
         with self._session_factory() as session:
             rows = session.scalars(stmt).all()
-        return [self._to_record(r, 0.0) for r in rows]
+        return self._to_records(rows)
 
     def search_lexical(self, query: str, filters: SearchFilters, top_k: int) -> list[ChunkRecord]:
         self._lazy_init()
-        from sqlalchemy import text
+        from sqlalchemy import func, select
 
-        # tsvector over heading+content with websearch_to_tsquery for safe plain-text query.
-        sql = """
-            SELECT id FROM knowledge_chunks
-            WHERE to_tsvector('english', heading || ' ' || content) @@ to_tsquery('english', :q)
-            ORDER BY ts_rank(to_tsvector('english', heading || ' ' || content), to_tsquery('english', :q)) DESC
-            LIMIT :k
-        """
-        # tsquery syntax: use websearch_to_tsquery for safe plain-text query.
-        sql = """
-            SELECT id FROM knowledge_chunks
-            WHERE to_tsvector('english', heading || ' ' || content) @@ websearch_to_tsquery('english', :q)
-            ORDER BY ts_rank(to_tsvector('english', heading || ' ' || content), websearch_to_tsquery('english', :q)) DESC
-            LIMIT :k
-        """
-        with self._engine.connect() as conn:
-            result = conn.execute(text(sql), {"q": query[:200], "k": top_k})
-            ids = [r[0] for r in result.fetchall()]
-        if not ids:
-            return []
+        from .models import KnowledgeChunkRow, KnowledgeSourceRow
+
+        vector = func.to_tsvector("english", func.concat(KnowledgeChunkRow.heading, " ", KnowledgeChunkRow.content))
+        tsquery = func.websearch_to_tsquery("english", query[:200])
+        stmt = (
+            select(KnowledgeChunkRow)
+            .where(vector.op("@@")(tsquery))
+            .order_by(func.ts_rank(vector, tsquery).desc())
+            .limit(top_k)
+        )
+        stmt = self._apply_filters(stmt, filters, KnowledgeChunkRow, KnowledgeSourceRow)
+        with self._session_factory() as session:
+            rows = session.scalars(stmt).all()
+        return self._to_records(rows)
+
+    def _to_records(self, rows) -> list[ChunkRecord]:
         from sqlalchemy import select
 
-        from .models import KnowledgeChunkRow
-
-        with self._session_factory() as session:
-            rows = session.scalars(select(KnowledgeChunkRow).where(KnowledgeChunkRow.id.in_(ids))).all()
-        by_id = {r.id: r for r in rows}
-        return [self._to_record(by_id[i], 0.0) for i in ids if i in by_id]
-
-    def _to_record(self, row, score: float) -> ChunkRecord:
         from .models import KnowledgeSourceRow
 
-        src = None
+        if not rows:
+            return []
+        source_ids = {r.source_id for r in rows}
         with self._session_factory() as session:
-            src = session.get(KnowledgeSourceRow, row.source_id)
-        return ChunkRecord(
-            chunk_id=row.id,
-            source_id=row.source_id,
-            title=src.title if src else row.source_id,
-            url=src.url if src else None,
-            section=row.heading,
-            content=row.content,
-            embedding=[],
-            fields={
-                "skill": row.skill,
-                "test_type": row.test_type,
-                "source_type": src.source_type if src else None,
-                "official": src.official if src else False,
-                "question_types": row.question_types or [],
-                "language": row.language,
-            },
-        )
+            sources = {s.id: s for s in session.scalars(select(KnowledgeSourceRow).where(KnowledgeSourceRow.id.in_(source_ids))).all()}
+        out = []
+        for row in rows:
+            src = sources.get(row.source_id)
+            out.append(
+                ChunkRecord(
+                    chunk_id=row.id,
+                    source_id=row.source_id,
+                    title=src.title if src else row.source_id,
+                    url=src.url if src else None,
+                    section=row.heading,
+                    content=row.content,
+                    embedding=[],
+                    fields={
+                        "skill": row.skill,
+                        "test_type": row.test_type,
+                        "source_type": src.source_type if src else None,
+                        "official": src.official if src else False,
+                        "question_types": row.question_types or [],
+                        "language": row.language,
+                    },
+                )
+            )
+        return out
 
     def health_check(self) -> RepositoryHealth:
         try:

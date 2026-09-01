@@ -204,6 +204,7 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
   // listPracticeAttempts is already newest-first (orderBy startedAt reverse).
   const completedAttempts = attempts.filter((a) => a.completedAt).slice(0, CONTEXT_BOUNDS.recentAttempts);
   const accuracyBySkill: Record<string, SkillAccuracy> = {};
+  const skillAcc: Record<string, { attempts: number; correct: number; total: number; bandSum: number; bandCount: number }> = {};
   const typeWrong: Record<string, number> = {};
   const typeTotal: Record<string, number> = {};
   const recentAttempts: PracticeContext["recentAttempts"] = [];
@@ -212,15 +213,16 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
     const qas = await getQuestionAttempts(a.id);
     const correct = qas.filter((q) => q.correct === 1).length;
     const total = qas.length;
-    const accuracy = total > 0 ? correct / total : 0;
     const skill = a.skill;
-    const e = accuracyBySkill[skill] ?? { attempts: 0, accuracy: 0, avgBand: 0 };
-    // Aggregate accuracy as total correct / total questions (not averaged proportions).
-    const newAttempts = e.attempts + 1;
-    e.accuracy = (e.accuracy * e.attempts + accuracy) / newAttempts;
-    e.avgBand = (e.avgBand * e.attempts + (a.band ?? 0)) / newAttempts;
-    e.attempts = newAttempts;
-    accuracyBySkill[skill] = e;
+    const s = skillAcc[skill] ?? { attempts: 0, correct: 0, total: 0, bandSum: 0, bandCount: 0 };
+    s.attempts += 1;
+    s.correct += correct;
+    s.total += total;
+    if (typeof a.band === "number") {
+      s.bandSum += a.band;
+      s.bandCount += 1;
+    }
+    skillAcc[skill] = s;
     recentAttempts.push({ id: a.id, skill: a.skill, band: a.band, rawScore: a.rawScore, total, startedAt: a.startedAt });
 
     for (const q of qas) {
@@ -229,12 +231,20 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
       if (q.correct !== 1) typeWrong[type] = (typeWrong[type] ?? 0) + 1;
     }
   }
+  for (const [skill, s] of Object.entries(skillAcc)) {
+    accuracyBySkill[skill] = {
+      attempts: s.attempts,
+      accuracy: s.total > 0 ? s.correct / s.total : 0,
+      avgBand: s.bandCount > 0 ? s.bandSum / s.bandCount : 0,
+    };
+  }
   const weakQuestionTypes = Object.entries(typeWrong)
+    .filter(([t]) => t !== "unknown")
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)
     .map(([t]) => t);
   const frequentIncorrectTypes = Object.entries(typeWrong)
-    .filter(([t]) => (typeTotal[t] ?? 0) > 0)
+    .filter(([t]) => t !== "unknown" && (typeTotal[t] ?? 0) > 0)
     .sort((a, b) => (b[1] / (typeTotal[b[0]] || 1)) - (a[1] / (typeTotal[a[0]] || 1)))
     .slice(0, 6)
     .map(([t]) => t);
@@ -306,7 +316,7 @@ export async function buildLearnerContextSnapshot(page?: PageContext): Promise<L
     }
   }
   const repeatedWeaknesses = Object.entries(writingWeakCounts)
-    .filter(([, n]) => n > 0)
+    .filter(([, n]) => n >= 2)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 4)
     .map(([c]) => c);
