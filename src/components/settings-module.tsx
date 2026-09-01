@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
 import { useStudyProfile } from "@/components/study-profile-provider";
 import { useAi } from "@/components/ai-provider";
+import { ProviderManager } from "@/components/provider-manager";
 import { getSettings, saveSettings } from "@/lib/storage/repository";
 import type { UserSettings } from "@/lib/storage/types";
 import { exportAll, importBackup, resetAllData, type ImportMode } from "@/lib/storage/export";
@@ -175,6 +176,9 @@ export function SettingsModule() {
         </div>
         <button className="btn-primary mt-4" onClick={saveSpeech}>{t("common.save")}</button>
       </section>
+
+      {/* Providers / plugins */}
+      <ProviderManager />
 
       {/* Data */}
       <section className="card card-pad mb-4">

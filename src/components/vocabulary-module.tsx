@@ -9,12 +9,13 @@ import {
   recordVocabReview,
 } from "@/lib/storage/repository";
 import { vocabTopics, type VocabEntry } from "@/lib/content/vocabulary";
+import { getVocabularyProviders, getVocabularyProvider } from "@/lib/plugins/vocabulary";
 import { collocationGroups } from "@/lib/content/collocations";
 import type { VocabularyCard } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
 
 export function VocabularyModule() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [cards, setCards] = useState<VocabularyCard[]>([]);
   const [dueCards, setDueCards] = useState<VocabularyCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +23,7 @@ export function VocabularyModule() {
   const [showAdd, setShowAdd] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   const [showCollocations, setShowCollocations] = useState(false);
+  const [showProviders, setShowProviders] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
@@ -114,6 +116,9 @@ export function VocabularyModule() {
           <button className="btn-secondary" onClick={() => setShowCollocations((s) => !s)}>
             ✍️ Collocations
           </button>
+          <button className="btn-secondary" onClick={() => setShowProviders((s) => !s)}>
+            🔌 {locale === "zh" ? "外部词库" : "Word books"}
+          </button>
         </div>
       </div>
 
@@ -121,6 +126,7 @@ export function VocabularyModule() {
 
       {showLibrary && <VocabularyLibrary onAdded={load} />}
       {showCollocations && <CollocationsSection />}
+      {showProviders && <ProviderWordBrowser onAdded={load} />}
 
       {cards.length === 0 ? (
         <div className="card card-pad text-center text-muted">{t("vocabulary.noCards")}</div>
@@ -279,6 +285,111 @@ function CollocationsSection() {
             </div>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+function ProviderWordBrowser({ onAdded }: { onAdded: () => void }) {
+  const { t, locale } = useI18n();
+  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [query, setQuery] = useState("");
+  const [result, setResult] = useState<import("@/lib/plugins/vocabulary/types").CanonicalVocabularyEntry | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    getVocabularyProviders().then((providers) => setEnabled(providers.some((p) => p.id === "baicizhan")));
+  }, []);
+
+  async function lookup() {
+    const word = query.trim();
+    if (!word) return;
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    setAdded(false);
+    try {
+      const provider = await getVocabularyProvider("baicizhan");
+      if (!provider) {
+        setError(locale === "zh" ? "尚未启用 Baicizhan 词库，请在设置中启用。" : "Baicizhan provider is not enabled. Enable it in Settings.");
+        return;
+      }
+      const entry = await provider.getEntry(word);
+      if (!entry) {
+        setError(locale === "zh" ? "未找到该单词。" : "Word not found.");
+        return;
+      }
+      setResult(entry);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function add() {
+    if (!result) return;
+    // Deduplicate by normalized word against the existing personal deck.
+    const existing = await listVocabCards();
+    const norm = result.word.trim().toLowerCase();
+    const dup = existing.find((c) => c.word.trim().toLowerCase() === norm);
+    if (dup) {
+      setError(locale === "zh" ? "该词已在你的词库中。" : "This word is already in your deck.");
+      setAdded(true);
+      return;
+    }
+    await createVocabCard({
+      word: result.word,
+      partOfSpeech: result.partOfSpeech ?? undefined,
+      chineseMeaning: result.meaningZh ?? undefined,
+      englishDefinition: result.definitionEn ?? undefined,
+      ipa: result.ipa ?? undefined,
+      collocations: result.collocations,
+      example: result.examples[0],
+      sourceContext: `${result.source.providerName} · ${result.word}`,
+      sourceSkill: "vocabulary",
+      tags: ["provider", result.source.providerId],
+    });
+    setAdded(true);
+    onAdded();
+  }
+
+  if (enabled === null) return null;
+
+  return (
+    <div className="card card-pad mb-4">
+      <p className="mb-2 text-sm font-semibold">{locale === "zh" ? "外部词库" : "External word books"}</p>
+      {!enabled ? (
+        <p className="text-sm text-muted">
+          {locale === "zh" ? "外部词库尚未启用。请到 设置 → 插件/服务提供方 启用 Baicizhan。" : "No external word books enabled. Enable Baicizhan in Settings → Plugins/Providers."}
+        </p>
+      ) : (
+        <>
+          <div className="flex gap-2">
+            <input className="input flex-1" placeholder={locale === "zh" ? "输入英文单词查找" : "Look up an English word"} value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && lookup()} />
+            <button className="btn-primary" onClick={lookup} disabled={busy || !query.trim()}>{busy ? <Spinner /> : (locale === "zh" ? "查找" : "Look up")}</button>
+          </div>
+          {error && <p className="mt-2 text-sm text-amber-600">{error}</p>}
+          {result && (
+            <div className="mt-3 rounded-md border border-border p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium">{result.word} {result.ipa && <span className="text-xs text-muted">{result.ipa}</span>}</p>
+                  {result.partOfSpeech && <span className="badge mt-1">{result.partOfSpeech}</span>}
+                  {result.meaningZh && <p className="mt-1 text-sm">{result.meaningZh}</p>}
+                  {result.definitionEn && <p className="text-sm text-muted">{result.definitionEn}</p>}
+                  {result.examples[0] && <p className="mt-1 text-sm italic text-muted">“{result.examples[0]}”</p>}
+                  <p className="mt-1 text-[11px] text-muted">{result.source.providerName} · {result.source.attribution ?? ""}</p>
+                </div>
+                <button className="btn-primary shrink-0 px-3 py-1.5 text-xs" onClick={add} disabled={added}>
+                  {added ? "✓" : `+ ${t("vocabulary.addToDeck")}`}
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -19,12 +19,14 @@ import type {
   AiMessage,
   ImportedMaterial,
   UserSettings,
+  ProviderConfig,
+  ProviderCacheEntry,
 } from "./types";
 
 export type ProfileRow = StudyProfile & { id: string };
 
 export const DB_NAME = "ielts-study-os";
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 class IeltsDatabase extends Dexie {
   profile!: Table<ProfileRow, string>;
@@ -46,6 +48,8 @@ class IeltsDatabase extends Dexie {
   aiConversations!: Table<AiConversation, string>;
   aiMessages!: Table<AiMessage, string>;
   importedMaterials!: Table<ImportedMaterial, string>;
+  providerConfigs!: Table<ProviderConfig, string>;
+  providerCache!: Table<ProviderCacheEntry, string>;
 
   constructor() {
     super(DB_NAME);
@@ -97,6 +101,31 @@ class IeltsDatabase extends Dexie {
       .upgrade(async (tx) => {
         await migrateToV2(tx);
       });
+
+    // v3: provider configuration and cache.
+    this.version(3).stores({
+      profile: "id",
+      settings: "id",
+      studyTasks: "id, scheduledFor, completed, createdAt",
+      lessonProgress: "lessonId, updatedAt",
+      vocabulary: "id, due, createdAt, word",
+      vocabularyReviews: "id, cardId, reviewedAt",
+      practiceAttempts: "id, setId, skill, startedAt, completedAt",
+      questionAttempts: "id, attemptId, questionId",
+      mistakes: "id, skill, questionType, createdAt",
+      writingDrafts: "id, promptId, updatedAt",
+      writingSubmissions: "id, promptId, createdAt",
+      speakingSessions: "id, createdAt",
+      speakingRecordings: "id, sessionId, turnId, part, createdAt",
+      speakingTranscripts: "id, recordingId",
+      speakingTurns: "id, sessionId, part, createdAt",
+      mockAttempts: "id, status, startedAt",
+      aiConversations: "id, kind, updatedAt",
+      aiMessages: "id, conversationId, createdAt",
+      importedMaterials: "id, createdAt",
+      providerConfigs: "id",
+      providerCache: "id, fetchedAt",
+    });
   }
 }
 

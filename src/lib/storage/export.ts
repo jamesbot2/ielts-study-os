@@ -30,10 +30,12 @@ const TABLE_NAMES = [
   "speakingSessions",
   "speakingRecordings",
   "speakingTranscripts",
+  "speakingTurns",
   "mockAttempts",
   "aiConversations",
   "aiMessages",
   "importedMaterials",
+  "providerConfigs",
 ] as const;
 
 export async function collectAllData(): Promise<BackupFile> {

@@ -273,3 +273,19 @@ export interface UserSettings {
   ai: AiConfig;
   speech: SpeechConfig;
 }
+
+export interface ProviderConfig {
+  id: string; // plugin id
+  enabled: boolean;
+  config: Record<string, unknown>;
+  lastSyncAt: string | null;
+  lastHealthStatus: string | null;
+  lastHealthMessage: string | null;
+}
+
+export interface ProviderCacheEntry {
+  id: string; // `${pluginId}:${key}`
+  value: unknown;
+  fetchedAt: string;
+  expiresAt: string | null;
+}

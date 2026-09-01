@@ -21,6 +21,7 @@ import type {
   AiMessage,
   ImportedMaterial,
   UserSettings,
+  ProviderConfig,
   AnswerValue,
 } from "./types";
 import { DEFAULT_PROFILE } from "./types";
@@ -542,4 +543,40 @@ export async function createImportedMaterial(input: {
 
 export async function deleteImportedMaterial(id: string): Promise<void> {
   await db().importedMaterials.delete(id);
+}
+
+// ---------- Provider config & cache ----------
+export async function getProviderConfig(pluginId: string): Promise<ProviderConfig | undefined> {
+  return db().providerConfigs.get(pluginId);
+}
+
+export async function saveProviderConfig(config: ProviderConfig): Promise<void> {
+  await db().providerConfigs.put(config);
+}
+
+export async function listProviderConfigs(): Promise<ProviderConfig[]> {
+  return db().providerConfigs.toArray();
+}
+
+export async function getProviderCache<T>(key: string): Promise<T | undefined> {
+  const row = await db().providerCache.get(key);
+  if (!row) return undefined;
+  if (row.expiresAt && new Date(row.expiresAt).getTime() < Date.now()) {
+    await db().providerCache.delete(key);
+    return undefined;
+  }
+  return row.value as T;
+}
+
+export async function setProviderCache<T>(key: string, value: T, ttlMs?: number): Promise<void> {
+  await db().providerCache.put({
+    id: key,
+    value,
+    fetchedAt: nowIso(),
+    expiresAt: ttlMs ? new Date(Date.now() + ttlMs).toISOString() : null,
+  });
+}
+
+export async function deleteProviderCache(key: string): Promise<void> {
+  await db().providerCache.delete(key);
 }
