@@ -1,0 +1,41 @@
+"""RAG search endpoint."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from fastapi import APIRouter, Request
+from pydantic import BaseModel
+
+from ..rag.retrieval import SearchFilters
+
+router = APIRouter()
+
+
+class SearchRequest(BaseModel):
+    query: str
+    filters: dict[str, Any] = {}
+    top_k: int = 8
+
+
+@router.post("/api/rag/search")
+async def search(body: SearchRequest, request: Request) -> dict:
+    ctx = request.app.state.rag  # AgentRuntime container set in main.py
+    filters = SearchFilters(**{k: v for k, v in body.filters.items() if k in SearchFilters.__dataclass_fields__})
+    top_k = min(body.top_k, 20)
+    embedding = await ctx.embeddings.embed_query(body.query)
+    results = ctx.retriever.search(body.query, embedding, top_k=top_k, filters=filters)
+    return {
+        "results": [
+            {
+                "chunkId": r.chunk_id,
+                "sourceId": r.source_id,
+                "title": r.title,
+                "url": r.url,
+                "section": r.section,
+                "content": r.content,
+                "score": r.score,
+            }
+            for r in results
+        ]
+    }
