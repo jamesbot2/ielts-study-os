@@ -104,14 +104,30 @@ class IeltsDatabase extends Dexie {
 async function migrateToV2(tx: Transaction): Promise<void> {
   // 1. Migrate legacy SpeakingTranscript rows into canonical SpeakingTurn rows.
   const transcripts = await tx.table("speakingTranscripts").toArray() as (SpeakingTranscript & { id: string })[];
-  const recordings = await tx.table("speakingRecordings").toArray() as (SpeakingRecording & { id: string })[];
+  const recordings = await tx.table("speakingRecordings").toArray() as (SpeakingRecording & { id: string; evaluation?: unknown })[];
 
   for (const t of transcripts) {
     // Resolve a real recording; legacy fake id "manual" becomes null.
     const recording = recordings.find((r) => r.id === t.recordingId && t.recordingId !== "manual");
+
+    let sessionId = recording?.sessionId;
+    // A legacy manual (text-only) transcript has no real recording; create a
+    // deterministic legacy session so the turn references a real session row.
+    if (!sessionId) {
+      sessionId = `legacy-session-${t.id}`;
+      await tx.table("speakingSessions").put({
+        id: sessionId,
+        mode: "practice",
+        part: null,
+        topic: null,
+        createdAt: t.createdAt,
+        completedAt: t.createdAt,
+      });
+    }
+
     const turn: SpeakingTurn = {
       id: `turn-${t.id}`,
-      sessionId: recording?.sessionId ?? t.recordingId,
+      sessionId,
       part: (recording?.part ?? 1) as 1 | 2 | 3,
       prompt: recording?.prompt ?? "",
       transcript: t.text ?? null,
@@ -119,7 +135,7 @@ async function migrateToV2(tx: Transaction): Promise<void> {
       recordingId: recording?.id ?? null,
       durationSeconds: recording?.durationSeconds ?? null,
       metrics: t.metrics ?? null,
-      evaluation: null,
+      evaluation: recording?.evaluation ?? null,
       createdAt: t.createdAt,
       updatedAt: t.createdAt,
     };
@@ -130,14 +146,16 @@ async function migrateToV2(tx: Transaction): Promise<void> {
     }
   }
 
-  // 2. Migrate legacy mock overallBand (a partial L/R average) to gradedAverage.
+  // 2. Migrate legacy mock overallBand (a partial L/R average) to gradedAverage,
+  // and explicitly remove the legacy raw field from stored objects.
   const mocks = await tx.table("mockAttempts").toArray() as (MockAttempt & { overallBand?: number | null } & { id: string })[];
   for (const m of mocks) {
     if ("overallBand" in m) {
-      await tx.table("mockAttempts").update(m.id, {
-        gradedAverage: m.overallBand ?? null,
-        officialOverallBand: null,
-      });
+      const cleaned = { ...m } as Record<string, unknown>;
+      cleaned.gradedAverage = m.overallBand ?? null;
+      cleaned.officialOverallBand = null;
+      delete cleaned.overallBand;
+      await tx.table("mockAttempts").put(cleaned as unknown as MockAttempt);
     }
   }
 }

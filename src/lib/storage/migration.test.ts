@@ -113,3 +113,72 @@ describe("v1 → v2 migration", () => {
     expect(turn!.recordingId).toBeNull();
   });
 });
+
+describe("v1 → v2 migration (evaluation + session + field removal)", () => {
+  beforeEach(async () => {
+    await resetDb();
+    const legacy = new Dexie(DB_NAME) as Dexie;
+    legacy.version(1).stores({
+      profile: "id", settings: "id", studyTasks: "id", lessonProgress: "lessonId",
+      vocabulary: "id", vocabularyReviews: "id", practiceAttempts: "id", questionAttempts: "id",
+      mistakes: "id", writingDrafts: "id", writingSubmissions: "id", speakingSessions: "id, createdAt",
+      speakingRecordings: "id, sessionId, part, createdAt", speakingTranscripts: "id, recordingId",
+      mockAttempts: "id, status, startedAt", aiConversations: "id", aiMessages: "id", importedMaterials: "id",
+    });
+    await legacy.open();
+
+    // Recording with a legacy evaluation.
+    await legacy.table("speakingRecordings").add({
+      id: "rec-eval", sessionId: "sess-eval", part: 1, prompt: "P", audioBlob: null,
+      durationSeconds: 20, mimeType: null, size: null,
+      evaluation: { estimatedOverallBand: 7, criterionScores: [] },
+      createdAt: "2026-01-01T00:00:00.000Z",
+    });
+    await legacy.table("speakingTranscripts").add({
+      id: "trans-eval", recordingId: "rec-eval", text: "Evaluated answer.", source: "manual",
+      metrics: null, createdAt: "2026-01-01T00:01:00.000Z",
+    });
+
+    // Manual transcript with no recording.
+    await legacy.table("speakingTranscripts").add({
+      id: "trans-manual", recordingId: "manual", text: "Text only.", source: "manual",
+      metrics: null, createdAt: "2026-01-01T00:02:00.000Z",
+    });
+
+    // Mock with legacy overallBand.
+    await legacy.table("mockAttempts").add({
+      id: "mock-eval", kind: "reading", testType: "academic", status: "completed",
+      startedAt: "2026-01-01T00:00:00.000Z", completedAt: "2026-01-01T01:00:00.000Z",
+      state: {}, overallBand: 6.5,
+    });
+
+    await legacy.close();
+  });
+
+  it("preserves legacy recording evaluation on the turn", async () => {
+    const { getDb } = await import("./db");
+    const db = getDb();
+    const turn = (await db.speakingTurns.toArray()).find((t) => t.transcript === "Evaluated answer.");
+    expect(turn).toBeTruthy();
+    expect((turn!.evaluation as { estimatedOverallBand?: number })?.estimatedOverallBand).toBe(7);
+  });
+
+  it("creates a real session for a legacy manual transcript", async () => {
+    const { getDb } = await import("./db");
+    const db = getDb();
+    const turn = (await db.speakingTurns.toArray()).find((t) => t.transcript === "Text only.");
+    expect(turn).toBeTruthy();
+    expect(turn!.recordingId).toBeNull();
+    const session = await db.speakingSessions.get(turn!.sessionId);
+    expect(session).toBeTruthy();
+  });
+
+  it("removes the legacy overallBand field from stored mock objects", async () => {
+    const { getDb } = await import("./db");
+    const db = getDb();
+    const raw = await db.mockAttempts.get("mock-eval");
+    expect(raw).toBeTruthy();
+    expect("overallBand" in raw!).toBe(false);
+    expect(raw!.gradedAverage).toBe(6.5);
+  });
+});
