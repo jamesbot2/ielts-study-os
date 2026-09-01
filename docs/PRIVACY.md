@@ -24,6 +24,11 @@ configure:
 
 - AI writing/speaking evaluation: the prompt, your answer/transcript and metrics.
 - Speech-to-text: the audio you explicitly submit for transcription.
+- **AI Coach**: when you send a Coach message, a **bounded, summarized learner
+  context snapshot** (profile, progress counts, recent practice, mistakes,
+  vocabulary, mocks, study plan) is sent to the configured AI service. Audio
+  blobs, full essays, and your entire database are **never** sent by default.
+  Coach conversations persist **locally** in IndexedDB.
 
 You are responsible for choosing a service you trust. The application never
 stores or transmits provider secret keys; it only stores a public proxy URL.
