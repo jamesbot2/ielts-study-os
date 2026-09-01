@@ -19,9 +19,10 @@ describe("plugin registry", () => {
     expect(getPlugin("a")?.id).toBe("a");
   });
 
-  it("rejects duplicate registration", () => {
+  it("duplicate registration is idempotent", () => {
     registerPlugin(makePlugin("a", "vocabulary", []));
-    expect(() => registerPlugin(makePlugin("a", "vocabulary", []))).toThrow();
+    registerPlugin(makePlugin("a", "vocabulary", []));
+    expect(listPlugins().length).toBe(1);
   });
 
   it("finds by capability", () => {

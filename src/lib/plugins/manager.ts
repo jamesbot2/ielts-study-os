@@ -1,4 +1,4 @@
-// Plugin manager: what is active/configured, plus provider cache + health.
+// Plugin manager: what is active/configured, plus provider-scoped cache + health.
 
 import { getPlugin } from "./registry";
 import {
@@ -9,7 +9,7 @@ import {
   setProviderCache,
 } from "@/lib/storage/repository";
 import type { ProviderConfig } from "@/lib/storage/types";
-import type { IeltsPlugin, PluginCache, PluginHealth } from "./types";
+import type { IeltsPlugin, PluginCache, PluginContext, PluginHealth } from "./types";
 import { normalizeProviderError } from "./errors";
 
 export async function getConfig(pluginId: string): Promise<ProviderConfig | undefined> {
@@ -23,6 +23,7 @@ export async function setConfig(pluginId: string, patch: Partial<ProviderConfig>
     enabled: false,
     config: {},
     lastSyncAt: null,
+    lastHealthCheckedAt: null,
     lastHealthStatus: null,
     lastHealthMessage: null,
     ...(existing ?? {}),
@@ -41,46 +42,77 @@ export async function isEnabled(pluginId: string): Promise<boolean> {
   return c?.enabled === true;
 }
 
+// Create a provider-scoped cache adapter.
+export function createProviderCache(pluginId: string): PluginCache {
+  const ns = (key: string) => `${pluginId}:${key}`;
+  return {
+    async get<T>(key: string): Promise<T | undefined> {
+      return getProviderCache<T>(ns(key));
+    },
+    async set<T>(key: string, value: T, ttlMs?: number): Promise<void> {
+      await setProviderCache(ns(key), value, ttlMs);
+    },
+    async delete(key: string): Promise<void> {
+      await deleteProviderCache(ns(key));
+    },
+  };
+}
+
+// Build a real PluginContext with resolved config and a scoped cache.
+export async function createPluginContext(pluginId: string): Promise<PluginContext> {
+  const cfg = await getProviderConfig(pluginId);
+  return { pluginId, config: cfg?.config ?? {}, cache: createProviderCache(pluginId) };
+}
+
+// Resolve the configured runtime provider from plugin metadata.
+export async function resolveRuntime(pluginId: string): Promise<{ plugin: IeltsPlugin; runtime: import("./types").IeltsPluginRuntime } | null> {
+  const plugin = getPlugin(pluginId);
+  if (!plugin) return null;
+  if (!plugin.createRuntime) return null;
+  const context = await createPluginContext(pluginId);
+  const runtime = await plugin.createRuntime(context);
+  return { plugin, runtime };
+}
+
 export async function healthCheck(pluginId: string): Promise<PluginHealth> {
   const plugin = getPlugin(pluginId);
   if (!plugin) {
     return { status: "unavailable", message: "Unknown plugin", checkedAt: new Date().toISOString() };
   }
-  if (!plugin.healthCheck) {
-    return { status: "healthy", checkedAt: new Date().toISOString() };
-  }
   try {
-    const health = await plugin.healthCheck();
+    let health: PluginHealth;
+    if (plugin.createRuntime) {
+      const resolved = await resolveRuntime(pluginId);
+      if (!resolved) {
+        health = { status: "not_configured", message: "Provider is not configured.", checkedAt: new Date().toISOString() };
+      } else {
+        health = await resolved.runtime.healthCheck();
+      }
+    } else {
+      // Plugins without a runtime factory are metadata-only / built-in and
+      // inherently healthy (no network dependency).
+      health = { status: "healthy", checkedAt: new Date().toISOString() };
+    }
     await setConfig(pluginId, {
       lastHealthStatus: health.status,
       lastHealthMessage: health.message ?? null,
-      lastSyncAt: health.status === "healthy" ? new Date().toISOString() : undefined,
-    } as Partial<ProviderConfig>);
+      lastHealthCheckedAt: new Date().toISOString(),
+    });
     return health;
   } catch (err) {
     const normalized = normalizeProviderError(err, pluginId);
     const health: PluginHealth = { status: "unavailable", message: normalized.message, checkedAt: new Date().toISOString() };
-    await setConfig(pluginId, { lastHealthStatus: "unavailable", lastHealthMessage: normalized.message });
+    await setConfig(pluginId, {
+      lastHealthStatus: "unavailable",
+      lastHealthMessage: normalized.message,
+      lastHealthCheckedAt: new Date().toISOString(),
+    });
     return health;
   }
 }
 
-// Cache adapter passed to providers via PluginContext.
-export const providerCache: PluginCache = {
-  async get<T>(key: string): Promise<T | undefined> {
-    return getProviderCache<T>(key);
-  },
-  async set<T>(key: string, value: T, ttlMs?: number): Promise<void> {
-    await setProviderCache(key, value, ttlMs);
-  },
-  async delete(key: string): Promise<void> {
-    await deleteProviderCache(key);
-  },
-};
-
-export function createPluginContext(pluginId: string): { config: Record<string, unknown>; cache: PluginCache } {
-  return { config: {}, cache: providerCache };
+export async function markSynced(pluginId: string): Promise<void> {
+  await setConfig(pluginId, { lastSyncAt: new Date().toISOString() });
 }
 
 export { normalizeProviderError };
-export type { IeltsPlugin };

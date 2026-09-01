@@ -5,9 +5,8 @@ import type { IeltsPlugin, PluginCapability, PluginKind } from "./types";
 const plugins = new Map<string, IeltsPlugin>();
 
 export function registerPlugin(plugin: IeltsPlugin): void {
-  if (plugins.has(plugin.id)) {
-    throw new Error(`Plugin already registered: ${plugin.id}`);
-  }
+  // Idempotent: re-registering the same id is a no-op.
+  if (plugins.has(plugin.id)) return;
   plugins.set(plugin.id, plugin);
 }
 

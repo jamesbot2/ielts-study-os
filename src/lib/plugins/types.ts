@@ -29,6 +29,32 @@ export interface PluginSource {
   attribution?: string;
 }
 
+export interface PluginConfigField {
+  key: string;
+  label: string;
+  type: "text" | "url" | "number" | "boolean" | "select";
+  placeholder?: string;
+  required?: boolean;
+  secret?: boolean;
+  options?: Array<{ value: string; label: string }>;
+}
+
+export interface PluginContext {
+  pluginId: string;
+  config: Record<string, unknown>;
+  cache: PluginCache;
+}
+
+export interface PluginCache {
+  get<T>(key: string): Promise<T | undefined>;
+  set<T>(key: string, value: T, ttlMs?: number): Promise<void>;
+  delete(key: string): Promise<void>;
+}
+
+export interface IeltsPluginRuntime {
+  healthCheck(): Promise<PluginHealth>;
+}
+
 export interface IeltsPlugin {
   id: string;
   name: string;
@@ -38,8 +64,9 @@ export interface IeltsPlugin {
   source: PluginSource;
   capabilities: PluginCapability[];
   builtin?: boolean;
-  initialize?(): Promise<void>;
-  healthCheck?(): Promise<PluginHealth>;
+  configFields?: PluginConfigField[];
+  // Constructs the configured runtime provider (used for real health checks).
+  createRuntime?(context: PluginContext): Promise<IeltsPluginRuntime>;
 }
 
 export type PluginHealthStatus =
@@ -52,17 +79,4 @@ export interface PluginHealth {
   status: PluginHealthStatus;
   message?: string;
   checkedAt: string;
-}
-
-export type PluginStatus = "disabled" | "enabled" | "configured" | "connected" | "error";
-
-export interface PluginContext {
-  config: Record<string, unknown>;
-  cache: PluginCache;
-}
-
-export interface PluginCache {
-  get<T>(key: string): Promise<T | undefined>;
-  set<T>(key: string, value: T, ttlMs?: number): Promise<void>;
-  delete(key: string): Promise<void>;
 }
