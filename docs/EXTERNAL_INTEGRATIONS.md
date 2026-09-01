@@ -14,6 +14,8 @@ Integration modes and status for external IELTS projects.
 - **Baicizhan Vocabulary** — native-provider (lookup). Unofficial community API
   (`lyc8503/baicizhan-word-meaning-API`). Data fetched at runtime, never bundled.
   Content is proprietary Baicizhan data and is **not** redistributed.
+  **Important**: the community source exposes a flat ~10,927-word catalog, not a
+  verified IELTS-specific book; the UI labels it honestly as a flat word catalog.
 
 ## Planned
 

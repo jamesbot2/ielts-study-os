@@ -42,21 +42,41 @@ interface CanonicalVocabularyEntry {
 Validate third-party responses with Zod, then normalize to canonical. A malformed
 entry must be skipped, not crash the whole book.
 
-### Registration
+### Registration & runtime resolution
 
-Add plugin metadata to `src/lib/plugins/vocabulary/index.ts`
-(`registerVocabularyPlugins` + `getVocabularyProviders`), reading enabled state
-and config from IndexedDB `providerConfigs`.
+Register plugin metadata (with optional `configFields` and a `createRuntime`
+factory) via `registerPlugin`. The `createRuntime(context)` factory constructs the
+configured runtime provider; `manager.healthCheck()` resolves the runtime and
+performs a **real** health check (never a metadata-only false positive).
+
+```ts
+registerPlugin({
+  id: "baicizhan",
+  name: "Baicizhan Vocabulary",
+  kind: "vocabulary",
+  capabilities: ["VOCABULARY_BOOKS", "VOCABULARY_LOOKUP"],
+  configFields: [{ key: "baseUrl", label: "API Base URL", type: "url" }],
+  async createRuntime(context) {
+    return new BaicizhanVocabularyProvider({ baseUrl: context.config.baseUrl, context });
+  },
+});
+```
 
 ### Configuration
 
-Persist per-provider config via `manager.setConfig(pluginId, patch)`. Read it in
-`getVocabularyProvider(id)` and construct the provider instance with it.
+Per-provider config persists to IndexedDB `providerConfigs` via
+`manager.setConfig`. `configFields` describe browser-safe fields generically
+(ProviderManager renders them; secret fields must not be stored in the browser).
 
-### Health
+### Health vs sync
 
-Implement `healthCheck()` returning `PluginHealth { status, message?, checkedAt }`.
-Status: `healthy | degraded | unavailable | not_configured`.
+`healthCheck()` updates `lastHealthCheckedAt` only. `markSynced()` updates
+`lastSyncAt`. These are distinct.
+
+### Cache
+
+Providers receive a **provider-scoped** cache (`${pluginId}:${key}`) via
+`PluginContext.cache`. Use it for remote metadata/content with sensible TTLs.
 
 ### Provenance
 
