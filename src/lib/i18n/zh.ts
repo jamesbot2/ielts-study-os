@@ -265,7 +265,7 @@ export const zh: Dict = {
     noCards: "暂无词汇。添加单词或从练习中提取。",
     extractFromReading: "来自阅读的词汇",
     extractFromListening: "来自听力的词汇",
-    library: "内置词库",
+    library: "词库",
     addToDeck: "加入单词本",
   },
   grammar: {

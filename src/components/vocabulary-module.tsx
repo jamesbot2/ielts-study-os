@@ -8,7 +8,6 @@ import {
   listVocabCards,
   recordVocabReview,
 } from "@/lib/storage/repository";
-import { vocabTopics, type VocabEntry } from "@/lib/content/vocabulary";
 import { listEnabledVocabularyProviders } from "@/lib/plugins/vocabulary";
 import { addProviderEntryToPersonalVocabulary } from "@/lib/plugins/vocabulary/import";
 import type { VocabularyProvider, VocabularyBook, CanonicalVocabularyEntry } from "@/lib/plugins/vocabulary/types";
@@ -23,9 +22,8 @@ export function VocabularyModule() {
   const [loading, setLoading] = useState(true);
   const [reviewing, setReviewing] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
-  const [showLibrary, setShowLibrary] = useState(false);
   const [showCollocations, setShowCollocations] = useState(false);
-  const [showProviders, setShowProviders] = useState(false);
+  const [showLibrary, setShowLibrary] = useState(false);
   const [reviewIndex, setReviewIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
@@ -112,23 +110,19 @@ export function VocabularyModule() {
           <button className="btn-secondary" onClick={() => { setShowAdd((s) => !s); setShowLibrary(false); }}>
             + {t("vocabulary.addWord")}
           </button>
-          <button className="btn-secondary" onClick={() => setShowLibrary((s) => !s)}>
+          <button className="btn-secondary" onClick={() => { setShowLibrary((s) => !s); setShowAdd(false); }}>
             📚 {t("vocabulary.library")}
           </button>
           <button className="btn-secondary" onClick={() => setShowCollocations((s) => !s)}>
             ✍️ Collocations
-          </button>
-          <button className="btn-secondary" onClick={() => setShowProviders((s) => !s)}>
-            🔌 {locale === "zh" ? "外部词库" : "Word books"}
           </button>
         </div>
       </div>
 
       {showAdd && <AddWordForm onAdded={() => { setShowAdd(false); load(); }} />}
 
-      {showLibrary && <VocabularyLibrary onAdded={load} />}
+      {showLibrary && <WordBooksBrowser onAdded={load} />}
       {showCollocations && <CollocationsSection />}
-      {showProviders && <WordBooksBrowser onAdded={load} />}
 
       {cards.length === 0 ? (
         <div className="card card-pad text-center text-muted">{t("vocabulary.noCards")}</div>
@@ -180,81 +174,6 @@ function AddWordForm({ onAdded }: { onAdded: () => void }) {
       <button className="btn-primary sm:col-span-3" onClick={submit} disabled={saving || !word.trim()}>
         {saving ? <Spinner /> : t("common.save")}
       </button>
-    </div>
-  );
-}
-
-function VocabularyLibrary({ onAdded }: { onAdded: () => void }) {
-  const { t, locale } = useI18n();
-  const [openTopic, setOpenTopic] = useState<string | null>(vocabTopics[0]?.id ?? null);
-  const [added, setAdded] = useState<Set<string>>(new Set());
-
-  // Mark words already in the deck as added, to prevent duplicates after reload.
-  useEffect(() => {
-    listVocabCards().then((cards) => {
-      setAdded(new Set(cards.map((c) => c.word.trim().toLowerCase())));
-    });
-  }, []);
-
-  async function addWord(entry: VocabEntry, topicName: string) {
-    await createVocabCard({
-      word: entry.word,
-      partOfSpeech: entry.pos,
-      chineseMeaning: entry.meaningZh,
-      englishDefinition: entry.definitionEn,
-      collocations: entry.collocations,
-      example: entry.example,
-      sourceContext: `Built-in library · ${topicName}`,
-      sourceSkill: "vocabulary",
-      tags: [entry.band],
-    });
-    setAdded((s) => new Set(s).add(entry.word.trim().toLowerCase()));
-    onAdded();
-  }
-
-  return (
-    <div className="card card-pad mb-4">
-      <p className="mb-2 text-sm font-semibold">{t("vocabulary.library")}</p>
-      <div className="flex flex-wrap gap-1">
-        {vocabTopics.map((topic) => (
-          <button
-            key={topic.id}
-            onClick={() => setOpenTopic(topic.id === openTopic ? null : topic.id)}
-            className={`rounded-md border px-2.5 py-1.5 text-xs ${openTopic === topic.id ? "border-accent bg-accent-soft text-foreground" : "border-border text-muted hover:bg-gray-50"}`}
-          >
-            {locale === "zh" ? topic.nameZh : topic.nameEn}
-          </button>
-        ))}
-      </div>
-
-      {openTopic && (
-        <div className="mt-3 space-y-1.5">
-          {vocabTopics.find((tp) => tp.id === openTopic)?.words.map((w) => (
-            <div key={w.word} className="flex items-start justify-between gap-3 rounded-md border border-border px-3 py-2">
-              <div className="min-w-0 text-sm">
-                <p>
-                  <span className="font-medium">{w.word}</span>{" "}
-                  <span className="text-xs text-muted italic">{w.pos}</span>
-                  {w.band !== "core" && <span className="ml-1 badge">{w.band}</span>}
-                </p>
-                <p className="text-xs text-muted">
-                  {locale === "zh" ? w.meaningZh : w.definitionEn}
-                </p>
-                {w.collocations.length > 0 && (
-                  <p className="text-xs text-muted">collocations: {w.collocations.join(", ")}</p>
-                )}
-              </div>
-              <button
-                className="btn-secondary shrink-0 px-2.5 py-1 text-xs"
-                disabled={added.has(w.word.trim().toLowerCase())}
-                onClick={() => addWord(w, vocabTopics.find((tp) => tp.id === openTopic)?.nameEn ?? "")}
-              >
-                {added.has(w.word.trim().toLowerCase()) ? "✓" : `+ ${t("vocabulary.addToDeck")}`}
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -357,7 +276,8 @@ function WordBooksBrowser({ onAdded }: { onAdded: () => void }) {
     setError(null);
     const provider = providers.find((p) => p.id === providerId);
     try {
-      const detail = provider && provider.getEntry ? await provider.getEntry(entry.word) : entry;
+      // Resolve details by provider externalId, never by display word.
+      const detail = provider && provider.getEntry ? await provider.getEntry(entry.source.externalId ?? entry.word) : entry;
       setSelected(detail ?? entry);
     } catch (e) {
       setError((e as Error).message);
@@ -367,7 +287,8 @@ function WordBooksBrowser({ onAdded }: { onAdded: () => void }) {
   }
 
   async function add(entry: CanonicalVocabularyEntry) {
-    const res = await addProviderEntryToPersonalVocabulary(entry);
+    const book = books.find((b) => b.id === bookId);
+    const res = await addProviderEntryToPersonalVocabulary(entry, { bookId: book?.externalId });
     if (res.created) {
       setAddedIds((s) => new Set(s).add(entry.id));
       onAdded();

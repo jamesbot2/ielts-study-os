@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
 import { resources as builtinResources, resourceCategories, type ResourceItem } from "@/lib/content/resources";
+import { getExternalProjects } from "@/lib/plugins/resources/registry";
 import {
   createImportedMaterial,
   deleteImportedMaterial,
@@ -170,6 +171,27 @@ function ResourceCard({
   const title = locale === "zh" ? resource.titleZh : resource.titleEn;
   const desc = locale === "zh" ? resource.descriptionZh : resource.descriptionEn;
   const cat = resourceCategories.find((c) => c.id === resource.category);
+  const integration = resource.integrationId
+    ? getExternalProjects().find((p) => p.id === resource.integrationId)
+    : undefined;
+
+  const integrationLabel = integration
+    ? integration.status === "active"
+      ? locale === "zh" ? "原生提供方 · 已激活" : "Native provider · Active"
+      : integration.status === "planned"
+        ? locale === "zh" ? "计划中" : "Planned provider"
+        : integration.status === "external"
+          ? locale === "zh" ? "仅外部" : "External only"
+          : locale === "zh" ? "仅参考" : "Reference only"
+    : undefined;
+
+  const actionLabel = integration
+    ? integration.status === "reference"
+      ? locale === "zh" ? "打开仓库" : "Open repository"
+      : integration.status === "external"
+        ? locale === "zh" ? "打开外部资源" : "Open external resource"
+        : t("library.openResource")
+    : t("library.openResource");
 
   return (
     <div className="card card-pad flex flex-col">
@@ -186,16 +208,29 @@ function ResourceCard({
 
       <p className="mt-2 flex-1 text-sm text-muted">{desc}</p>
 
+      {integration && (
+        <div className="mt-2 space-y-1">
+          <div className="flex flex-wrap gap-1">
+            <span className="badge badge-accent">{integrationLabel}</span>
+            {integration.license && <span className="badge">{integration.license}</span>}
+          </div>
+          {integration.note && <p className="text-[11px] text-muted">{integration.note}</p>}
+          {integration.capabilities.length > 0 && (
+            <p className="text-[11px] text-muted">{integration.capabilities.join(" · ")}</p>
+          )}
+        </div>
+      )}
+
       <div className="mt-2 flex flex-wrap gap-1">
         {cat && <span className="badge">{locale === "zh" ? cat.labelZh : cat.labelEn}</span>}
         {resource.testType !== "both" && <span className="badge">{resource.testType}</span>}
-        {resource.license && <span className="badge">{resource.license}</span>}
+        {!integration && resource.license && <span className="badge">{resource.license}</span>}
       </div>
 
       <div className="mt-3 flex items-center justify-between border-t border-border pt-2">
         <span className="text-[11px] text-muted">{t("library.lastVerified")} {resource.lastVerified}</span>
         <a href={resource.url} target="_blank" rel="noopener noreferrer" className="btn-secondary inline-flex px-3 py-1.5 text-xs">
-          <ExternalLink className="h-3.5 w-3.5" /> {t("library.openResource")}
+          <ExternalLink className="h-3.5 w-3.5" /> {actionLabel}
         </a>
       </div>
     </div>

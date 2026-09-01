@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
-import { registerAllPlugins } from "@/lib/plugins/vocabulary";
+import { registerAllPlugins } from "@/lib/plugins/register";
 import { listPlugins } from "@/lib/plugins/registry";
 import { setConfig, healthCheck } from "@/lib/plugins/manager";
+import { coerceConfigFieldValue } from "@/lib/plugins/config";
 import { getProviderConfig } from "@/lib/storage/repository";
 import type { ProviderConfig } from "@/lib/storage/types";
 import type { IeltsPlugin, PluginHealth } from "@/lib/plugins/types";
@@ -117,18 +118,55 @@ export function ProviderManager() {
 
               {p.configFields && p.configFields.length > 0 && (
                 <div className="mt-2 border-t border-border pt-2">
-                  {p.configFields.map((f) => (
-                    <label key={f.key} className="mb-2 block text-xs text-muted">
-                      {f.label}
-                      <input
-                        className="input mt-1"
-                        type={f.type === "number" ? "number" : f.type === "url" ? "url" : "text"}
-                        value={String(drafts[p.id]?.[f.key] ?? "")}
-                        placeholder={f.placeholder}
-                        onChange={(e) => setDrafts((prev) => ({ ...prev, [p.id]: { ...(prev[p.id] ?? {}), [f.key]: e.target.value } }))}
-                      />
-                    </label>
-                  ))}
+                  {p.configFields.map((f) => {
+                    if (f.secret) {
+                      return (
+                        <p key={f.key} className="mb-2 text-xs text-muted">
+                          {f.label}: <span className="font-medium">{locale === "zh" ? "需要受信任的后端代理" : "Requires a trusted proxy/backend"}</span>
+                        </p>
+                      );
+                    }
+                    if (f.type === "boolean") {
+                      return (
+                        <label key={f.key} className="mb-2 flex items-center gap-2 text-xs text-muted">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-[var(--accent)]"
+                            checked={Boolean(drafts[p.id]?.[f.key])}
+                            onChange={(e) => setDrafts((prev) => ({ ...prev, [p.id]: { ...(prev[p.id] ?? {}), [f.key]: e.target.checked } }))}
+                          />
+                          {f.label}
+                        </label>
+                      );
+                    }
+                    if (f.type === "select") {
+                      return (
+                        <label key={f.key} className="mb-2 block text-xs text-muted">
+                          {f.label}
+                          <select
+                            className="input mt-1"
+                            value={String(drafts[p.id]?.[f.key] ?? "")}
+                            onChange={(e) => setDrafts((prev) => ({ ...prev, [p.id]: { ...(prev[p.id] ?? {}), [f.key]: e.target.value } }))}
+                          >
+                            <option value="">—</option>
+                            {(f.options ?? []).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                          </select>
+                        </label>
+                      );
+                    }
+                    return (
+                      <label key={f.key} className="mb-2 block text-xs text-muted">
+                        {f.label}
+                        <input
+                          className="input mt-1"
+                          type={f.type === "number" ? "number" : f.type === "url" ? "url" : "text"}
+                          value={String(drafts[p.id]?.[f.key] ?? "")}
+                          placeholder={f.placeholder}
+                          onChange={(e) => setDrafts((prev) => ({ ...prev, [p.id]: { ...(prev[p.id] ?? {}), [f.key]: coerceConfigFieldValue(f, e.target.value) } }))}
+                        />
+                      </label>
+                    );
+                  })}
                   <button className="btn-primary px-2.5 py-1.5 text-xs" onClick={() => saveConfig(p.id)} disabled={busy === p.id}>
                     {locale === "zh" ? "保存" : "Save"}
                   </button>

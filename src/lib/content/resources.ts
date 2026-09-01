@@ -40,6 +40,8 @@ export interface ResourceItem {
   tags: string[];
   lastVerified: string;
   recommended: boolean;
+  // For open-source/project cards: links to the authoritative integration registry.
+  integrationId?: string;
 }
 
 export const resources: ResourceItem[] = [
@@ -293,6 +295,7 @@ export const resources: ResourceItem[] = [
     tags: ["open-source", "architecture", "srs"],
     lastVerified: "2026-08-31",
     recommended: false,
+    integrationId: "ists",
   },
   {
     id: "r-oss-reading-mock",
@@ -315,6 +318,7 @@ export const resources: ResourceItem[] = [
     tags: ["open-source", "reading", "mock"],
     lastVerified: "2026-08-31",
     recommended: false,
+    integrationId: "ielts-reading-mock",
   },
   {
     id: "r-oss-echo-type",
@@ -337,6 +341,7 @@ export const resources: ResourceItem[] = [
     tags: ["open-source", "four-skills", "fsrs"],
     lastVerified: "2026-08-31",
     recommended: false,
+    integrationId: "echo-type",
   },
   {
     id: "r-oss-speaking-ai",
@@ -359,6 +364,7 @@ export const resources: ResourceItem[] = [
     tags: ["open-source", "speaking", "whisper"],
     lastVerified: "2026-08-31",
     recommended: false,
+    integrationId: "ielts-speaking-ai",
   },
   {
     id: "r-oss-ielts-practice",
@@ -381,6 +387,7 @@ export const resources: ResourceItem[] = [
     tags: ["open-source", "reading", "listening"],
     lastVerified: "2026-08-31",
     recommended: false,
+    integrationId: "ielts-atlas",
   },
 ];
 

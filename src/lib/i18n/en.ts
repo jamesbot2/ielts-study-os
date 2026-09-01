@@ -268,7 +268,7 @@ export const en = {
     noCards: "No vocabulary yet. Add words or extract them from practice.",
     extractFromReading: "Words from reading",
     extractFromListening: "Words from listening",
-    library: "Built-in library",
+    library: "Word books",
     addToDeck: "Add to deck",
   },
   grammar: {
