@@ -55,6 +55,17 @@ export interface LessonProgress {
   updatedAt: string;
 }
 
+export interface PersonalVocabularySource {
+  providerId: string;
+  providerName?: string;
+  externalId?: string;
+  bookId?: string;
+  sourceUrl?: string;
+  attribution?: string;
+  license?: string;
+  importedAt: string;
+}
+
 export interface VocabularyCard {
   id: string;
   word: string;
@@ -74,6 +85,7 @@ export interface VocabularyCard {
   personalNote: string | null;
   sourceSkill: string | null;
   tags: string[];
+  source: PersonalVocabularySource | null;
   fsrs: Card | null;
   due: string | null;
   createdAt: string;
@@ -279,6 +291,7 @@ export interface ProviderConfig {
   enabled: boolean;
   config: Record<string, unknown>;
   lastSyncAt: string | null;
+  lastHealthCheckedAt: string | null;
   lastHealthStatus: string | null;
   lastHealthMessage: string | null;
 }

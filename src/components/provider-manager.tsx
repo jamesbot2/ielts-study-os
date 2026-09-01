@@ -2,67 +2,37 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
-import { registerVocabularyPlugins } from "@/lib/plugins/vocabulary";
+import { registerAllPlugins } from "@/lib/plugins/vocabulary";
+import { listPlugins } from "@/lib/plugins/registry";
 import { setConfig, healthCheck } from "@/lib/plugins/manager";
 import { getProviderConfig } from "@/lib/storage/repository";
 import type { ProviderConfig } from "@/lib/storage/types";
-import type { PluginHealth } from "@/lib/plugins/types";
+import type { IeltsPlugin, PluginHealth } from "@/lib/plugins/types";
 import { Spinner } from "@/components/ui";
 
-interface ProviderView {
-  id: string;
-  name: string;
-  description: string;
-  kind: string;
-  capabilities: string[];
-  source: { repository?: string; provider?: string; license?: string; attribution?: string };
-  builtin: boolean;
-}
-
 export function ProviderManager() {
-  const { t, locale } = useI18n();
+  const { locale } = useI18n();
+  const [plugins, setPlugins] = useState<IeltsPlugin[]>([]);
   const [configs, setConfigs] = useState<Record<string, ProviderConfig>>({});
+  const [drafts, setDrafts] = useState<Record<string, Record<string, unknown>>>({});
   const [health, setHealth] = useState<Record<string, PluginHealth | null>>({});
-  const [baseUrl, setBaseUrl] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
-  const providers: ProviderView[] = [
-    {
-      id: "ielts-study-os-builtin",
-      name: "IELTS Study OS Core",
-      description: "Bundled original IELTS vocabulary.",
-      kind: "vocabulary",
-      capabilities: ["VOCABULARY_BOOKS", "VOCABULARY_LOOKUP"],
-      source: { provider: "IELTS Study OS", license: "CC0" },
-      builtin: true,
-    },
-    {
-      id: "baicizhan",
-      name: "Baicizhan Vocabulary",
-      description: "Community-compatible Baicizhan word meanings (unofficial).",
-      kind: "vocabulary",
-      capabilities: ["VOCABULARY_BOOKS", "VOCABULARY_LOOKUP"],
-      source: {
-        provider: "Baicizhan (community API)",
-        repository: "https://github.com/lyc8503/baicizhan-word-meaning-API",
-        attribution: "Data parsed from Baicizhan (百词斩); community-hosted, unofficial.",
-      },
-      builtin: false,
-    },
-  ];
-
   const load = useCallback(async () => {
-    registerVocabularyPlugins();
+    registerAllPlugins();
+    const all = listPlugins();
+    setPlugins(all);
     const map: Record<string, ProviderConfig> = {};
-    for (const p of providers) {
+    const draftMap: Record<string, Record<string, unknown>> = {};
+    for (const p of all) {
       const c = await getProviderConfig(p.id);
       if (c) map[p.id] = c;
-      else if (p.builtin) map[p.id] = { id: p.id, enabled: true, config: {}, lastSyncAt: null, lastHealthStatus: "healthy", lastHealthMessage: null };
+      else if (p.builtin) map[p.id] = { id: p.id, enabled: true, config: {}, lastSyncAt: null, lastHealthCheckedAt: null, lastHealthStatus: "healthy", lastHealthMessage: null };
+      draftMap[p.id] = { ...(c?.config ?? {}) };
     }
     setConfigs(map);
-    const baicizhan = map["baicizhan"];
-    if (baicizhan) setBaseUrl((baicizhan.config.baseUrl as string) ?? "");
+    setDrafts(draftMap);
   }, []);
 
   useEffect(() => {
@@ -70,16 +40,21 @@ export function ProviderManager() {
   }, [load]);
 
   async function toggle(pluginId: string, enabled: boolean) {
+    // Optimistic local update so the controlled checkbox reflects immediately.
+    setConfigs((prev) => ({
+      ...prev,
+      [pluginId]: { ...(prev[pluginId] ?? { id: pluginId, config: {}, lastSyncAt: null, lastHealthCheckedAt: null, lastHealthStatus: null, lastHealthMessage: null }), enabled },
+    }));
     setBusy(pluginId);
     const cfg = await setConfig(pluginId, { enabled });
     setConfigs((prev) => ({ ...prev, [pluginId]: cfg }));
     setBusy(null);
   }
 
-  async function saveBaseUrl() {
-    setBusy("baicizhan");
-    const cfg = await setConfig("baicizhan", { config: { baseUrl: baseUrl.trim() || undefined } });
-    setConfigs((prev) => ({ ...prev, baicizhan: cfg }));
+  async function saveConfig(pluginId: string) {
+    setBusy(pluginId);
+    const cfg = await setConfig(pluginId, { config: drafts[pluginId] ?? {} });
+    setConfigs((prev) => ({ ...prev, [pluginId]: cfg }));
     setBusy(null);
     setMsg(locale === "zh" ? "已保存" : "Saved");
     setTimeout(() => setMsg(null), 1500);
@@ -88,10 +63,8 @@ export function ProviderManager() {
   async function test(pluginId: string) {
     setBusy(pluginId);
     setMsg(null);
-    if (pluginId === "baicizhan") {
-      // Persist the current URL before testing.
-      await setConfig("baicizhan", { config: { baseUrl: baseUrl.trim() || undefined } });
-    }
+    // Persist current draft config before testing so the runtime uses it.
+    await setConfig(pluginId, { config: drafts[pluginId] ?? {} });
     const h = await healthCheck(pluginId);
     setHealth((prev) => ({ ...prev, [pluginId]: h }));
     setBusy(null);
@@ -107,10 +80,10 @@ export function ProviderManager() {
       </p>
 
       <div className="space-y-3">
-        {providers.map((p) => {
+        {plugins.map((p) => {
           const cfg = configs[p.id];
           const enabled = cfg?.enabled === true;
-          const h = health[p.id] ?? (cfg?.lastHealthStatus ? ({ status: cfg.lastHealthStatus, message: cfg.lastHealthMessage ?? undefined, checkedAt: "" } as PluginHealth) : null);
+          const h = health[p.id] ?? (cfg?.lastHealthStatus ? ({ status: cfg.lastHealthStatus, message: cfg.lastHealthMessage ?? undefined, checkedAt: cfg.lastHealthCheckedAt ?? "" } as PluginHealth) : null);
           return (
             <div key={p.id} className="rounded-md border border-border p-3">
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -118,7 +91,7 @@ export function ProviderManager() {
                   <div className="flex items-center gap-2">
                     <p className="font-medium">{p.name}</p>
                     {p.builtin ? <span className="badge badge-accent">{locale === "zh" ? "内置" : "Built-in"}</span> : <span className="badge">{locale === "zh" ? "外部" : "External"}</span>}
-                    {enabled && <span className={`badge ${h?.status === "healthy" ? "badge-accent" : ""}`}>{h?.status ?? "configured"}</span>}
+                    {enabled && <span className={`badge ${h?.status === "healthy" ? "badge-accent" : ""}`}>{h ? h.status : "not_tested"}</span>}
                   </div>
                   <p className="mt-0.5 text-xs text-muted">{p.description}</p>
                   <p className="mt-0.5 text-xs text-muted">{p.capabilities.join(" · ")}</p>
@@ -134,7 +107,7 @@ export function ProviderManager() {
                       {locale === "zh" ? "启用" : "Enable"}
                     </label>
                   )}
-                  {!p.builtin && (
+                  {p.createRuntime && (
                     <button className="btn-secondary px-2.5 py-1.5 text-xs" onClick={() => test(p.id)} disabled={busy === p.id}>
                       {busy === p.id ? <Spinner /> : locale === "zh" ? "测试连接" : "Test"}
                     </button>
@@ -142,11 +115,21 @@ export function ProviderManager() {
                 </div>
               </div>
 
-              {p.id === "baicizhan" && (
-                <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-border pt-2">
-                  <label className="text-xs text-muted">{locale === "zh" ? "API Base URL" : "API Base URL"}</label>
-                  <input className="input max-w-md flex-1" value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://cdn.jsdelivr.net/gh/lyc8503/baicizhan-word-meaning-API/data" />
-                  <button className="btn-primary px-2.5 py-1.5 text-xs" onClick={saveBaseUrl} disabled={busy === "baicizhan"}>
+              {p.configFields && p.configFields.length > 0 && (
+                <div className="mt-2 border-t border-border pt-2">
+                  {p.configFields.map((f) => (
+                    <label key={f.key} className="mb-2 block text-xs text-muted">
+                      {f.label}
+                      <input
+                        className="input mt-1"
+                        type={f.type === "number" ? "number" : f.type === "url" ? "url" : "text"}
+                        value={String(drafts[p.id]?.[f.key] ?? "")}
+                        placeholder={f.placeholder}
+                        onChange={(e) => setDrafts((prev) => ({ ...prev, [p.id]: { ...(prev[p.id] ?? {}), [f.key]: e.target.value } }))}
+                      />
+                    </label>
+                  ))}
+                  <button className="btn-primary px-2.5 py-1.5 text-xs" onClick={() => saveConfig(p.id)} disabled={busy === p.id}>
                     {locale === "zh" ? "保存" : "Save"}
                   </button>
                 </div>

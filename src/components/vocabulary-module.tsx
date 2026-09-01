@@ -9,7 +9,9 @@ import {
   recordVocabReview,
 } from "@/lib/storage/repository";
 import { vocabTopics, type VocabEntry } from "@/lib/content/vocabulary";
-import { getVocabularyProviders, getVocabularyProvider } from "@/lib/plugins/vocabulary";
+import { listEnabledVocabularyProviders } from "@/lib/plugins/vocabulary";
+import { addProviderEntryToPersonalVocabulary } from "@/lib/plugins/vocabulary/import";
+import type { VocabularyProvider, VocabularyBook, CanonicalVocabularyEntry } from "@/lib/plugins/vocabulary/types";
 import { collocationGroups } from "@/lib/content/collocations";
 import type { VocabularyCard } from "@/lib/storage/types";
 import { Spinner } from "@/components/ui";
@@ -126,7 +128,7 @@ export function VocabularyModule() {
 
       {showLibrary && <VocabularyLibrary onAdded={load} />}
       {showCollocations && <CollocationsSection />}
-      {showProviders && <ProviderWordBrowser onAdded={load} />}
+      {showProviders && <WordBooksBrowser onAdded={load} />}
 
       {cards.length === 0 ? (
         <div className="card card-pad text-center text-muted">{t("vocabulary.noCards")}</div>
@@ -290,38 +292,73 @@ function CollocationsSection() {
   );
 }
 
-function ProviderWordBrowser({ onAdded }: { onAdded: () => void }) {
+function WordBooksBrowser({ onAdded }: { onAdded: () => void }) {
   const { t, locale } = useI18n();
-  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [providers, setProviders] = useState<VocabularyProvider[]>([]);
+  const [providerId, setProviderId] = useState<string | null>(null);
+  const [books, setBooks] = useState<VocabularyBook[]>([]);
+  const [bookId, setBookId] = useState<string | null>(null);
+  const [entries, setEntries] = useState<CanonicalVocabularyEntry[]>([]);
+  const [total, setTotal] = useState(0);
   const [query, setQuery] = useState("");
-  const [result, setResult] = useState<import("@/lib/plugins/vocabulary/types").CanonicalVocabularyEntry | null>(null);
+  const [offset, setOffset] = useState(0);
+  const [selected, setSelected] = useState<CanonicalVocabularyEntry | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [added, setAdded] = useState(false);
+  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
+  const LIMIT = 30;
 
   useEffect(() => {
-    getVocabularyProviders().then((providers) => setEnabled(providers.some((p) => p.id === "baicizhan")));
+    listEnabledVocabularyProviders().then((p) => {
+      setProviders(p);
+      if (p.length) setProviderId(p[0].id);
+    });
   }, []);
 
-  async function lookup() {
-    const word = query.trim();
-    if (!word) return;
+  useEffect(() => {
+    if (!providerId) return;
+    const provider = providers.find((p) => p.id === providerId);
+    if (!provider) return;
+    setBooks([]);
+    setBookId(null);
+    setSelected(null);
+    setError(null);
+    provider.listBooks().then((b) => {
+      setBooks(b);
+      if (b.length) setBookId(b[0].id);
+    }).catch((e) => setError((e as Error).message));
+  }, [providerId, providers]);
+
+  useEffect(() => {
+    if (!providerId || !bookId) return;
+    const provider = providers.find((p) => p.id === providerId);
+    if (!provider) return;
     setBusy(true);
     setError(null);
-    setResult(null);
-    setAdded(false);
+    provider.listEntries(bookId, { offset: 0, limit: LIMIT, query: query.trim() || undefined })
+      .then((page) => { setEntries(page.entries); setTotal(page.total); setOffset(0); })
+      .catch((e) => setError((e as Error).message))
+      .finally(() => setBusy(false));
+  }, [providerId, bookId, query, providers]);
+
+  async function loadPage(nextOffset: number) {
+    if (!providerId || !bookId) return;
+    const provider = providers.find((p) => p.id === providerId);
+    if (!provider) return;
+    setBusy(true);
+    const page = await provider.listEntries(bookId, { offset: nextOffset, limit: LIMIT, query: query.trim() || undefined });
+    setEntries(page.entries);
+    setOffset(nextOffset);
+    setBusy(false);
+  }
+
+  async function open(entry: CanonicalVocabularyEntry) {
+    setBusy(true);
+    setError(null);
+    const provider = providers.find((p) => p.id === providerId);
     try {
-      const provider = await getVocabularyProvider("baicizhan");
-      if (!provider) {
-        setError(locale === "zh" ? "尚未启用 Baicizhan 词库，请在设置中启用。" : "Baicizhan provider is not enabled. Enable it in Settings.");
-        return;
-      }
-      const entry = await provider.getEntry(word);
-      if (!entry) {
-        setError(locale === "zh" ? "未找到该单词。" : "Word not found.");
-        return;
-      }
-      setResult(entry);
+      const detail = provider && provider.getEntry ? await provider.getEntry(entry.word) : entry;
+      setSelected(detail ?? entry);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -329,67 +366,84 @@ function ProviderWordBrowser({ onAdded }: { onAdded: () => void }) {
     }
   }
 
-  async function add() {
-    if (!result) return;
-    // Deduplicate by normalized word against the existing personal deck.
-    const existing = await listVocabCards();
-    const norm = result.word.trim().toLowerCase();
-    const dup = existing.find((c) => c.word.trim().toLowerCase() === norm);
-    if (dup) {
+  async function add(entry: CanonicalVocabularyEntry) {
+    const res = await addProviderEntryToPersonalVocabulary(entry);
+    if (res.created) {
+      setAddedIds((s) => new Set(s).add(entry.id));
+      onAdded();
+    } else {
       setError(locale === "zh" ? "该词已在你的词库中。" : "This word is already in your deck.");
-      setAdded(true);
-      return;
     }
-    await createVocabCard({
-      word: result.word,
-      partOfSpeech: result.partOfSpeech ?? undefined,
-      chineseMeaning: result.meaningZh ?? undefined,
-      englishDefinition: result.definitionEn ?? undefined,
-      ipa: result.ipa ?? undefined,
-      collocations: result.collocations,
-      example: result.examples[0],
-      sourceContext: `${result.source.providerName} · ${result.word}`,
-      sourceSkill: "vocabulary",
-      tags: ["provider", result.source.providerId],
-    });
-    setAdded(true);
-    onAdded();
   }
-
-  if (enabled === null) return null;
 
   return (
     <div className="card card-pad mb-4">
-      <p className="mb-2 text-sm font-semibold">{locale === "zh" ? "外部词库" : "External word books"}</p>
-      {!enabled ? (
-        <p className="text-sm text-muted">
-          {locale === "zh" ? "外部词库尚未启用。请到 设置 → 插件/服务提供方 启用 Baicizhan。" : "No external word books enabled. Enable Baicizhan in Settings → Plugins/Providers."}
-        </p>
-      ) : (
-        <>
-          <div className="flex gap-2">
-            <input className="input flex-1" placeholder={locale === "zh" ? "输入英文单词查找" : "Look up an English word"} value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && lookup()} />
-            <button className="btn-primary" onClick={lookup} disabled={busy || !query.trim()}>{busy ? <Spinner /> : (locale === "zh" ? "查找" : "Look up")}</button>
-          </div>
-          {error && <p className="mt-2 text-sm text-amber-600">{error}</p>}
-          {result && (
-            <div className="mt-3 rounded-md border border-border p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="font-medium">{result.word} {result.ipa && <span className="text-xs text-muted">{result.ipa}</span>}</p>
-                  {result.partOfSpeech && <span className="badge mt-1">{result.partOfSpeech}</span>}
-                  {result.meaningZh && <p className="mt-1 text-sm">{result.meaningZh}</p>}
-                  {result.definitionEn && <p className="text-sm text-muted">{result.definitionEn}</p>}
-                  {result.examples[0] && <p className="mt-1 text-sm italic text-muted">“{result.examples[0]}”</p>}
-                  <p className="mt-1 text-[11px] text-muted">{result.source.providerName} · {result.source.attribution ?? ""}</p>
-                </div>
-                <button className="btn-primary shrink-0 px-3 py-1.5 text-xs" onClick={add} disabled={added}>
-                  {added ? "✓" : `+ ${t("vocabulary.addToDeck")}`}
-                </button>
-              </div>
+      <p className="mb-2 text-sm font-semibold">{locale === "zh" ? "词库" : "Word books"}</p>
+      <div className="flex flex-wrap gap-1">
+        {providers.map((p) => (
+          <button key={p.id} onClick={() => setProviderId(p.id)} className={`rounded-md border px-2.5 py-1.5 text-xs ${providerId === p.id ? "border-accent bg-accent-soft text-foreground" : "border-border text-muted hover:bg-gray-50"}`}>
+            {p.name}
+          </button>
+        ))}
+      </div>
+
+      {books.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1">
+          {books.map((b) => (
+            <button key={b.id} onClick={() => setBookId(b.id)} className={`rounded-md border px-2.5 py-1.5 text-xs ${bookId === b.id ? "border-accent bg-accent-soft text-foreground" : "border-border text-muted hover:bg-gray-50"}`}>
+              {b.title} {b.wordCount != null ? `(${b.wordCount})` : ""}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {bookId && (
+        <div className="mt-3 flex gap-2">
+          <input className="input flex-1" placeholder={locale === "zh" ? "搜索单词" : "Search words"} value={query} onChange={(e) => setQuery(e.target.value)} />
+          <span className="self-center text-xs text-muted">{total} {locale === "zh" ? "个词" : "words"}</span>
+        </div>
+      )}
+
+      {error && <p className="mt-2 text-sm text-amber-600">{error}</p>}
+
+      {busy && <div className="mt-2"><Spinner /></div>}
+
+      {!busy && entries.length > 0 && (
+        <div className="mt-3 grid gap-1 sm:grid-cols-2">
+          {entries.map((e) => (
+            <button key={e.id} onClick={() => open(e)} className="flex items-center justify-between rounded-md border border-border px-3 py-1.5 text-left text-sm hover:border-accent">
+              <span className="font-medium">{e.word}</span>
+              {addedIds.has(e.id) && <span className="text-xs text-green-600">✓</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!busy && total > LIMIT && (
+        <div className="mt-2 flex items-center gap-2 text-xs">
+          <button className="btn-secondary px-2 py-1" disabled={offset === 0} onClick={() => loadPage(Math.max(0, offset - LIMIT))}>{locale === "zh" ? "上一页" : "Prev"}</button>
+          <span>{Math.floor(offset / LIMIT) + 1} / {Math.ceil(total / LIMIT)}</span>
+          <button className="btn-secondary px-2 py-1" disabled={offset + LIMIT >= total} onClick={() => loadPage(offset + LIMIT)}>{locale === "zh" ? "下一页" : "Next"}</button>
+        </div>
+      )}
+
+      {selected && (
+        <div className="mt-3 rounded-md border border-border p-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-medium">{selected.word} {selected.ipa && <span className="text-xs text-muted">{selected.ipa}</span>}</p>
+              {selected.partOfSpeech && <span className="badge mt-1">{selected.partOfSpeech}</span>}
+              {selected.meaningZh && <p className="mt-1 text-sm">{selected.meaningZh}</p>}
+              {selected.definitionEn && <p className="text-sm text-muted">{selected.definitionEn}</p>}
+              {selected.examples[0] && <p className="mt-1 text-sm italic text-muted">“{selected.examples[0]}”</p>}
+              {selected.collocations.length > 0 && <p className="mt-1 text-xs text-muted">collocations: {selected.collocations.join(", ")}</p>}
+              <p className="mt-1 text-[11px] text-muted">{selected.source.providerName}{selected.source.attribution ? ` · ${selected.source.attribution}` : ""}</p>
             </div>
-          )}
-        </>
+            <button className="btn-primary shrink-0 px-3 py-1.5 text-xs" onClick={() => add(selected)} disabled={addedIds.has(selected.id)}>
+              {addedIds.has(selected.id) ? "✓" : `+ ${t("vocabulary.addToDeck")}`}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -22,6 +22,7 @@ import type {
   ImportedMaterial,
   UserSettings,
   ProviderConfig,
+  PersonalVocabularySource,
   AnswerValue,
 } from "./types";
 import { DEFAULT_PROFILE } from "./types";
@@ -122,6 +123,7 @@ export interface VocabInput {
   personalNote?: string;
   sourceSkill?: string;
   tags?: string[];
+  source?: PersonalVocabularySource;
 }
 
 export async function createVocabCard(input: VocabInput): Promise<string> {
@@ -145,6 +147,7 @@ export async function createVocabCard(input: VocabInput): Promise<string> {
     personalNote: input.personalNote ?? null,
     sourceSkill: input.sourceSkill ?? null,
     tags: input.tags ?? [],
+    source: input.source ?? null,
     fsrs: emptyCard(),
     due: nowIso(),
     createdAt: nowIso(),
@@ -152,6 +155,31 @@ export async function createVocabCard(input: VocabInput): Promise<string> {
   };
   await db().vocabulary.put(card);
   return id;
+}
+
+export async function updateVocabCard(id: string, patch: Partial<VocabInput>): Promise<void> {
+  const existing = await db().vocabulary.get(id);
+  if (!existing) return;
+  await db().vocabulary.update(id, {
+    word: patch.word ?? existing.word,
+    lemma: patch.lemma ?? existing.lemma,
+    partOfSpeech: patch.partOfSpeech ?? existing.partOfSpeech,
+    chineseMeaning: patch.chineseMeaning ?? existing.chineseMeaning,
+    englishDefinition: patch.englishDefinition ?? existing.englishDefinition,
+    ipa: patch.ipa ?? existing.ipa,
+    example: patch.example ?? existing.example,
+    ieltsExample: patch.ieltsExample ?? existing.ieltsExample,
+    collocations: patch.collocations ?? existing.collocations,
+    synonyms: patch.synonyms ?? existing.synonyms,
+    antonyms: patch.antonyms ?? existing.antonyms,
+    wordFamily: patch.wordFamily ?? existing.wordFamily,
+    commonMistakes: patch.commonMistakes ?? existing.commonMistakes,
+    sourceContext: patch.sourceContext ?? existing.sourceContext,
+    personalNote: patch.personalNote ?? existing.personalNote,
+    sourceSkill: patch.sourceSkill ?? existing.sourceSkill,
+    tags: patch.tags ?? existing.tags,
+    source: patch.source ?? existing.source,
+  });
 }
 
 export async function recordVocabReview(
