@@ -9,8 +9,9 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..config import settings
-from ..llm.base import EmbeddingProvider, LlmProvider
+from ..llm.base import LlmProvider
 from ..rag.citations import validate_citations
+from ..rag.service import RetrievalService
 from . import tools
 from .schemas import AGENT_STEP_SCHEMA, validate_actions
 from .tools import ToolContext
@@ -36,10 +37,9 @@ class AgentResult:
 
 
 class AgentRuntime:
-    def __init__(self, llm: LlmProvider, repository: object, embeddings: EmbeddingProvider) -> None:
+    def __init__(self, llm: LlmProvider, retrieval: RetrievalService) -> None:
         self.llm = llm
-        self.repository = repository
-        self.embeddings = embeddings
+        self.retrieval = retrieval
         self.max_steps = settings.max_tool_iterations
 
     async def run(
@@ -49,7 +49,7 @@ class AgentRuntime:
         locale: str = "en",
         history: list[dict[str, str]] | None = None,
     ) -> AgentResult:
-        ctx = ToolContext(snapshot=snapshot, repository=self.repository, embeddings=self.embeddings, locale=locale)
+        ctx = ToolContext(snapshot=snapshot, retrieval=self.retrieval, locale=locale)
         retrieved_for_citations: list = []
         tool_steps: list[str] = []
         transcript: list[dict[str, str]] = [

@@ -4,6 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.agent.runtime import AgentRuntime
+from app.rag.service import RetrievalService
 from app.storage.repository import (
     InMemoryKnowledgeRepository,
     KnowledgeChunk,
@@ -12,7 +13,7 @@ from app.storage.repository import (
 from tests.fakes import FakeEmbeddings, FakeLlm
 
 
-def make_runtime(script):
+def make_runtime(script, embeddings_configured=True):
     emb = FakeEmbeddings()
     repo = InMemoryKnowledgeRepository()
     repo.upsert_source(
@@ -33,7 +34,7 @@ def make_runtime(script):
             )
         ]
     )
-    return AgentRuntime(FakeLlm(script), repo, emb)
+    return AgentRuntime(FakeLlm(script), RetrievalService(repo, emb, embeddings_configured))
 
 
 def test_agent_searches_then_cites_valid_source():
@@ -136,3 +137,57 @@ def test_current_message_not_duplicated_by_history():
     # the transcript still terminates with the structured current turn.
     assert last_call[-1]["role"] == "user"
     assert "learnerContext" in last_call[-1]["content"]
+
+
+class SpyRepo:
+    def __init__(self, inner):
+        self.inner = inner
+        self.vector_calls = 0
+        self.lexical_calls = 0
+
+    def search_vector(self, *a, **k):
+        self.vector_calls += 1
+        return self.inner.search_vector(*a, **k)
+
+    def search_lexical(self, *a, **k):
+        self.lexical_calls += 1
+        return self.inner.search_lexical(*a, **k)
+
+    def upsert_source(self, *a, **k):
+        return self.inner.upsert_source(*a, **k)
+
+    def upsert_chunks(self, *a, **k):
+        return self.inner.upsert_chunks(*a, **k)
+
+
+def test_coach_lexical_only_does_not_call_vector():
+    from app.rag.service import RetrievalService
+
+    emb = FakeEmbeddings()
+    repo = InMemoryKnowledgeRepository()
+    repo.upsert_source(
+        KnowledgeSource(
+            id="ielts-org", title="IELTS.org", provider="IELTS", url="https://ielts.org",
+            source_type="official", official=True, license=None, redistribution_policy="metadata_only",
+            language="en", skill="reading", test_type="academic", topics=["tfng"], last_verified="2026-09-01",
+        )
+    )
+    content = "False means the statement contradicts the passage; Not Given means it is not mentioned."
+    repo.upsert_chunks(
+        [
+            KnowledgeChunk(
+                id="c1", source_id="ielts-org", heading="False vs Not Given", content=content,
+                language="en", skill="reading", test_type="academic", topics=["tfng"],
+                question_types=["tfng"], chunk_index=0, content_hash="h1",
+                embedding=emb._embed(content),
+            )
+        ]
+    )
+    spy = SpyRepo(repo)
+    runtime = AgentRuntime(
+        FakeLlm([{"tool": "search_knowledge_base", "args": {"query": "false vs not given"}}, {"text": "ok", "citations": [], "actions": []}]),
+        RetrievalService(spy, emb, embeddings_configured=False),
+    )
+    runtime.run_sync("question", {}, "en")
+    assert spy.lexical_calls >= 1
+    assert spy.vector_calls == 0

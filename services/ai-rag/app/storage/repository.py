@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
+from datetime import UTC
 from typing import Protocol
 
 from ..rag.retrieval import ChunkRecord, SearchFilters, cosine, lexical_score, matches_filters
@@ -87,6 +88,24 @@ class InMemoryKnowledgeRepository:
     def __init__(self) -> None:
         self.sources: dict[str, KnowledgeSource] = {}
         self.chunks: dict[str, KnowledgeChunk] = {}
+        self.runs: list[dict] = []
+
+    def start_ingestion_run(self, fingerprint: str) -> int:
+        run_id = len(self.runs) + 1
+        self.runs.append({"id": run_id, "status": "running", "fingerprint": fingerprint, "started_at": "now"})
+        return run_id
+
+    def finish_ingestion_run(self, run_id: int, result: IngestionResult) -> None:
+        for r in self.runs:
+            if r["id"] == run_id:
+                r["status"] = "completed"
+                r.update({"added": result.added, "updated": result.updated, "unchanged": result.unchanged, "deleted": result.deleted})
+
+    def fail_ingestion_run(self, run_id: int, error: str) -> None:
+        for r in self.runs:
+            if r["id"] == run_id:
+                r["status"] = "failed"
+                r["error"] = error
 
     def upsert_source(self, source: KnowledgeSource) -> None:
         self.sources[source.id] = source
@@ -309,8 +328,11 @@ class PostgresKnowledgeRepository:
 
         from .models import KnowledgeChunkRow, KnowledgeSourceRow
 
-        vector = func.to_tsvector("english", func.concat(KnowledgeChunkRow.heading, " ", KnowledgeChunkRow.content))
-        tsquery = func.websearch_to_tsquery("english", query[:200])
+        # English content uses the english config; non-English uses 'simple' so we
+        # do not silently run Chinese text through English stemming.
+        lang_config = "english" if (filters.language is None or filters.language == "en") else "simple"
+        vector = func.to_tsvector(lang_config, func.concat(KnowledgeChunkRow.heading, " ", KnowledgeChunkRow.content))
+        tsquery = func.websearch_to_tsquery(lang_config, query[:200])
         stmt = (
             select(KnowledgeChunkRow)
             .where(vector.op("@@")(tsquery))
@@ -370,3 +392,43 @@ class PostgresKnowledgeRepository:
             return RepositoryHealth(reachable=True, pgvector_available=bool(pgvec), chunk_count=int(count))
         except Exception as e:  # noqa: BLE001 - health check must never raise
             return RepositoryHealth(reachable=False, error=str(e))
+
+    def start_ingestion_run(self, fingerprint: str) -> int:
+        self._lazy_init()
+        from .models import IngestionRunRow
+
+        row = IngestionRunRow(status="running", embedding_fingerprint=fingerprint)
+        with self._session_factory() as session:
+            session.add(row)
+            session.commit()
+            session.refresh(row)
+            return int(row.id)
+
+    def finish_ingestion_run(self, run_id: int, result: IngestionResult) -> None:
+        from datetime import datetime
+
+        from .models import IngestionRunRow
+
+        with self._session_factory() as session:
+            row = session.get(IngestionRunRow, run_id)
+            if row:
+                row.status = "completed"
+                row.completed_at = datetime.now(UTC)
+                row.added = result.added
+                row.updated = result.updated
+                row.unchanged = result.unchanged
+                row.deleted = result.deleted
+                session.commit()
+
+    def fail_ingestion_run(self, run_id: int, error: str) -> None:
+        from datetime import datetime
+
+        from .models import IngestionRunRow
+
+        with self._session_factory() as session:
+            row = session.get(IngestionRunRow, run_id)
+            if row:
+                row.status = "failed"
+                row.completed_at = datetime.now(UTC)
+                row.error = error[:2000]
+                session.commit()

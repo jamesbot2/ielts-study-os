@@ -22,7 +22,7 @@ from .config import settings
 from .embeddings.openai_compatible import OpenAICompatibleEmbeddings
 from .llm.base import EmbeddingProvider, LlmProvider
 from .llm.openai_compatible import OpenAICompatibleLlm
-from .rag.retrieval import hybrid_search_repository
+from .rag.service import RetrievalService
 from .storage.repository import (
     InMemoryKnowledgeRepository,
     PostgresKnowledgeRepository,
@@ -35,31 +35,14 @@ class RagContext:
     llm: LlmProvider | None
     embeddings: EmbeddingProvider
     embeddings_configured: bool
-    repository: object
+    retrieval: RetrievalService
     rag_state: str  # healthy | lexical_only | knowledge_empty | database_unavailable | unavailable
     retrieval_mode: str  # hybrid | lexical_only
     health: RepositoryHealth
     agent: AgentRuntime
 
-    def search(self, query: str, embedding: list[float], filters, top_k: int):
-        from .rag.retrieval import RetrievedChunk
-
-        if self.retrieval_mode == "lexical_only":
-            hits = self.repository.search_lexical(query, filters, top_k)
-            return [
-                RetrievedChunk(
-                    chunk_id=h.chunk_id,
-                    source_id=h.source_id,
-                    title=h.title,
-                    url=h.url,
-                    section=h.section,
-                    content=h.content,
-                    score=0.0,
-                    fields=h.fields,
-                )
-                for h in hits
-            ]
-        return hybrid_search_repository(self.repository, query, embedding, filters, top_k)
+    async def search(self, query: str, filters, top_k: int):
+        return await self.retrieval.search(query, filters, top_k)
 
 
 def build_llm() -> LlmProvider | None:
@@ -98,7 +81,7 @@ class _NoopLlm(LlmProvider):
 
 
 def create_app(repository: object | None = None, llm: LlmProvider | None = None, embeddings: EmbeddingProvider | None = None) -> FastAPI:
-    app = FastAPI(title="IELTS Study OS AI/RAG", version="0.6.2")
+    app = FastAPI(title="IELTS Study OS AI/RAG", version="0.6.3")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
@@ -136,16 +119,17 @@ def create_app(repository: object | None = None, llm: LlmProvider | None = None,
     llm_provider = llm if llm is not None else build_llm()
     emb = embeddings or build_embeddings() or _ZeroEmbeddings()
     retrieval_mode = "lexical_only" if not embeddings_configured else "hybrid"
+    retrieval_service = RetrievalService(repo, emb, embeddings_configured)
 
     ctx = RagContext(
         llm=llm_provider,
         embeddings=emb,
         embeddings_configured=embeddings_configured,
-        repository=repo,
+        retrieval=retrieval_service,
         rag_state=rag_state,
         retrieval_mode=retrieval_mode,
         health=health_state,
-        agent=AgentRuntime(llm_provider or _NoopLlm(), repo, emb),
+        agent=AgentRuntime(llm_provider or _NoopLlm(), retrieval_service),
     )
     app.state.rag = ctx
     app.state.settings = settings

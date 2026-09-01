@@ -1,6 +1,6 @@
 [project]
 name = "ielts-study-os-ai-rag"
-version = "0.6.2"
+version = "0.6.3"
 description = "Independent AI/RAG service for IELTS Study OS: knowledge retrieval, learner-aware coach, evaluation."
 requires-python = ">=3.12"
 dependencies = [
@@ -11,6 +11,7 @@ dependencies = [
     "httpx>=0.27",
     "sqlalchemy>=2.0",
     "pgvector>=0.3",
+    "psycopg[binary]>=3.1",
     "numpy>=1.26",
     "pyyaml>=6.0",
 ]

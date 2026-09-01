@@ -17,7 +17,7 @@ async def health(request: Request) -> dict:
         # Top-level status reflects the PROCESS only; rag_status carries RAG health.
         "status": "ok",
         "service": "ielts-study-os-ai-rag",
-        "version": "0.6.2",
+        "version": "0.6.3",
         "llm_configured": rag.llm is not None,
         "embeddings_configured": rag.embeddings_configured,
         "rag_status": rag.rag_state,

@@ -6,8 +6,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from ..llm.base import EmbeddingProvider
-from ..rag.retrieval import SearchFilters, hybrid_search_repository
+from ..rag.retrieval import SearchFilters
+from ..rag.service import RetrievalService
 
 SNAPSHOT = dict[str, Any]
 
@@ -15,13 +15,16 @@ SNAPSHOT = dict[str, Any]
 @dataclass
 class ToolContext:
     snapshot: SNAPSHOT
-    repository: object
-    embeddings: EmbeddingProvider
+    retrieval: RetrievalService
     locale: str = "en"
 
 
 async def search_knowledge_base(ctx: ToolContext, args: dict[str, Any]) -> dict[str, Any]:
-    query = str(args.get("query", ""))
+    query = str(args.get("query", "")).strip()
+    if not query:
+        return {"error": "empty query"}
+    if len(query) > 2000:
+        query = query[:2000]
     filters = SearchFilters(
         skill=args.get("skill"),
         test_type=args.get("test_type"),
@@ -30,9 +33,12 @@ async def search_knowledge_base(ctx: ToolContext, args: dict[str, Any]) -> dict[
         question_type=args.get("question_type"),
         language=args.get("language"),
     )
-    top_k = min(int(args.get("top_k", 8)), 20)
-    embedding = await ctx.embeddings.embed_query(query)
-    results = hybrid_search_repository(ctx.repository, query, embedding, filters, top_k=top_k)
+    try:
+        top_k = min(int(args.get("top_k", 8)), 20)
+    except (TypeError, ValueError):
+        top_k = 8
+    top_k = max(top_k, 1)
+    results = await ctx.retrieval.search(query, filters, top_k=top_k)
     return {
         "results": [
             {

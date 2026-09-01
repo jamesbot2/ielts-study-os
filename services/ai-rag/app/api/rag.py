@@ -24,8 +24,7 @@ async def search(body: SearchRequest, request: Request) -> dict:
     ctx = request.app.state.rag  # RagContext set in main.py
     filters = SearchFilters(**{k: v for k, v in body.filters.items() if k in SearchFilters.__dataclass_fields__})
     top_k = body.top_k
-    embedding = await ctx.embeddings.embed_query(body.query)
-    results = ctx.search(body.query, embedding, filters, top_k=top_k)
+    results = await ctx.search(body.query, filters, top_k=top_k)
     return {
         "results": [
             {

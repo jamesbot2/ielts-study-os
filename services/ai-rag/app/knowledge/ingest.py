@@ -194,11 +194,17 @@ def main() -> None:
         repo = InMemoryKnowledgeRepository()
 
     docs = load_exported_docs(knowledge_dir)
-    result = asyncio.run(ingest_manifest(repo, manifest_data, embeddings, docs, fingerprint))
+    run_id = repo.start_ingestion_run(fingerprint)
+    try:
+        result = asyncio.run(ingest_manifest(repo, manifest_data, embeddings, docs, fingerprint))
+    except Exception as e:
+        repo.fail_ingestion_run(run_id, str(e))
+        raise
+    repo.finish_ingestion_run(run_id, result)
     print(f"sources={len(load_manifest(manifest_data).sources)} "
           f"chunks_eligible={sum(1 for d in docs.values() if d)} "
           f"added={result.added} updated={result.updated} "
-          f"unchanged={result.unchanged} deleted={result.deleted}")
+          f"unchanged={result.unchanged} deleted={result.deleted} run_id={run_id}")
 
 
 if __name__ == "__main__":

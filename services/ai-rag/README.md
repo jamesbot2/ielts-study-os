@@ -74,9 +74,11 @@ curl http://localhost:8000/health
 curl -X POST http://localhost:8000/api/rag/search -H 'Content-Type: application/json' -d '{"query":"How long is Academic Reading?","top_k":8}'
 ```
 
-`/health` reports `rag` state (`healthy` | `knowledge_empty` | `degraded` |
-`unavailable`), `database_reachable`, `pgvector_available` and
-`knowledge_chunk_count` — never secrets.
+`/health` reports `rag_status` (`healthy` | `lexical_only` | `knowledge_empty` |
+`database_unavailable` | `unavailable`), `retrieval_mode` (`hybrid` |
+`lexical_only`), `database_reachable`, `pgvector_available`, `knowledge_chunk_count`
+and `embeddings_configured` — never secrets. Top-level `status: "ok"` reflects
+only the process being alive; RAG health is in `rag_status`.
 
 ## Optional PostgreSQL integration tests
 
