@@ -2,6 +2,7 @@
 // Per-set structural rules live in practice-validation.ts (one canonical copy).
 
 import { allPracticeSets } from "./practice";
+import { allLessons } from "./curriculum";
 import { writingPrompts } from "./practice/writing-prompts";
 import { speakingTopics } from "./practice/speaking-topics";
 import { grammarExercises } from "./practice/grammar-exercises";
@@ -42,6 +43,39 @@ export function questionTypeCoverage(): { missingReading: string[]; missingListe
     missingReading: READING_QUESTION_TYPES.filter((t) => !present.has(t)),
     missingListening: LISTENING_QUESTION_TYPES.filter((t) => !present.has(t)),
   };
+}
+
+// ---- Grammar exercise validation ----
+
+export function validateGrammarExercises(): ValidationReport {
+  const lessonIds = new Set(grammarExercises.map((e) => e.lessonId).filter((x): x is string => Boolean(x)));
+  const issues = [];
+  const ids = new Set<string>();
+  for (const e of grammarExercises) {
+    if (!e.id) issues.push({ setId: "(grammar)", message: "exercise missing id" });
+    if (ids.has(e.id)) issues.push({ setId: e.id, message: "duplicate exercise id" });
+    ids.add(e.id);
+    if (!e.topic || !e.topic.trim()) issues.push({ setId: e.id, message: "empty topic" });
+    if (!e.sentence || !e.sentence.trim()) issues.push({ setId: e.id, message: "empty sentence" });
+    if (!e.options || e.options.length < 2) issues.push({ setId: e.id, message: "fewer than 2 options" });
+    for (const o of e.options) if (!o || !o.trim()) issues.push({ setId: e.id, message: "empty option" });
+    if (new Set(e.options).size !== e.options.length) issues.push({ setId: e.id, message: "duplicate options" });
+    if (!Number.isInteger(e.correct) || e.correct < 0 || e.correct >= e.options.length) {
+      issues.push({ setId: e.id, message: "invalid correct index" });
+    }
+    if (!e.explanation || !e.explanation.trim()) issues.push({ setId: e.id, message: "empty explanation" });
+    if (!e.errorType || !e.errorType.trim()) issues.push({ setId: e.id, message: "empty errorType" });
+    if (e.difficulty != null && (e.difficulty < 1 || e.difficulty > 3)) issues.push({ setId: e.id, message: "invalid difficulty" });
+    if (e.kind != null && !["gap_fill", "sentence_choice", "error_identification", "correction", "style_choice", "punctuation"].includes(e.kind)) {
+      issues.push({ setId: e.id, message: `invalid kind ${e.kind}` });
+    }
+  }
+  // Validate lessonIds used actually match a grammar lesson.
+  const grammarLessonIds = new Set(allLessons.filter((l) => l.category === "grammar").map((l) => l.id));
+  for (const lid of lessonIds) {
+    if (!grammarLessonIds.has(lid)) issues.push({ setId: lid, message: "exercise lessonId does not match a grammar lesson" });
+  }
+  return { issues, valid: issues.length === 0 };
 }
 
 // ---- Duplicate detection (normalized token overlap, no embeddings) ----
@@ -101,7 +135,9 @@ export function detectDuplicates(threshold = 0.85): DuplicatePair[] {
     }
   }
 
-  const ex = grammarExercises.map((e) => [e.id, e.sentence] as [string, string]);
+  // Compare substantive content (sentence + options), not generic stems such
+  // as "Which is the correct sentence?".
+  const ex = grammarExercises.map((e) => [e.id, `${e.sentence} ${e.options.join(" ")}`] as [string, string]);
   for (let i = 0; i < ex.length; i++) {
     for (let j = i + 1; j < ex.length; j++) {
       const s = tokenOverlap(ex[i][1], ex[j][1]);

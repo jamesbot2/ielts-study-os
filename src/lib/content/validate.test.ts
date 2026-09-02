@@ -1,7 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet, validateWritingPrompts } from "./validate";
+import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet, validateWritingPrompts, validateGrammarExercises } from "./validate";
 import { effectiveQuestionCount } from "./practice-validation";
 import { writingPrompts as allWritingPrompts } from "./practice/writing-prompts";
+import { grammarExercises } from "./practice/grammar-exercises";
+import { allLessons } from "./curriculum";
 import { READING_QUESTION_TYPES, LISTENING_QUESTION_TYPES } from "./question-types";
 import { computeCoverage } from "./coverage";
 import { allPracticeSets } from "./practice";
@@ -373,5 +375,33 @@ describe("Round 4-C register corrections", () => {
     const p = allWritingPrompts.find((x) => x.id === "acad-t1-line-4")!;
     expect(p.visualDescription).not.toContain("cross");
     expect(p.visualDescription).toContain("remains higher throughout");
+  });
+});
+
+describe("V0.6 final Grammar thresholds", () => {
+  it("grammar lessons >=20 and exercises >=200", () => {
+    const c = computeCoverage();
+    expect(c.grammarLessons).toBeGreaterThanOrEqual(20);
+    expect(c.grammarExercises).toBeGreaterThanOrEqual(200);
+  });
+
+  it("every grammar lesson has linked practice", () => {
+    const c = computeCoverage();
+    const grammarIds = allLessons.filter((l) => l.category === "grammar").map((l) => l.id);
+    for (const id of grammarIds) {
+      expect(c.grammarExercisesByLesson[id] ?? 0, `lesson ${id} exercises`).toBeGreaterThanOrEqual(8);
+    }
+  });
+
+  it("all grammar exercises pass structural validation", () => {
+    const r = validateGrammarExercises();
+    expect(r.issues, JSON.stringify(r.issues, null, 2)).toEqual([]);
+    expect(r.valid).toBe(true);
+  });
+
+  it("g-frag-2 has exactly one defensible answer", () => {
+    const e = grammarExercises.find((x) => x.id === "g-frag-2")!;
+    expect(e.sentence).toMatch(/IS a complete sentence/i);
+    expect(e.correct).toBe(2);
   });
 });

@@ -12,10 +12,15 @@ test.describe("profile persistence across reload", () => {
   test("General Training selection persists and propagates, Academic switch reacts", async ({ page }) => {
     await page.goto("/onboarding/");
     await page.getByRole("button", { name: /General Training|培训类/ }).first().click();
-    // skip to the end via Skip
+    // skip to the end via Skip, then let the app finish writing the profile
+    // and navigate on its own (a manual goto would race the IndexedDB write).
     const skip = page.getByRole("button", { name: /Skip|跳过/ });
-    if (await skip.isVisible()) await skip.click();
-    await page.goto("/");
+    if (await skip.isVisible()) {
+      await skip.click();
+      await page.waitForURL(/\/$/, { timeout: 10000 });
+    } else {
+      await page.goto("/");
+    }
     await expect(page.getByText(/General Training|培训类/).first()).toBeVisible();
 
     // reload and confirm persistence
@@ -80,11 +85,25 @@ test.describe("standalone speaking text-only persistence", () => {
   test("manual transcript persists across a reload", async ({ page }) => {
     await page.goto("/practice/speaking/");
     const textarea = page.locator("textarea").first();
-    await textarea.fill("My hometown is a small but lively city.");
+    // Fill with a hydration-safe handshake: the controlled React value must
+    // stick (filling before hydration commits is lost when React re-applies
+    // state, which caused intermittent empty saves under parallel load).
+    const text = "My hometown is a small but lively city.";
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await textarea.fill(text);
+      await page.waitForTimeout(150);
+      if ((await textarea.inputValue()) === text) break;
+    }
+    expect(await textarea.inputValue()).toBe(text);
+    await expect(page.getByRole("button", { name: /Get AI feedback|获取AI反馈/ })).toBeEnabled();
     await page.getByRole("button", { name: /Save transcript|保存逐字稿/ }).click();
-    await page.waitForTimeout(600);
 
-    // Reload, then verify the persisted turn appears in history.
+    // Deterministic persistence check: the turn must appear in history before
+    // we reload (poll with expect instead of a fixed sleep).
+    await page.getByRole("button", { name: /History|历史记录/ }).click();
+    await expect(page.getByText(/My hometown is a small/).first()).toBeVisible();
+
+    // Reload, then verify the persisted turn is still there.
     await page.reload({ waitUntil: "networkidle" });
     await page.getByRole("button", { name: /History|历史记录/ }).click();
     await expect(page.getByText(/My hometown is a small/).first()).toBeVisible();

@@ -1,6 +1,6 @@
 {
   "format": "ielts-study-os-knowledge-v1",
-  "generatedAt": "2026-09-01T12:02:55.256Z",
+  "generatedAt": "2026-09-02T13:32:18.279Z",
   "sources": [
     {
       "id": "ielts-org",
@@ -3329,6 +3329,1090 @@
               "zh": "选择准确动词：用 increase dramatically 而非 go up a lot。"
             }
           ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-articles-countability",
+      "title": {
+        "en": "Articles, countability and quantifiers",
+        "zh": "冠词、可数与数量词"
+      },
+      "summary": {
+        "en": "A/an, the and zero article, plus how countability controls every determiner you choose.",
+        "zh": "a/an、the 与零冠词，以及可数性如何决定你对限定词的选择。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Countability comes first",
+            "zh": "先判断可数性"
+          },
+          "paragraphs": [
+            {
+              "en": "Before choosing an article, decide whether the noun is countable or uncountable. Advice, information, research, equipment, furniture and evidence are uncountable in English even when their Chinese translations feel countable.",
+              "zh": "选择冠词之前，先判断名词是否可数。advice、information、research、equipment、furniture、evidence 在英语中不可数，即使其中文翻译感觉可数。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Common transfer error",
+                "zh": "常见迁移错误"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ He gave me many advices. → ✓ He gave me a lot of advice.",
+                  "zh": "✗ He gave me many advices. → ✓ He gave me a lot of advice."
+                },
+                {
+                  "en": "✗ a useful information → ✓ useful information / a useful piece of information",
+                  "zh": "✗ a useful information → ✓ useful information / a useful piece of information"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "Choosing between a/an, the and zero article",
+            "zh": "a/an、the 与零冠词"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "First mention of something countable and not yet identified: a/an. 'A study found…'",
+              "zh": "首次提到且未具体化的可数名词用 a/an。"
+            },
+            {
+              "en": "Specific, shared or previously mentioned: the. 'The study found…'",
+              "zh": "具体的、双方已知或上文提到过的事物用 the。"
+            },
+            {
+              "en": "General plural or uncountable meaning: zero article. 'Research shows…'",
+              "zh": "泛指复数或不可数概念用零冠词。"
+            },
+            {
+              "en": "Unique things, superlatives and ordinal references: the. 'the only solution', 'the highest rate'.",
+              "zh": "独一无二的事物、最高级和序数前用 the。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Quantifier grammar",
+            "zh": "数量词语法"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "many / few + plural countable; much / little + uncountable.",
+              "zh": "many/few 接可数复数；much/little 接不可数。"
+            },
+            {
+              "en": "a number of + plural verb; the number of + singular verb.",
+              "zh": "a number of 接复数动词；the number of 接单数动词。"
+            },
+            {
+              "en": "Most / some / all work with both types when meaning allows.",
+              "zh": "most/some/all 在语义允许时两种名词都可用。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-relative-clauses",
+      "title": {
+        "en": "Relative clauses",
+        "zh": "关系从句"
+      },
+      "summary": {
+        "en": "Defining and non-defining relative clauses, relative pronouns, and when to use commas.",
+        "zh": "限定性与非限定性关系从句、关系代词以及逗号的使用。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Defining vs non-defining",
+            "zh": "限定性 vs 非限定性"
+          },
+          "paragraphs": [
+            {
+              "en": "A defining relative clause identifies which thing you mean and has no commas. A non-defining clause adds extra information and needs commas.",
+              "zh": "限定性关系从句指明“哪一个”，不加逗号；非限定性从句补充额外信息，必须加逗号。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "Defining: 'The policy that was introduced last year reduced fares.'",
+              "zh": "限定性：去年出台的那项政策降低了票价。"
+            },
+            {
+              "en": "Non-defining: 'The policy, which was introduced last year, reduced fares.'",
+              "zh": "非限定性：该项政策（去年出台）降低了票价。"
+            },
+            {
+              "en": "Do not use 'that' in non-defining clauses.",
+              "zh": "非限定性从句中不用 that。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Pronoun choice",
+            "zh": "代词选择"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "who for people; which for things; that for either in defining clauses.",
+              "zh": "who 指人；which 指物；that 在限定性从句中两者皆可。"
+            },
+            {
+              "en": "where for places, when for times, whose for possession.",
+              "zh": "where 指地点，when 指时间，whose 表所属。"
+            },
+            {
+              "en": "Omit the pronoun when it is the object of a defining clause: 'the book (that) I read'.",
+              "zh": "代词在限定性从句中作宾语时可省略：the book (that) I read。"
+            }
+          ],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Watch for",
+                "zh": "注意"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ The city which I grew up. → ✓ The city where I grew up.",
+                  "zh": "✗ The city which I grew up. → ✓ The city where I grew up."
+                },
+                {
+                  "en": "✗ My brother, that lives abroad, is a doctor. → ✓ …, who lives abroad, …",
+                  "zh": "非限定性从句用 who/which，不用 that。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "IELTS use",
+            "zh": "雅思应用"
+          },
+          "paragraphs": [
+            {
+              "en": "Relative clauses let you combine ideas without over-using 'and'. In Writing Task 1: 'The sector which grew fastest was renewables.' In Speaking: 'The place where I feel most relaxed is…'",
+              "zh": "关系从句能帮你合并信息，避免滥用 and。写作 Task 1：增长最快的行业是可再生能源。口语：我最放松的地方是……"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-noun-clauses",
+      "title": {
+        "en": "Noun clauses",
+        "zh": "名词性从句"
+      },
+      "summary": {
+        "en": "That, whether/if and wh- clauses acting as subjects, objects and complements.",
+        "zh": "that、whether/if 与 wh- 从句充当主语、宾语和补语。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Roles of a noun clause",
+            "zh": "名词性从句的作用"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Object: 'The report shows that demand fell.'",
+              "zh": "宾语：报告显示需求下降了。"
+            },
+            {
+              "en": "Subject: 'Whether prices will rise remains unclear.'",
+              "zh": "主语：价格是否会上升仍不清楚。"
+            },
+            {
+              "en": "Complement: 'The concern is that funding may end.'",
+              "zh": "补语：令人担忧的是资金可能会中断。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "That vs whether/if",
+            "zh": "that 与 whether/if"
+          },
+          "paragraphs": [
+            {
+              "en": "Use that for reported facts, whether/if for yes/no ideas. Do not double the connector: 'The question is whether…' not 'The question is that whether…'.",
+              "zh": "陈述事实用 that，是非概念用 whether/if。不要重复连词：The question is whether…，而非 that whether…。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Word order",
+            "zh": "语序"
+          },
+          "paragraphs": [
+            {
+              "en": "A noun clause keeps statement word order. 'I don't know where the station is', not 'where is the station'.",
+              "zh": "名词性从句保持陈述语序：I don't know where the station is，而不是 where is the station。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-adverbial-clauses",
+      "title": {
+        "en": "Adverbial clauses",
+        "zh": "状语从句"
+      },
+      "summary": {
+        "en": "Time, reason, contrast and condition clauses, and the classic although...but error.",
+        "zh": "时间、原因、让步与条件状语从句，以及 although...but 这一经典错误。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Types and connectors",
+            "zh": "类型与连接词"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Time: when, while, before, after, since, until, as soon as.",
+              "zh": "时间：when、while、before、after、since、until、as soon as。"
+            },
+            {
+              "en": "Reason: because, since, as.",
+              "zh": "原因：because、since、as。"
+            },
+            {
+              "en": "Contrast: although, though, even though, whereas, while.",
+              "zh": "让步/对比：although、though、even though、whereas、while。"
+            },
+            {
+              "en": "Condition: if, unless, provided that.",
+              "zh": "条件：if、unless、provided that。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "One clause, one connector",
+            "zh": "一句只用一个连接词"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Classic transfer error",
+                "zh": "经典迁移错误"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ Although it rained, but we still went out. → ✓ Although it rained, we still went out. / It rained, but we still went out.",
+                  "zh": "although 与 but 不能连用，二选一。"
+                },
+                {
+                  "en": "✗ Because traffic was heavy, so we were late. → ✓ Because traffic was heavy, we were late.",
+                  "zh": "because 与 so 同理。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "Position and punctuation",
+            "zh": "位置与标点"
+          },
+          "paragraphs": [
+            {
+              "en": "When the adverbial clause comes first, use a comma: 'Although costs rose, demand held.' When it comes second, no comma: 'Demand held although costs rose.'",
+              "zh": "状语从句在前时用逗号；在后时不用逗号。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-participle-clauses",
+      "title": {
+        "en": "Participle clauses",
+        "zh": "分词短语"
+      },
+      "summary": {
+        "en": "Using -ing and -ed clauses to compress ideas, with subject-match rules.",
+        "zh": "用 -ing 与 -ed 分词短语压缩信息，并遵守主语一致规则。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Active and passive meanings",
+            "zh": "主动与被动含义"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "-ing = active: 'Households using solar panels cut their bills.'",
+              "zh": "-ing 表主动：使用太阳能电池板的家庭降低了账单。"
+            },
+            {
+              "en": "-ed = passive: 'Built in 1902, the bridge is now a museum.'",
+              "zh": "-ed 表被动：建于 1902 年的这座桥如今是博物馆。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Subject match",
+            "zh": "主语一致"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Dangling participles",
+                "zh": "悬垂分词"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ Walking to school, the bus passed us. → ✓ While we were walking to school, the bus passed us.",
+                  "zh": "分词的主语必须与主句主语一致。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "IELTS use",
+            "zh": "雅思应用"
+          },
+          "paragraphs": [
+            {
+              "en": "Participle clauses add variety to Task 1 overviews and Task 2 topic sentences: 'Faced with rising rents, many young people delay buying a home.'",
+              "zh": "分词短语可丰富 Task 1 概述与 Task 2 主题句的表达。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-gerunds-infinitives",
+      "title": {
+        "en": "Gerunds and infinitives",
+        "zh": "动名词与不定式"
+      },
+      "summary": {
+        "en": "Verb patterns: which verbs take -ing, which take to-infinitive, and how meaning changes.",
+        "zh": "动词搭配模式：哪些动词接 -ing，哪些接 to do，以及含义变化。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Pattern groups",
+            "zh": "搭配分组"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "+ -ing: enjoy, avoid, consider, suggest, finish, practise, mind.",
+              "zh": "接 -ing：enjoy、avoid、consider、suggest、finish、practise、mind。"
+            },
+            {
+              "en": "+ to-infinitive: decide, hope, plan, agree, refuse, manage, tend.",
+              "zh": "接 to do：decide、hope、plan、agree、refuse、manage、tend。"
+            },
+            {
+              "en": "Meaning change: remember to do (future task) vs remember doing (past event).",
+              "zh": "含义变化：remember to do（未来要做）vs remember doing（过去做过）。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Prepositions take -ing",
+            "zh": "介词后接 -ing"
+          },
+          "paragraphs": [
+            {
+              "en": "After prepositions use the -ing form: 'interested in studying', 'before applying', 'despite having'.",
+              "zh": "介词后用 -ing：interested in studying、before applying、despite having。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-comparisons-quantifiers",
+      "title": {
+        "en": "Comparatives, superlatives and quantifiers",
+        "zh": "比较级、最高级与数量表达"
+      },
+      "summary": {
+        "en": "Comparison structures for Task 1 data and Task 2 arguments, including common traps.",
+        "zh": "用于 Task 1 数据和 Task 2 论证的比较结构及其常见陷阱。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Core forms",
+            "zh": "基本形式"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Short adjectives: cheaper, the cheapest. Long adjectives: more expensive, the most expensive.",
+              "zh": "短形容词用 -er/-est；长形容词用 more/most。"
+            },
+            {
+              "en": "Irregular: good-better-best, bad-worse-worst, far-further-furthest.",
+              "zh": "不规则：good-better-best、bad-worse-worst、far-further-furthest。"
+            },
+            {
+              "en": "Avoid double marking: ✗ more cheaper.",
+              "zh": "避免双重标记：✗ more cheaper。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Task 1 comparison language",
+            "zh": "Task 1 比较表达"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "'twice as high as', 'three times more than', 'half as many as'",
+              "zh": "两倍于、三倍于、是……的一半。"
+            },
+            {
+              "en": "'the most popular option', 'the second largest category'",
+              "zh": "最受欢迎的选择、第二大类。"
+            },
+            {
+              "en": "'far / considerably / slightly higher'",
+              "zh": "远高于/明显高于/略高于。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-prepositions-collocations",
+      "title": {
+        "en": "Prepositions and grammatical collocations",
+        "zh": "介词与语法搭配"
+      },
+      "summary": {
+        "en": "High-frequency preposition patterns that IELTS writers and speakers get wrong.",
+        "zh": "雅思写作与口语中高频出错的介词搭配。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "High-value collocations",
+            "zh": "高频搭配"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "an increase/decrease in; a rise/fall in; a change in",
+              "zh": "in 表变化领域。"
+            },
+            {
+              "en": "concerned about; interested in; responsible for; dependent on; different from",
+              "zh": "常见形容词搭配。"
+            },
+            {
+              "en": "in the past, at present, by 2020, between 2000 and 2010, over the period",
+              "zh": "时间介词。"
+            },
+            {
+              "en": "reasons for; solutions to; effects on; access to; demand for",
+              "zh": "名词搭配。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Transfer traps",
+            "zh": "迁移陷阱"
+          },
+          "paragraphs": [
+            {
+              "en": "Preposition choice rarely translates directly. Learn collocations as whole phrases: 'discuss' takes no preposition (discuss the problem, not discuss about).",
+              "zh": "介词选择很少能直译，应整组记忆：discuss 后不接介词（discuss the problem，而非 discuss about）。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-cohesion-reference",
+      "title": {
+        "en": "Cohesion, linking and reference",
+        "zh": "衔接、连接与指代"
+      },
+      "summary": {
+        "en": "Conjunctions, linking adverbials and reference words that hold a text together.",
+        "zh": "使文章连贯的连词、连接副词与指代词。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Linking adverbials",
+            "zh": "连接副词"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Addition: moreover, furthermore, in addition.",
+              "zh": "递进：moreover、furthermore、in addition。"
+            },
+            {
+              "en": "Contrast: however, on the other hand, in contrast.",
+              "zh": "转折：however、on the other hand、in contrast。"
+            },
+            {
+              "en": "Result: therefore, as a result, consequently.",
+              "zh": "结果：therefore、as a result、consequently。"
+            },
+            {
+              "en": "These are adverbials, not conjunctions — they cannot join two clauses with only a comma.",
+              "zh": "它们是副词，不是连词，不能仅用逗号连接两个分句。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Reference words",
+            "zh": "指代词"
+          },
+          "paragraphs": [
+            {
+              "en": "Use this/these to point back to ideas: 'Rents have risen sharply. This has made city living harder for young people.' Avoid vague 'it' without a clear noun.",
+              "zh": "用 this/these 回指上文观点；避免没有明确先行词的 it。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Comma splice",
+                "zh": "逗号拼接"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ Rents rose, however, demand stayed. → ✓ Rents rose. However, demand stayed. / Rents rose; however, demand stayed.",
+                  "zh": "however 前需要句号或分号。"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gram-parallelism",
+      "title": {
+        "en": "Parallelism and coordination",
+        "zh": "平行结构与并列"
+      },
+      "summary": {
+        "en": "Keeping coordinated items in the same grammatical form for clarity and flow.",
+        "zh": "使并列成分保持相同语法形式，提升清晰度与流畅度。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 8,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The rule",
+            "zh": "规则"
+          },
+          "paragraphs": [
+            {
+              "en": "Items joined by and, or, but, both...and, either...or, not only...but also should share one grammatical form.",
+              "zh": "由 and/or/but 等连接的并列成分应保持同一语法形式。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "✓ The scheme reduced traffic, improved air quality and saved money.",
+              "zh": "三个过去式动词并列。"
+            },
+            {
+              "en": "✗ The scheme reduced traffic, improved air quality and it saved money.",
+              "zh": "第三个成分变成从句，破坏平行。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "IELTS use",
+            "zh": "雅思应用"
+          },
+          "paragraphs": [
+            {
+              "en": "Parallel lists appear in Task 2 thesis statements and Task 1 overviews. Consistent form signals control.",
+              "zh": "平行列表常见于 Task 2 论点句与 Task 1 概述；形式一致体现控制力。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-noun-phrases",
+      "title": {
+        "en": "Noun phrases and nominalisation",
+        "zh": "名词短语与名词化"
+      },
+      "summary": {
+        "en": "Building dense noun phrases and turning verbs into nouns for academic style.",
+        "zh": "构建紧凑名词短语，并把动词名词化以增强学术风格。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Building a noun phrase",
+            "zh": "构建名词短语"
+          },
+          "paragraphs": [
+            {
+              "en": "A noun phrase can include determiners, adjectives, participles and post-modification: 'the rapidly increasing cost of urban housing'.",
+              "zh": "名词短语可含限定词、形容词、分词与后置修饰：the rapidly increasing cost of urban housing。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Nominalisation",
+            "zh": "名词化"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "'The government decided to invest' → 'the government's decision to invest'",
+              "zh": "把动词 decide 变为名词 decision。"
+            },
+            {
+              "en": "'Prices increased rapidly' → 'a rapid increase in prices'",
+              "zh": "动词名词化后搭配介词 in。"
+            },
+            {
+              "en": "Use it selectively — too much nominalisation makes writing dense and lifeless.",
+              "zh": "适度使用；过度名词化会让文章沉闷。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-complex-control",
+      "title": {
+        "en": "Complex sentence control",
+        "zh": "复杂句控制"
+      },
+      "summary": {
+        "en": "Using a range of clause types accurately — complexity is only valuable with control.",
+        "zh": "准确使用多种从句——只有在控制得当时，复杂才是有价值的。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Range vs control",
+            "zh": "多样 vs 控制"
+          },
+          "paragraphs": [
+            {
+              "en": "Longer is not better. A short accurate sentence scores better than a long tangled one. Aim for variety: short sentences for key points, longer ones for explanation.",
+              "zh": "长不等于好。短而准确的句子比冗长绕弯的句子得分更高。关键句用短句，解释说明可用长句。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "Combine related ideas with relative, noun, adverbial or participle clauses — not by chaining 'and'.",
+              "zh": "用从句合并相关信息，而不是用 and 罗列。"
+            },
+            {
+              "en": "Re-read every long sentence and check: one main idea, one clear subject, one finite verb agreement.",
+              "zh": "重读每个长句：一个主旨、一个清晰主语、主谓一致。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-task1-grammar",
+      "title": {
+        "en": "Academic Task 1 grammar",
+        "zh": "学术类 Task 1 语法"
+      },
+      "summary": {
+        "en": "Tense, comparison and process/map language for describing data.",
+        "zh": "描述数据所需的时态、比较与流程/地图表达。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Tense by time period",
+            "zh": "按时段选时态"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Past periods: past simple. 'Sales rose between 2000 and 2010.'",
+              "zh": "过去时段用一般过去时。"
+            },
+            {
+              "en": "Up to the present: present perfect. 'Sales have risen since 2000.'",
+              "zh": "延续至今用现在完成时。"
+            },
+            {
+              "en": "Projections: is predicted to / is expected to + verb.",
+              "zh": "预测：is predicted to / is expected to。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Comparison structures",
+            "zh": "比较结构"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "whereas / while: 'Car use fell, whereas cycling rose.'",
+              "zh": "对比两组数据。"
+            },
+            {
+              "en": "respectively: 'Sales were 40 and 25 units respectively.'",
+              "zh": "分别对应。"
+            },
+            {
+              "en": "Increase/decrease as verbs and nouns with correct prepositions: 'an increase of 5%', 'rose by 5%'.",
+              "zh": "动词与名词搭配正确介词。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Process and map language",
+            "zh": "流程与地图表达"
+          },
+          "paragraphs": [
+            {
+              "en": "Processes use the present passive: 'The bottles are collected, sorted and crushed.' Maps use change language: 'The factory was converted into apartments.'",
+              "zh": "流程用一般现在时被动语态；地图用变化表达：工厂被改建为公寓。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-task2-grammar",
+      "title": {
+        "en": "Task 2 argument grammar",
+        "zh": "Task 2 论证语法"
+      },
+      "summary": {
+        "en": "Concession, cause/effect, conditionals and hedging for essay arguments.",
+        "zh": "议论文中的让步、因果、条件与委婉表达。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Concession",
+            "zh": "让步"
+          },
+          "paragraphs": [
+            {
+              "en": "Concede before you counter: 'Although online learning is flexible, it can isolate students.' The concession shows balance and control.",
+              "zh": "先让步再反驳：虽然在线学习灵活，但它可能让学生孤立。让步体现平衡与控制。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Cause and effect",
+            "zh": "因果"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "due to / owing to + noun phrase; because / since / as + clause.",
+              "zh": "due to/owing to 接名词短语；because/since/as 接从句。"
+            },
+            {
+              "en": "lead to / result in / contribute to + noun.",
+              "zh": "导致/促成。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Hedging and stance",
+            "zh": "委婉与立场"
+          },
+          "paragraphs": [
+            {
+              "en": "Avoid absolute claims. Prefer: 'This may result in…', 'The evidence suggests that…', 'It could be argued that…' rather than 'This proves…'.",
+              "zh": "避免绝对断言，使用 may、suggest、could be argued 等委婉表达。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-letter-grammar",
+      "title": {
+        "en": "General Training letter grammar and register",
+        "zh": "培训类信件语法与语体"
+      },
+      "summary": {
+        "en": "How grammar choices signal formal, semi-formal and informal register.",
+        "zh": "语法选择如何体现正式、半正式与非正式语体。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 8,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Requests across registers",
+            "zh": "不同语体的请求"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Formal: 'I would be grateful if you could…'",
+              "zh": "正式：I would be grateful if you could…"
+            },
+            {
+              "en": "Semi-formal: 'Could you possibly…?'",
+              "zh": "半正式：Could you possibly…?"
+            },
+            {
+              "en": "Informal: 'Can you…?'",
+              "zh": "非正式：Can you…?"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Consistency",
+            "zh": "一致性"
+          },
+          "paragraphs": [
+            {
+              "en": "Keep the register consistent: do not mix 'I am writing to inform you' with 'cheers, mate'. Modals (would/could/may) signal politeness; contractions are normal in informal letters but rare in formal ones.",
+              "zh": "保持语体一致，不要把正式开头与随意结尾混用。情态动词体现礼貌；缩写常见于非正式信件，正式信件中少见。"
+            }
+          ],
+          "bullets": [],
           "table": null,
           "callouts": []
         }

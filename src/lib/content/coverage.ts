@@ -41,6 +41,7 @@ export function computeCoverage(): {
   speakingParts: { part1: number; part2: number; part3: number };
   grammarLessons: number;
   grammarExercises: number;
+  grammarExercisesByLesson: Record<string, number>;
   readingFullSets: number;
   readingTargetedSets: number;
   readingTargetedByType: Record<string, number>;
@@ -91,6 +92,13 @@ export function computeCoverage(): {
     },
     grammarLessons: allLessons.filter((l) => l.category === "grammar").length,
     grammarExercises: grammarExercises.length,
+    grammarExercisesByLesson: (() => {
+      const out: Record<string, number> = {};
+      for (const e of grammarExercises) {
+        if (e.lessonId) out[e.lessonId] = (out[e.lessonId] ?? 0) + 1;
+      }
+      return out;
+    })(),
     readingFullSets,
     readingTargetedSets: Object.values(readingTargetedByType).reduce((n, x) => n + x, 0),
     readingTargetedByType,
