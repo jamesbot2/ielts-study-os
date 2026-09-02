@@ -7,11 +7,11 @@ import { allPracticeSets } from "./practice";
 import type { PracticeSet, QuestionType } from "@/types/ielts";
 
 describe("content validation", () => {
-  it("full sets have exactly 40 questions; targeted sets have 6–15", () => {
+  it("full sets have exactly 40 scored units; targeted sets have 6–15", () => {
     for (const set of allPracticeSets) {
       const mode = set.practiceMode ?? "full";
       if (mode === "full") {
-        expect(set.questions.length, `${set.meta.id} question count`).toBe(40);
+        expect(effectiveQuestionCount(set), `${set.meta.id} scored units`).toBe(40);
       } else {
         const n = effectiveQuestionCount(set);
         expect(n, `${set.meta.id} targeted count`).toBeGreaterThanOrEqual(6);

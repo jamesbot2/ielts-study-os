@@ -6,7 +6,7 @@ import { allPracticeSets } from "./practice";
 import { writingPrompts } from "./practice/writing-prompts";
 import { speakingTopics } from "./practice/speaking-topics";
 import { grammarExercises } from "./practice/grammar-exercises";
-import { isPublishedTargetedSet, isStructurallyValidTargetedSet } from "./practice-validation";
+import { isPublishedTargetedSet, isStructurallyValidTargetedSet, effectiveQuestionCount } from "./practice-validation";
 import { QUESTION_TYPE_LABELS } from "./question-types";
 export { questionTypeLabel } from "./question-types";
 import type { Skill } from "@/types/ielts";
@@ -122,9 +122,11 @@ function computeSkill(skill: Skill, kind: "reading" | "listening"): SkillCoverag
   const questionTypes: Record<string, number> = {};
   let questionCount = 0;
   for (const set of sets) {
-    questionCount += set.questions.length;
+    // Canonical scored units: matching items each count as one question.
+    questionCount += effectiveQuestionCount(set);
     for (const q of set.questions) {
-      questionTypes[q.type] = (questionTypes[q.type] ?? 0) + 1;
+      const units = q.answerType === "matching" || q.answerType === "heading_matching" ? q.items.length : 1;
+      questionTypes[q.type] = (questionTypes[q.type] ?? 0) + units;
     }
   }
   return {

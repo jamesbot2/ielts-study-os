@@ -41,4 +41,28 @@ test.describe("targeted Reading drill", () => {
     await expect(page.getByText(/60 minutes/)).toBeVisible();
     await expect(page.getByText(/40 questions/).first()).toBeVisible();
   });
+
+  test("matching drill scores item-level 6/7 with identifiable wrong item and no band", async ({ page }) => {
+    await page.goto("/practice/reading/reading-targeted-matching-headings-01/");
+    // Scored-unit display: 7 questions, not 1.
+    await expect(page.getByText(/7 questions/).first()).toBeVisible();
+    await page.getByRole("button", { name: /Practice mode/ }).click();
+
+    const selects = page.locator("select");
+    await expect(selects).toHaveCount(7);
+    // Correct options for paragraphs 1–7: vi, i, iii, iv, v, ii, vii.
+    const correct = ["vi", "i", "iii", "iv", "v", "ii", "vii"];
+    for (let i = 0; i < 7; i++) {
+      await selects.nth(i).selectOption(i === 6 ? "viii" : correct[i]); // last item wrong
+    }
+
+    await page.getByRole("button", { name: /Submit/ }).click();
+
+    await expect(page.getByText(/6\/7 correct/)).toBeVisible();
+    await expect(page.getByText(/Accuracy 86%/)).toBeVisible();
+    // The wrong item is identifiable in the item-level breakdown.
+    await expect(page.getByText(/Paragraph 7/).first()).toBeVisible();
+    // No band for targeted drills.
+    await expect(page.getByText(/Raw-score conversion uses published approximate tables/)).not.toBeVisible();
+  });
 });

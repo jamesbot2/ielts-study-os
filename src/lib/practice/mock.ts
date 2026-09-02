@@ -1,7 +1,7 @@
 // Client-side mock exam completion: deterministic section scoring.
 
 import type { PracticeSet } from "@/types/ielts";
-import { checkQuestion, listeningBand, readingBand } from "@/lib/scoring/scoring";
+import { listeningBand, readingBand, scorePracticeUnits } from "@/lib/scoring/scoring";
 import {
   completeMockAttempt,
   createMockAttempt,
@@ -65,9 +65,7 @@ export async function finishMock(
 }
 
 function scoreSet(set: PracticeSet, answers: Record<string, AnswerValue>) {
-  let raw = 0;
-  for (const q of set.questions) {
-    if (checkQuestion(q, answers[q.id])) raw += 1;
-  }
-  return { raw, total: set.questions.length };
+  // Canonical scored units: matching items each count as one mark.
+  const units = scorePracticeUnits(set.questions, answers);
+  return { raw: units.filter((u) => u.correct).length, total: units.length };
 }

@@ -43,6 +43,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<Awaited<ReturnType<typeof submitPractice>>["results"] | null>(null);
   const [rawScore, setRawScore] = useState(0);
+  const [resTotal, setResTotal] = useState(0);
   const [band, setBand] = useState<number | null>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedAt = useRef<number>(Date.now());
@@ -196,6 +197,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
       localStorage.removeItem(storageKey(set.meta.id));
       setResults(res.results);
       setRawScore(res.rawScore);
+      setResTotal(res.total);
       setBand(res.band);
       setPhase("results");
     },
@@ -239,7 +241,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   if (phase === "results" && results) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8">
-        <ResultsView set={set} results={results} rawScore={rawScore} band={band} answers={answers} mode={mode} />
+        <ResultsView set={set} results={results} rawScore={rawScore} total={resTotal} band={band} answers={answers} mode={mode} />
         <div className="card card-pad mt-6">
           <h2 className="mb-2 text-base font-semibold">{t("listening.transcript")}</h2>
           <div className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-md bg-gray-50 p-4 text-sm leading-relaxed">

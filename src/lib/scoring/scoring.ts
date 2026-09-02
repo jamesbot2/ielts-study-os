@@ -210,6 +210,91 @@ export function checkQuestion(question: Question, userAnswer: unknown): boolean 
   );
 }
 
+// --- Canonical scored-unit model -------------------------------------------
+//
+// A SCORED UNIT is one objective IELTS mark:
+// - text question:       1 unit
+// - single choice:       1 unit
+// - multiple answer:     1 unit (one numbered question)
+// - matching/headings:   EACH item is 1 unit (a 7-item group = 7 marks)
+//
+// This is the single source of truth shared by scoring, submission,
+// persistence, analytics and the Coach. Composite IDs for matching items are
+// deterministic: `${question.id}::${item.id}`.
+
+export interface ScoredUnitResult {
+  id: string;
+  parentQuestionId: string;
+  itemId?: string;
+  questionType: Question["type"];
+  correct: boolean;
+  userAnswer: string | string[] | null;
+  correctAnswer: string;
+  prompt: string;
+  explanation: string;
+}
+
+export function scoredUnitId(questionId: string, itemId?: string): string {
+  return itemId ? `${questionId}::${itemId}` : questionId;
+}
+
+export function scoreQuestionUnits(question: Question, userAnswer: unknown): ScoredUnitResult[] {
+  if (question.answerType === "text" || question.answerType === "number") {
+    const q = question as Extract<Question, { answerType: "text" | "number" }>;
+    const result = checkTextAnswer(typeof userAnswer === "string" ? userAnswer : undefined, q);
+    return [
+      {
+        id: q.id,
+        parentQuestionId: q.id,
+        questionType: q.type,
+        correct: result.correct,
+        userAnswer: typeof userAnswer === "string" ? userAnswer : null,
+        correctAnswer: q.correctAnswer,
+        prompt: q.prompt,
+        explanation: q.explanation,
+      },
+    ];
+  }
+  if (question.answerType === "single_choice" || question.answerType === "multiple_choice") {
+    const q = question as Extract<Question, { answerType: "single_choice" | "multiple_choice" }>;
+    const selected = Array.isArray(userAnswer) ? userAnswer : null;
+    return [
+      {
+        id: q.id,
+        parentQuestionId: q.id,
+        questionType: q.type,
+        correct: checkChoiceAnswer(selected ?? undefined, q),
+        userAnswer: selected,
+        correctAnswer: q.correctAnswers.join(", "),
+        prompt: q.prompt,
+        explanation: q.explanation,
+      },
+    ];
+  }
+  // matching / heading_matching: one unit per item
+  const q = question as Extract<Question, { answerType: "matching" | "heading_matching" }>;
+  const answers = (userAnswer && typeof userAnswer === "object" ? userAnswer : {}) as Record<string, string>;
+  return q.items.map((item) => ({
+    id: scoredUnitId(q.id, item.id),
+    parentQuestionId: q.id,
+    itemId: item.id,
+    questionType: q.type,
+    correct: answers[item.id] === item.correctOptionId,
+    userAnswer: answers[item.id] ?? null,
+    correctAnswer: item.correctOptionId,
+    prompt: item.text,
+    explanation: q.explanation,
+  }));
+}
+
+export function scorePracticeUnits(questions: Question[], answers: Record<string, unknown>): ScoredUnitResult[] {
+  const units: ScoredUnitResult[] = [];
+  for (const q of questions) {
+    units.push(...scoreQuestionUnits(q, answers[q.id]));
+  }
+  return units;
+}
+
 // --- Raw-to-band tables (public approximate values) ------------------------
 
 export const LISTENING_BAND_TABLE: RawBandTable = {

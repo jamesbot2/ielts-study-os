@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { readingSets, listeningSets, targetedReadingSets } from "@/lib/content/practice";
+import { effectiveQuestionCount } from "@/lib/content/practice-validation";
 import { useStudyProfile } from "@/components/study-profile-provider";
 import { useI18n } from "@/components/i18n-provider";
 import { Spinner } from "@/components/ui";
@@ -31,7 +32,7 @@ export default function PracticePage() {
                   className="flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-sm hover:border-accent"
                 >
                   <span className="font-medium">{set.meta.title}</span>
-                  <span className="text-xs text-muted">{set.questions.length} {t("mock.questions")}</span>
+                  <span className="text-xs text-muted">{effectiveQuestionCount(set)} {t("mock.questions")}</span>
                 </Link>
               </li>
             ))}
@@ -48,7 +49,7 @@ export default function PracticePage() {
                   className="flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-sm hover:border-accent"
                 >
                   <span className="font-medium">{set.meta.title}</span>
-                  <span className="text-xs text-muted">{set.questions.length} {t("mock.questions")}</span>
+                  <span className="text-xs text-muted">{effectiveQuestionCount(set)} {t("mock.questions")}</span>
                 </Link>
               </li>
             ))}
@@ -71,7 +72,7 @@ export default function PracticePage() {
                 >
                   <span className="font-medium">{set.meta.title}</span>
                   <span className="badge ml-2">{set.targetQuestionType?.replace(/_/g, " ")}</span>
-                  <span className="text-xs text-muted">{set.questions.length} {t("mock.questions")}</span>
+                  <span className="text-xs text-muted">{effectiveQuestionCount(set)} {t("mock.questions")}</span>
                 </Link>
               </li>
             ))}

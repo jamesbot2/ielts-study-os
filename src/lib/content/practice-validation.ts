@@ -139,8 +139,8 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
   const mode = set.practiceMode ?? "full";
   const effectiveCount = effectiveQuestionCount(set);
   if (mode === "full") {
-    if (set.questions.length !== 40) {
-      issues.push({ setId: id, message: `full set expected 40 questions, found ${set.questions.length}` });
+    if (effectiveCount !== 40) {
+      issues.push({ setId: id, message: `full test expected 40 scored units, found ${effectiveCount}` });
     }
     if (set.targetQuestionType) {
       issues.push({ setId: id, message: "full set must not set targetQuestionType" });

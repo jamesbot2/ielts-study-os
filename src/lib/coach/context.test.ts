@@ -190,3 +190,23 @@ describe("bounded snapshot under load", () => {
     expect(json).not.toContain("a".repeat(200));
   });
 });
+
+describe("matching item-level attempts in learner context", () => {
+  it("maps composite matching ids to the parent question type (never unknown)", async () => {
+    const { submitPractice } = await import("@/lib/practice/submit");
+    const { matchingHeadingsSet01 } = await import("@/lib/content/practice/targeted/reading/matching-headings");
+    const set = matchingHeadingsSet01;
+    const q = set.questions[0] as Extract<import("@/types/ielts").Question, { answerType: "heading_matching" | "matching" }>;
+    const answers: Record<string, import("@/lib/storage/types").AnswerValue> = { [q.id]: {} };
+    const itemAnswers = answers[q.id] as Record<string, string>;
+    // All wrong → matching_headings becomes the weakest type.
+    for (const item of q.items) {
+      itemAnswers[item.id] = q.options.find((o) => o.id !== item.correctOptionId)!.id;
+    }
+    await submitPractice(set, "practice", answers, 300);
+
+    const snap = await buildLearnerContextSnapshot();
+    expect(snap.practice.weakQuestionTypes).toContain("matching_headings");
+    expect(snap.practice.weakQuestionTypes).not.toContain("unknown");
+  });
+});

@@ -40,12 +40,12 @@ test.describe("reading refresh recovery", () => {
     await page.goto("/practice/reading/academic-reading-1/");
     await page.getByText("Exam mode").click();
 
-    // Navigate to the first text-answer question (question 8, index 7).
-    for (let i = 0; i < 7; i++) {
+    // Navigate to the first text-answer question (question 8 in scored units).
+    const answerInput = page.locator('input[placeholder="Type your answer"]').first();
+    for (let i = 0; i < 10 && !(await answerInput.isVisible().catch(() => false)); i++) {
       await page.getByRole("button", { name: /Next/ }).click();
     }
-    const input = page.locator('input[placeholder="Type your answer"]').first();
-    await input.fill("false");
+    await answerInput.fill("false");
 
     // Flag the next question (question 9).
     await page.getByRole("button", { name: /Next/ }).click();

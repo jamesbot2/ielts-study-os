@@ -148,10 +148,17 @@ export interface LearnerContextSnapshot {
 }
 
 // Resolve questionId → question type from the canonical practice-set registry.
+// Matching items persist with composite ids `${questionId}::${itemId}` and must
+// map to the parent question type (never "unknown").
 function buildQuestionTypeMap(): Map<string, string> {
   const map = new Map<string, string>();
   for (const set of allPracticeSets) {
-    for (const q of set.questions) map.set(q.id, q.type);
+    for (const q of set.questions) {
+      map.set(q.id, q.type);
+      if (q.answerType === "matching" || q.answerType === "heading_matching") {
+        for (const item of q.items) map.set(`${q.id}::${item.id}`, q.type);
+      }
+    }
   }
   return map;
 }

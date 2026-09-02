@@ -5,7 +5,9 @@ import type { PracticeSet, Question } from "@/types/ielts";
 import { useI18n } from "@/components/i18n-provider";
 import Link from "next/link";
 import { coachLink } from "@/lib/coach/page-link";
+import { effectiveQuestionCount } from "@/lib/content/practice-validation";
 import { submitPractice } from "@/lib/practice/submit";
+import type { ScoredUnitResult } from "@/lib/scoring/scoring";
 import { BandBadge, Spinner } from "@/components/ui";
 import {
   Flag,
@@ -19,15 +21,6 @@ import {
 } from "lucide-react";
 
 type Answer = string | string[] | Record<string, string>;
-
-interface Result {
-  questionId: string;
-  correct: boolean;
-  userAnswer: Answer;
-  correctAnswer: string;
-  timeSpentSeconds: number;
-  flagged: boolean;
-}
 
 interface PersistedReading {
   setId: string;
@@ -44,6 +37,19 @@ interface PersistedReading {
 
 const storageKey = (setId: string) => `ielts-reading:${setId}`;
 
+// Scored-unit positions: matching items each occupy one numbered question.
+function unitsOf(q: Question): number {
+  return q.answerType === "matching" || q.answerType === "heading_matching" ? q.items.length : 1;
+}
+function unitTotalFor(questions: Question[]): number {
+  return questions.reduce((n, q) => n + unitsOf(q), 0);
+}
+function unitIndexFor(questions: Question[], current: number): number {
+  let n = 0;
+  for (let i = 0; i < current; i++) n += unitsOf(questions[i]);
+  return n;
+}
+
 export function ReadingRunner({ set }: { set: PracticeSet }) {
   const { t, locale } = useI18n();
   const [phase, setPhase] = useState<"intro" | "resume" | "running" | "submitting" | "results">("intro");
@@ -57,7 +63,8 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   const [highlights, setHighlights] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState(60 * 60);
   const [deadline, setDeadline] = useState<number | null>(null);
-  const [results, setResults] = useState<Result[] | null>(null);
+  const [results, setResults] = useState<ScoredUnitResult[] | null>(null);
+  const [resTotal, setResTotal] = useState(0);
   const [rawScore, setRawScore] = useState(0);
   const [band, setBand] = useState<number | null>(0);
   const startRef = useRef<number | null>(null);
@@ -124,6 +131,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
         localStorage.removeItem(storageKey(set.meta.id));
         setResults(res.results);
         setRawScore(res.rawScore);
+        setResTotal(res.total);
         setBand(res.band);
         setPhase("results");
       } catch (e) {
@@ -210,7 +218,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
       <div className="mx-auto max-w-2xl px-4 py-10">
         <h1 className="text-2xl font-semibold">{set.meta.title}</h1>
         <p className="mt-2 text-sm text-muted">
-          {set.questions.length} questions · {set.meta.testType === "academic" ? "Academic" : "General Training"} Reading
+          {effectiveQuestionCount(set)} questions · {set.meta.testType === "academic" ? "Academic" : "General Training"} Reading
           {isTargeted && <span className="badge ml-2">{locale === "zh" ? "专项训练" : "Targeted drill"}</span>}
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -250,6 +258,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
         set={set}
         results={results}
         rawScore={rawScore}
+        total={resTotal}
         band={band}
         answers={answers}
         mode={mode}
@@ -367,8 +376,8 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
               onChange={(v) => setAnswer(q.id, v)}
               flagged={flags.has(q.id)}
               onToggleFlag={() => toggleFlag(q.id)}
-              index={current}
-              total={questions.length}
+              index={unitIndexFor(questions, current)}
+              total={unitTotalFor(questions)}
             />
           </div>
           <div className="flex items-center justify-between border-t border-border px-4 py-2">
@@ -511,13 +520,15 @@ export function ResultsView({
   set,
   results,
   rawScore,
+  total,
   band,
   answers,
   mode,
 }: {
   set: PracticeSet;
-  results: Result[];
+  results: ScoredUnitResult[];
   rawScore: number;
+  total: number;
   band: number | null;
   answers: Record<string, Answer>;
   mode: string;
@@ -526,14 +537,15 @@ export function ResultsView({
   const [filter, setFilter] = useState<"all" | "incorrect" | "unanswered">("all");
   const correct = results.filter((r) => r.correct).length;
   const isTargeted = set.practiceMode === "targeted";
-  const accuracy = set.questions.length > 0 ? Math.round((correct / set.questions.length) * 100) : 0;
+  const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
 
   const filtered = set.questions.filter((q) => {
-    const r = results.find((x) => x.questionId === q.id)!;
-    if (filter === "incorrect") return !r.correct;
+    const units = results.filter((x) => x.parentQuestionId === q.id);
+    if (units.length === 0) return false;
+    if (filter === "incorrect") return units.some((u) => !u.correct);
     if (filter === "unanswered") {
       const a = answers[q.id];
-      return a == null || a === "" || (Array.isArray(a) && a.length === 0);
+      return a == null || a === "" || (Array.isArray(a) && a.length === 0) || (a != null && typeof a === "object" && Object.keys(a).length === 0);
     }
     return true;
   });
@@ -545,7 +557,7 @@ export function ResultsView({
           <div>
             <h1 className="text-xl font-semibold">Results</h1>
             <p className="text-sm text-muted">
-              {correct}/{set.questions.length} correct · raw score {rawScore} · {mode} mode
+              {correct}/{total} correct · raw score {rawScore} · {mode} mode
             </p>
             {isTargeted && (
               <p className="mt-1 text-sm text-muted">
@@ -568,27 +580,42 @@ export function ResultsView({
 
       <div className="space-y-4">
         {filtered.map((q) => {
-          const r = results.find((x) => x.questionId === q.id)!;
+          const units = results.filter((x) => x.parentQuestionId === q.id);
+          const allCorrect = units.length > 0 && units.every((u) => u.correct);
           return (
-            <div key={q.id} className={`card card-pad ${r.correct ? "border-green-200" : "border-red-200"}`}>
+            <div key={q.id} className={`card card-pad ${allCorrect ? "border-green-200" : "border-red-200"}`}>
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm font-medium">{q.prompt}</p>
-                <span className={`text-sm font-semibold ${r.correct ? "text-green-600" : "text-red-600"}`}>
-                  {r.correct ? "✓" : "✗"}
+                <span className={`text-sm font-semibold ${allCorrect ? "text-green-600" : "text-red-600"}`}>
+                  {allCorrect ? "✓" : `✗ ${units.filter((u) => u.correct).length}/${units.length}`}
                 </span>
               </div>
-              <div className="mt-2 grid gap-1 text-sm">
-                <p>
-                  <span className="text-muted">{t("reading.yourAnswer")}: </span>
-                  {stringify(r.userAnswer) || <em className="text-muted">(blank)</em>}
-                </p>
-                {!r.correct && (
+
+              {units.length > 1 ? (
+                <div className="mt-2 grid gap-1 text-sm">
+                  {units.map((u) => (
+                    <p key={u.id} className={u.correct ? "text-green-700" : "text-red-700"}>
+                      {u.correct ? "✓" : "✗"} {u.prompt}:{" "}
+                      <span className="text-muted">{u.userAnswer ?? "(blank)"}</span>
+                      {!u.correct && <span className="font-medium"> → {u.correctAnswer}</span>}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-2 grid gap-1 text-sm">
                   <p>
-                    <span className="text-muted">{t("reading.correctAnswer")}: </span>
-                    <span className="font-medium text-green-700">{r.correctAnswer}</span>
+                    <span className="text-muted">{t("reading.yourAnswer")}: </span>
+                    {stringify(units[0].userAnswer as Answer) || <em className="text-muted">(blank)</em>}
                   </p>
-                )}
-              </div>
+                  {!allCorrect && (
+                    <p>
+                      <span className="text-muted">{t("reading.correctAnswer")}: </span>
+                      <span className="font-medium text-green-700">{units[0].correctAnswer}</span>
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div className="mt-3 rounded-md bg-gray-50 p-3 text-sm">
                 <p className="font-medium">Explanation</p>
                 <p className="mt-1 text-muted">{q.explanation}</p>
@@ -597,7 +624,7 @@ export function ResultsView({
                     <span className="font-medium">Evidence:</span> {q.evidence}
                   </p>
                 ) : null}
-                {!r.correct && (
+                {!allCorrect && (
                   <Link
                     href={coachLink({
                       route: "/practice",
@@ -606,8 +633,8 @@ export function ResultsView({
                       questionId: q.id,
                       questionType: q.type,
                       question: q.prompt.slice(0, 300),
-                      userAnswer: stringify(r.userAnswer).slice(0, 300),
-                      correctAnswer: r.correctAnswer.slice(0, 300),
+                      userAnswer: stringify(units.find((u) => !u.correct)?.userAnswer as Answer).slice(0, 300),
+                      correctAnswer: units.find((u) => !u.correct)?.correctAnswer.slice(0, 300),
                       explanation: q.explanation.slice(0, 300),
                     })}
                     className="mt-2 inline-block text-accent underline"
