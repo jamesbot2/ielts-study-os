@@ -370,6 +370,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
               range={scoredUnitRange(questions, current)}
               total={scoredUnitCountForQuestions(questions)}
               visual={set.visual}
+              stimulus={set.taskStimulus}
             />
           </div>
           <div className="flex items-center justify-between border-t border-border px-4 py-2">
@@ -398,6 +399,7 @@ export function QuestionPanel({
   range,
   total,
   visual,
+  stimulus,
 }: {
   question: Question;
   value: Answer | undefined;
@@ -407,6 +409,7 @@ export function QuestionPanel({
   range: { start: number; end: number };
   total: number;
   visual?: import("@/types/ielts").ListeningVisual;
+  stimulus?: string;
 }) {
   return (
     <div className="mx-auto max-w-2xl">
@@ -423,6 +426,11 @@ export function QuestionPanel({
       {visual && (
         <div className="mb-4">
           <ListeningVisualView visual={visual} />
+        </div>
+      )}
+      {stimulus && (
+        <div className="mb-4 whitespace-pre-wrap rounded-md border border-border bg-gray-50 p-3 text-xs leading-relaxed text-muted">
+          {stimulus}
         </div>
       )}
       <p className="mb-4 text-[15px] font-medium leading-relaxed">{question.prompt}</p>

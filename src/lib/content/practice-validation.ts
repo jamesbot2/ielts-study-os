@@ -159,6 +159,38 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
   const mode = set.practiceMode ?? "full";
   const effectiveCount = effectiveQuestionCount(set);
 
+  // Table/flow-chart structural guardrails: every scored unit must reference
+  // a unique blank cell/node, and the set must declare a shared task stimulus.
+  if (mode === "targeted" && set.kind === "listening" && set.targetQuestionType === "table_completion") {
+    if (!set.taskStimulus) {
+      issues.push({ setId: id, message: "table_completion set missing taskStimulus" });
+    }
+    const cells = set.questions
+      .map((q) => (q as { tableCellId?: string }).tableCellId)
+      .filter((c): c is string => Boolean(c));
+    if (cells.length !== set.questions.length) {
+      issues.push({ setId: id, message: "every table_completion question must reference a tableCellId" });
+    }
+    if (new Set(cells).size !== cells.length) {
+      issues.push({ setId: id, message: "duplicate tableCellId references" });
+    }
+  }
+  if (mode === "targeted" && set.kind === "listening" && set.targetQuestionType === "flow_chart_completion") {
+    if (!set.taskStimulus) {
+      issues.push({ setId: id, message: "flow_chart_completion set missing taskStimulus" });
+    }
+    const nodes = set.questions
+      .map((q) => (q as { flowNodeId?: string }).flowNodeId)
+      .filter((n): n is string => Boolean(n));
+    if (nodes.length !== set.questions.length) {
+      issues.push({ setId: id, message: "every flow_chart_completion question must reference a flowNodeId" });
+    }
+    if (new Set(nodes).size !== nodes.length) {
+      issues.push({ setId: id, message: "duplicate flowNodeId references" });
+    }
+  }
+
+
   // Marker-reference validation for ALL sets (full + targeted): any question
   // with a markerId must reference an existing marker on the set's visual.
   for (const q of set.questions) {

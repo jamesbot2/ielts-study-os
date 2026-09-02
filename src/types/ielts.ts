@@ -54,6 +54,10 @@ export interface BaseQuestion {
   // For spatial Listening (plan/map/diagram labelling): which blank marker
   // this question asks the learner to label.
   markerId?: string;
+  // For table/flow-chart completion: which blank cell/node this question
+  // fills. Structural guardrail only.
+  tableCellId?: string;
+  flowNodeId?: string;
   // Human-readable explanation (why the correct answer is correct)
   explanation: string;
   // Evidence location in passage/transcript (reading/listening)
@@ -153,6 +157,9 @@ export interface PracticeSet {
   // Structured blank-marker visual for plan/map/diagram labelling. Contains
   // spatial structure and blank markers ONLY — never answer names.
   visual?: ListeningVisual;
+  // Shared learner-facing task structure (e.g. a table or flow chart with
+  // blank cells). Rendered for every question of the set.
+  taskStimulus?: string;
   questions: Question[];
   // Grouping for synchronized question display (listening parts)
   groups?: { id: string; title: string; questionIds: string[] }[];

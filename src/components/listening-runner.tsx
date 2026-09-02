@@ -350,6 +350,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
               range={scoredUnitRange(questions, current)}
               total={scoredUnitCountForQuestions(questions)}
               visual={questionUsesVisual(q) ? set.visual : undefined}
+              stimulus={set.taskStimulus}
             />
           </div>
 

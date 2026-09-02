@@ -861,22 +861,22 @@
             {
               "speaker": "Adviser",
               "voice": "en_US-lessac-medium",
-              "text": "Spanish is elementary level, running on Thursday. Oh, sorry, let me correct that — it's on Tuesday, not Thursday. That one is seventy pounds."
+              "text": "Spanish is elementary level, running on Tuesday. Oh, sorry, let me correct that — I said Tuesday earlier, but it's actually on Thursday. No, wait, my notes here say Tuesday after all. Tuesday, seventy pounds."
             },
             {
               "speaker": "Adviser",
               "voice": "en_US-lessac-medium",
-              "text": "Mandarin is also elementary, on Tuesday afternoons. That's slightly more expensive because of the small class size — one hundred and ten pounds."
+              "text": "Mandarin is a conversational course, aimed at people who already know the basics. It's on Monday afternoons, and it's slightly more expensive because of the small class size — one hundred and ten pounds."
             },
             {
               "speaker": "Adviser",
               "voice": "en_US-lessac-medium",
-              "text": "Italian is an intermediate course, meeting on Thursday evenings. The fee is ninety-five pounds."
+              "text": "Italian is an intermediate course, meeting on Thursday evenings, and the fee is ninety-five pounds, which is already shown on your sheet."
             },
             {
               "speaker": "Adviser",
               "voice": "en_US-lessac-medium",
-              "text": "And finally German, elementary level, on Wednesday mornings. That's our cheapest option at sixty pounds."
+              "text": "And finally German, elementary level, on Friday mornings. That's our cheapest option at sixty pounds."
             }
           ]
         }
@@ -902,7 +902,7 @@
             {
               "speaker": "Librarian",
               "voice": "en_US-ryan-high",
-              "text": "Our computer help session runs in room two. It starts at two o'clock, and we'd prefer you to book a slot because it's popular."
+              "text": "Our computer help session runs in room two, starting at two o'clock. We'd prefer you to book a slot because it's popular."
             },
             {
               "speaker": "Librarian",
@@ -913,6 +913,11 @@
               "speaker": "Librarian",
               "voice": "en_US-ryan-high",
               "text": "And to finish the day, we're screening a film in the main hall at seven. Entry is free with a library card."
+            },
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-ryan-high",
+              "text": "One more thing — there's also a poetry reading in the garden at three in the afternoon, weather permitting."
             }
           ]
         }
@@ -938,7 +943,7 @@
             {
               "speaker": "Adviser",
               "voice": "en_US-lessac-medium",
-              "text": "Once you're in, check that your personal details are still correct — especially your address, because that's where we post the new card."
+              "text": "Once you're in, check that your personal details are still correct. If your address has changed, update it straight away, because that's where we post the new card."
             },
             {
               "speaker": "Adviser",
@@ -948,7 +953,7 @@
             {
               "speaker": "Adviser",
               "voice": "en_US-lessac-medium",
-              "text": "After you've paid, we'll process your card. It normally arrives within five working days, but during busy periods it can take up to ten."
+              "text": "After you've paid, we'll email you a confirmation — normally within the hour — and then process your card. It normally arrives within five working days, though in busy periods it can take up to ten."
             },
             {
               "speaker": "Adviser",

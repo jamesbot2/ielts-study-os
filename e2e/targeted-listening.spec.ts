@@ -182,3 +182,25 @@ test.describe("Round 3B content", () => {
     await expect(page.getByText(/1\/8 correct/)).toBeVisible();
   });
 });
+
+test.describe("Round 3B-C corrected content", () => {
+  test("flow-chart drill: structure visible, no leaked answers, scorable", async ({ page }) => {
+    await page.goto("/practice/listening/listening-targeted-flow-chart-completion-01/");
+    await page.getByRole("button", { name: /Practice mode/ }).click();
+    await expect(page.getByText(/FLOW CHART:/)).toBeVisible();
+    await expect(page.getByText(/START/)).toBeVisible();
+    await expect(page.getByText(/FINISH/)).toBeVisible();
+    await page.locator('input[placeholder="Type your answer"]').first().fill("number");
+    await page.getByRole("button", { name: /Submit/ }).click();
+    await expect(page.getByText(/1\/8 correct/)).toBeVisible();
+  });
+
+  test("table drill: no answer visible in the prefilled structure", async ({ page }) => {
+    await page.goto("/practice/listening/listening-targeted-table-completion-01/");
+    await page.getByRole("button", { name: /Practice mode/ }).click();
+    const tableText = await page.getByText(/TABLE:/).innerText();
+    for (const leak of ["introductory", "85", "Tuesday", "70", "conversational", "110", "intermediate", "Friday"]) {
+      expect(tableText, `leak: ${leak}`).not.toContain(leak);
+    }
+  });
+});

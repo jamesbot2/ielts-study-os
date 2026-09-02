@@ -58,7 +58,7 @@ export function textQ(
   prompt: string,
   correctAnswer: string,
   explanation: string,
-  options: { wordLimit?: number; allowNumber?: boolean; evidence?: string; acceptableAnswers?: string[]; difficulty?: 1 | 2 | 3 | 4 | 5 } = {},
+  options: { wordLimit?: number; allowNumber?: boolean; evidence?: string; acceptableAnswers?: string[]; difficulty?: 1 | 2 | 3 | 4 | 5; tableCellId?: string; flowNodeId?: string } = {},
 ) {
   return {
     id,
@@ -69,6 +69,8 @@ export function textQ(
     acceptableAnswers: options.acceptableAnswers,
     wordLimit: options.wordLimit,
     allowNumber: options.allowNumber,
+    tableCellId: options.tableCellId,
+    flowNodeId: options.flowNodeId,
     explanation,
     evidence: options.evidence,
     skillTags: ["listening"],

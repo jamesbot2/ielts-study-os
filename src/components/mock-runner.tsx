@@ -421,6 +421,7 @@ export function MockRunner({
           onCurrentQuestionChange={onCurrentQuestionChange}
           passages={currentSection?.key === "reading" ? readingSet?.passages ?? [] : []}
           visual={currentSection?.key === "listening" ? listeningSet?.visual : undefined}
+          stimulus={currentSection?.key === "listening" ? listeningSet?.taskStimulus : undefined}
         />
       )}
       <FooterBar
@@ -464,6 +465,7 @@ function QuestionSection({
   onCurrentQuestionChange,
   passages,
   visual,
+  stimulus,
 }: {
   questions: Question[];
   answers: Record<string, Answer>;
@@ -476,6 +478,7 @@ function QuestionSection({
   initialQuestion: number;
   onListeningStateChange: (state: ListeningPlaybackState) => void;
   visual?: ListeningVisual;
+  stimulus?: string;
   onCurrentQuestionChange: (index: number) => void;
   passages: PracticeSet["passages"];
 }) {
@@ -621,6 +624,7 @@ function QuestionSection({
               range={scoredUnitRange(questions, current)}
               total={scoredUnitCountForQuestions(questions)}
               visual={questionUsesVisual(q) ? visual : undefined}
+              stimulus={stimulus}
             />
           ) : null}
           <div className="mt-4 flex justify-between">
