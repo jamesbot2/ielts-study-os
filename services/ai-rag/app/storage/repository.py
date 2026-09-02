@@ -120,19 +120,26 @@ class InMemoryKnowledgeRepository:
 
     def upsert_chunks(self, chunks: list[KnowledgeChunk]) -> IngestionResult:
         result = IngestionResult()
-        incoming_hashes = {c.content_hash for c in chunks}
-        existing_by_hash = {c.content_hash: c for c in self.chunks.values()}
         source_id = chunks[0].source_id if chunks else None
+        # Content hashes are SOURCE-SCOPED: identical text in two different sources
+        # must remain two independent chunks.
+        incoming_hashes = {c.content_hash for c in chunks}
+        existing_by_key = {(c.source_id, c.content_hash): c for c in self.chunks.values()}
 
         if source_id:
-            stale = [cid for cid, c in self.chunks.items() if c.source_id == source_id and c.content_hash not in incoming_hashes]
+            stale = [
+                cid
+                for cid, c in self.chunks.items()
+                if c.source_id == source_id and c.content_hash not in incoming_hashes
+            ]
             for cid in stale:
                 del self.chunks[cid]
                 result.deleted += 1
 
         for c in chunks:
-            if c.content_hash in existing_by_hash:
-                existing = existing_by_hash[c.content_hash]
+            key = (c.source_id, c.content_hash)
+            if key in existing_by_key:
+                existing = existing_by_key[key]
                 changed = False
                 # Update changed metadata even when content hash + fingerprint are unchanged.
                 if chunk_metadata_changed(existing, c):

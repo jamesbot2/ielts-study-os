@@ -79,6 +79,20 @@ def test_source_metadata_update():
     assert src.source_type == "official"
 
 
+def test_source_scoped_content_hashes():
+    repo = InMemoryKnowledgeRepository()
+    repo.upsert_source(_source(id="srcA"))
+    repo.upsert_source(_source(id="srcB"))
+    # Same content hash, different sources → two independent chunks.
+    a = _chunk(id="ca", source_id="srcA", content_hash="same-hash")
+    b = _chunk(id="cb", source_id="srcB", content_hash="same-hash", heading="B")
+    r = repo.upsert_chunks([a, b])
+    assert r.added == 2
+    assert "ca" in repo.chunks and "cb" in repo.chunks
+    assert repo.chunks["ca"].heading == "A"
+    assert repo.chunks["cb"].heading == "B"
+
+
 def test_ingestion_run_tracking():
     repo = InMemoryKnowledgeRepository()
     repo.upsert_source(_source())
