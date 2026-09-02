@@ -14,7 +14,9 @@ export interface PracticeResult {
   attemptId: string;
   rawScore: number;
   total: number;
-  band: number;
+  // null for targeted drills: a 6–15 question drill is NOT equivalent to a
+  // complete 40-question IELTS Reading/Listening test.
+  band: number | null;
   results: {
     questionId: string;
     correct: boolean;
@@ -59,10 +61,15 @@ export async function submitPractice(
 
   const rawScore = results.filter((r) => r.correct).length;
   const total = set.questions.length;
-  // Targeted drills have fewer than 40 questions; scale to the 40-question band
-  // table so the estimated band remains meaningful (raw is still shown).
-  const scaledRaw = total > 0 ? Math.round((rawScore / total) * 40) : 0;
-  const band = set.kind === "listening" ? listeningBand(scaledRaw) : readingBand(scaledRaw, effectiveTestType);
+  // Full 40-question tests map to the normal IELTS-style band table.
+  // Targeted drills do NOT receive a band: a short single-question-type drill
+  // is not equivalent to a complete IELTS Reading/Listening test.
+  const isTargeted = set.practiceMode === "targeted";
+  const band: number | null = isTargeted
+    ? null
+    : set.kind === "listening"
+      ? listeningBand(rawScore)
+      : readingBand(rawScore, effectiveTestType);
 
   await completePracticeAttempt(
     attemptId,

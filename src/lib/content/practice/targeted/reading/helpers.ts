@@ -23,8 +23,9 @@ export function targetedMeta(
     difficulty,
     estimatedBandRange: { min: 5, max: 7.5 },
     createdAt: "2026-09-01",
-    generatedByAI: false,
-    reviewStatus: "published",
+    // AI-assisted generation — honest authorship metadata.
+    generatedByAI: true,
+    reviewStatus: "draft",
   };
 }
 

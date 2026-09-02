@@ -243,7 +243,7 @@ export async function createPracticeAttempt(
 export async function completePracticeAttempt(
   id: string,
   rawScore: number,
-  band: number,
+  band: number | null,
   answers: Record<string, AnswerValue>,
   questionAttempts: Omit<QuestionAttempt, "id" | "attemptId">[],
   timeSpentSeconds: number,

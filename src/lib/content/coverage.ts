@@ -6,8 +6,10 @@ import { allPracticeSets } from "./practice";
 import { writingPrompts } from "./practice/writing-prompts";
 import { speakingTopics } from "./practice/speaking-topics";
 import { grammarExercises } from "./practice/grammar-exercises";
-import { isValidTargetedSet } from "./validate";
-import type { QuestionType, Skill } from "@/types/ielts";
+import { isPublishedTargetedSet, isStructurallyValidTargetedSet } from "./practice-validation";
+import { QUESTION_TYPE_LABELS } from "./question-types";
+export { questionTypeLabel } from "./question-types";
+import type { Skill } from "@/types/ielts";
 
 export interface SkillCoverage {
   skill: Skill;
@@ -17,32 +19,6 @@ export interface SkillCoverage {
   questionTypes: Record<string, number>;
   academic: boolean;
   general: boolean;
-}
-
-const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
-  multiple_choice: "Multiple choice",
-  multiple_answer: "Multiple-answer questions",
-  matching: "Matching",
-  matching_headings: "Matching headings",
-  matching_information: "Matching information",
-  matching_features: "Matching features",
-  matching_sentence_endings: "Matching sentence endings",
-  true_false_not_given: "True / False / Not Given",
-  yes_no_not_given: "Yes / No / Not Given",
-  sentence_completion: "Sentence completion",
-  summary_completion: "Summary completion",
-  note_completion: "Note completion",
-  table_completion: "Table completion",
-  flow_chart_completion: "Flow-chart completion",
-  diagram_labelling: "Diagram-labelling completion",
-  form_completion: "Form completion",
-  short_answer: "Short-answer questions",
-  plan_labelling: "Plan labelling",
-  map_labelling: "Map labelling",
-};
-
-export function questionTypeLabel(type: QuestionType): string {
-  return QUESTION_TYPE_LABELS[type];
 }
 
 export function computeCoverage(): {
@@ -58,6 +34,8 @@ export function computeCoverage(): {
   readingFullSets: number;
   readingTargetedSets: number;
   readingTargetedByType: Record<string, number>;
+  readingPublishedTargetedSets: number;
+  readingPublishedTargetedByType: Record<string, number>;
   listeningFullSets: number;
   listeningTargetedSets: number;
   listeningTargetedByType: Record<string, number>;
@@ -66,8 +44,9 @@ export function computeCoverage(): {
 } {
   const reading = computeSkill("reading", "reading");
   const listening = computeSkill("listening", "listening");
-  const readingTargetedByType = targetedByType("reading");
-  const listeningTargetedByType = targetedByType("listening");
+  const readingTargetedByType = targetedByType("reading", false);
+  const readingPublishedTargetedByType = targetedByType("reading", true);
+  const listeningTargetedByType = targetedByType("listening", false);
   const listeningPlayableTargetedByType = playableTargetedByType("listening");
   const readingFullSets = allPracticeSets.filter((s) => s.kind === "reading" && (s.practiceMode ?? "full") === "full").length;
   const listeningFullSets = allPracticeSets.filter((s) => s.kind === "listening" && (s.practiceMode ?? "full") === "full").length;
@@ -102,6 +81,8 @@ export function computeCoverage(): {
     readingFullSets,
     readingTargetedSets: Object.values(readingTargetedByType).reduce((n, x) => n + x, 0),
     readingTargetedByType,
+    readingPublishedTargetedSets: Object.values(readingPublishedTargetedByType).reduce((n, x) => n + x, 0),
+    readingPublishedTargetedByType,
     listeningFullSets,
     listeningTargetedSets: Object.values(listeningTargetedByType).reduce((n, x) => n + x, 0),
     listeningTargetedByType,
@@ -110,11 +91,12 @@ export function computeCoverage(): {
   };
 }
 
-function targetedByType(kind: "reading" | "listening"): Record<string, number> {
+function targetedByType(kind: "reading" | "listening", publishedOnly = true): Record<string, number> {
   const out: Record<string, number> = {};
   for (const set of allPracticeSets) {
-    // Only count sets that satisfy the canonical targeted contract.
-    if (set.kind !== kind || !isValidTargetedSet(set)) continue;
+    if (set.kind !== kind) continue;
+    const valid = publishedOnly ? isPublishedTargetedSet(set) : isStructurallyValidTargetedSet(set);
+    if (!valid) continue;
     const t = set.targetQuestionType ?? "unknown";
     out[t] = (out[t] ?? 0) + 1;
   }
@@ -124,11 +106,10 @@ function targetedByType(kind: "reading" | "listening"): Record<string, number> {
 function playableTargetedByType(kind: "reading" | "listening"): Record<string, number> {
   const out: Record<string, number> = {};
   for (const set of allPracticeSets) {
-    if (set.kind !== kind || !isValidTargetedSet(set)) continue;
-    const published = set.meta.reviewStatus === "published";
+    if (set.kind !== kind || !isPublishedTargetedSet(set)) continue;
     const hasAudio = Boolean(set.audio && (set.audio.src || (set.audio.parts && set.audio.parts.length > 0)));
     const hasScript = Boolean(set.audio?.script && set.audio.script.length > 0);
-    if (!published || !hasAudio || !hasScript) continue;
+    if (!hasAudio || !hasScript) continue;
     const t = set.targetQuestionType ?? "unknown";
     out[t] = (out[t] ?? 0) + 1;
   }
@@ -156,38 +137,3 @@ function computeSkill(skill: Skill, kind: "reading" | "listening"): SkillCoverag
     general: sets.some((s) => s.meta.testType === "general" || s.meta.testType === "both"),
   };
 }
-
-// The complete set of major IELTS Listening question types.
-export const LISTENING_QUESTION_TYPES: QuestionType[] = [
-  "multiple_choice",
-  "multiple_answer",
-  "matching",
-  "plan_labelling",
-  "map_labelling",
-  "diagram_labelling",
-  "form_completion",
-  "note_completion",
-  "table_completion",
-  "flow_chart_completion",
-  "summary_completion",
-  "sentence_completion",
-  "short_answer",
-];
-
-// The complete set of major IELTS Reading question types.
-export const READING_QUESTION_TYPES: QuestionType[] = [
-  "multiple_choice",
-  "true_false_not_given",
-  "yes_no_not_given",
-  "matching_information",
-  "matching_headings",
-  "matching_features",
-  "matching_sentence_endings",
-  "sentence_completion",
-  "summary_completion",
-  "note_completion",
-  "table_completion",
-  "flow_chart_completion",
-  "diagram_labelling",
-  "short_answer",
-];

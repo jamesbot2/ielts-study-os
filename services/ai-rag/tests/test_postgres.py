@@ -76,63 +76,7 @@ def test_full_filter_matrix_live(repo):
     prefix = _unique("fx")
     dim = DIM
 
-    def src(sid, official, source_type):
-        return KnowledgeSource(
-            id=sid, title=sid, provider="T", url=None, source_type=source_type, official=official,
-            license="CC0" if source_type == "original" else None,
-            redistribution_policy="original_full" if source_type == "original" else "metadata_only",
-            language="en", skill="all", test_type="both", topics=[], last_verified="2026-09-01",
-        )
-
-    repo.upsert_source(src(f"{prefix}-acad-read", True, "official"))
-    repo.upsert_source(src(f"{prefix}-gen-read", True, "official"))
-    repo.upsert_source(src(f"{prefix}-acad-write", False, "original"))
-    repo.upsert_source(src(f"{prefix}-gen-write", False, "original"))
-    repo.upsert_source(
-        KnowledgeSource(
-            id=f"{prefix}-zh", title=f"{prefix}-zh", provider="T", url=None, source_type="original",
-            official=False, license="CC0", redistribution_policy="original_full", language="zh",
-            skill="reading", test_type="both", topics=[], last_verified="2026-09-01",
-        )
-    )
-
-    def chunk(cid, sid, skill, test_type, qtypes, language="en"):
-        return KnowledgeChunk(
-            id=cid, source_id=sid, heading=cid, content=f"{skill} {test_type} {qtypes[0]}",
-            language=language, skill=skill, test_type=test_type, topics=[skill],
-            question_types=qtypes, chunk_index=0, content_hash=f"{cid}-h",
-            embedding=[0.13] * dim, embedding_fingerprint="fp1",
-        )
-
-    repo.upsert_chunks([
-        chunk(f"{prefix}-c1", f"{prefix}-acad-read", "reading", "academic", ["matching_headings"]),
-        chunk(f"{prefix}-c2", f"{prefix}-gen-read", "reading", "general", ["multiple_choice"]),
-        chunk(f"{prefix}-c3", f"{prefix}-acad-write", "writing", "academic", ["process"]),
-        chunk(f"{prefix}-c4", f"{prefix}-gen-write", "writing", "general", ["letter"]),
-        chunk(f"{prefix}-c5", f"{prefix}-zh", "reading", "both", ["multiple_choice"], language="zh"),
-    ])
-
-    cases = [
-        (SearchFilters(skill="reading"), {f"{prefix}-c1", f"{prefix}-c2", f"{prefix}-c5"}),
-        (SearchFilters(test_type="academic"), {f"{prefix}-c1", f"{prefix}-c3"}),
-        (SearchFilters(source_type="original"), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
-        (SearchFilters(official=True), {f"{prefix}-c1", f"{prefix}-c2"}),
-        (SearchFilters(official=False), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
-        (SearchFilters(question_type="matching_headings"), {f"{prefix}-c1"}),
-        (SearchFilters(language="en"), {f"{prefix}-c1", f"{prefix}-c2", f"{prefix}-c3", f"{prefix}-c4"}),
-        (SearchFilters(language="zh"), {f"{prefix}-c5"}),
-        (SearchFilters(skill="reading", test_type="academic"), {f"{prefix}-c1"}),
-        (SearchFilters(source_type="original", official=False), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
-        (SearchFilters(language="en", question_type="multiple_choice"), {f"{prefix}-c2"}),
-    ]
-    for flt, expected in cases:
-        v = {r.chunk_id for r in repo.search_vector([0.13] * dim, flt, 10)}
-        l = {r.chunk_id for r in repo.search_lexical("reading writing headings", flt, 10)}
-        assert v == expected, f"vector {flt}: {v} != {expected}"
-        assert l == expected, f"lexical {flt}: {l} != {expected}"
-
-    # Targeted cleanup for this test only (try/finally ensures it runs even on failure).
-    try:
+    def cleanup():
         from app.storage.models import KnowledgeChunkRow, KnowledgeSourceRow
 
         with repo._session_factory() as session:
@@ -141,8 +85,64 @@ def test_full_filter_matrix_live(repo):
             for row in session.query(KnowledgeSourceRow).filter(KnowledgeSourceRow.id.like(f"{prefix}-%")).all():
                 session.delete(row)
             session.commit()
+
+    try:
+        def src(sid, official, source_type):
+            return KnowledgeSource(
+                id=sid, title=sid, provider="T", url=None, source_type=source_type, official=official,
+                license="CC0" if source_type == "original" else None,
+                redistribution_policy="original_full" if source_type == "original" else "metadata_only",
+                language="en", skill="all", test_type="both", topics=[], last_verified="2026-09-01",
+            )
+
+        repo.upsert_source(src(f"{prefix}-acad-read", True, "official"))
+        repo.upsert_source(src(f"{prefix}-gen-read", True, "official"))
+        repo.upsert_source(src(f"{prefix}-acad-write", False, "original"))
+        repo.upsert_source(src(f"{prefix}-gen-write", False, "original"))
+        repo.upsert_source(
+            KnowledgeSource(
+                id=f"{prefix}-zh", title=f"{prefix}-zh", provider="T", url=None, source_type="original",
+                official=False, license="CC0", redistribution_policy="original_full", language="zh",
+                skill="reading", test_type="both", topics=[], last_verified="2026-09-01",
+            )
+        )
+
+        def chunk(cid, sid, skill, test_type, qtypes, language="en"):
+            return KnowledgeChunk(
+                id=cid, source_id=sid, heading=cid, content=f"{skill} {test_type} {qtypes[0]}",
+                language=language, skill=skill, test_type=test_type, topics=[skill],
+                question_types=qtypes, chunk_index=0, content_hash=f"{cid}-h",
+                embedding=[0.13] * dim, embedding_fingerprint="fp1",
+            )
+
+        repo.upsert_chunks([
+            chunk(f"{prefix}-c1", f"{prefix}-acad-read", "reading", "academic", ["matching_headings"]),
+            chunk(f"{prefix}-c2", f"{prefix}-gen-read", "reading", "general", ["multiple_choice"]),
+            chunk(f"{prefix}-c3", f"{prefix}-acad-write", "writing", "academic", ["process"]),
+            chunk(f"{prefix}-c4", f"{prefix}-gen-write", "writing", "general", ["letter"]),
+            chunk(f"{prefix}-c5", f"{prefix}-zh", "reading", "both", ["multiple_choice"], language="zh"),
+        ])
+
+        cases = [
+            (SearchFilters(skill="reading"), {f"{prefix}-c1", f"{prefix}-c2", f"{prefix}-c5"}),
+            (SearchFilters(test_type="academic"), {f"{prefix}-c1", f"{prefix}-c3"}),
+            (SearchFilters(source_type="original"), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
+            (SearchFilters(official=True), {f"{prefix}-c1", f"{prefix}-c2"}),
+            (SearchFilters(official=False), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
+            (SearchFilters(question_type="matching_headings"), {f"{prefix}-c1"}),
+            (SearchFilters(language="en"), {f"{prefix}-c1", f"{prefix}-c2", f"{prefix}-c3", f"{prefix}-c4"}),
+            (SearchFilters(language="zh"), {f"{prefix}-c5"}),
+            (SearchFilters(skill="reading", test_type="academic"), {f"{prefix}-c1"}),
+            (SearchFilters(source_type="original", official=False), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
+            (SearchFilters(language="en", question_type="multiple_choice"), {f"{prefix}-c2"}),
+        ]
+        for flt, expected in cases:
+            v = {r.chunk_id for r in repo.search_vector([0.13] * dim, flt, 10)}
+            l = {r.chunk_id for r in repo.search_lexical("reading writing headings", flt, 10)}
+            assert v == expected, f"vector {flt}: {v} != {expected}"
+            assert l == expected, f"lexical {flt}: {l} != {expected}"
     finally:
-        pass
+        cleanup()
 
 
 @pytest.mark.skipif(not URL, reason="POSTGRES_TEST_URL not set")
@@ -249,41 +249,45 @@ def test_metadata_update_and_idempotency(repo):
 def test_rrf_hybrid_search_live(repo):
     prefix = _unique("rrf")
     dim = DIM
-    repo.upsert_source(
-        KnowledgeSource(
-            id=f"{prefix}-src", title="RRF Source", provider="T", url=None, source_type="original",
-            official=False, license="CC0", redistribution_policy="original_full", language="en",
-            skill="reading", test_type="academic", topics=[], last_verified="2026-09-01",
+
+    def cleanup():
+        from app.storage.models import KnowledgeChunkRow, KnowledgeSourceRow
+
+        with repo._session_factory() as session:
+            for row in session.query(KnowledgeChunkRow).filter(KnowledgeChunkRow.source_id == f"{prefix}-src").all():
+                session.delete(row)
+            s = session.get(KnowledgeSourceRow, f"{prefix}-src")
+            if s:
+                session.delete(s)
+            session.commit()
+
+    try:
+        repo.upsert_source(
+            KnowledgeSource(
+                id=f"{prefix}-src", title="RRF Source", provider="T", url=None, source_type="original",
+                official=False, license="CC0", redistribution_policy="original_full", language="en",
+                skill="reading", test_type="academic", topics=[], last_verified="2026-09-01",
+            )
         )
-    )
-    repo.upsert_chunks(
-        [
-            KnowledgeChunk(
-                id=f"{prefix}-mh", source_id=f"{prefix}-src", heading="Matching Headings",
-                content="Matching Headings asks you to match paragraphs to headings.", language="en",
-                skill="reading", test_type="academic", topics=["reading"], question_types=["matching_headings"],
-                chunk_index=0, content_hash=f"{prefix}-mh-h", embedding=[0.31] * dim, embedding_fingerprint="fp1",
-            ),
-            KnowledgeChunk(
-                id=f"{prefix}-mc", source_id=f"{prefix}-src", heading="Multiple Choice",
-                content="Multiple Choice questions have several options.", language="en",
-                skill="reading", test_type="academic", topics=["reading"], question_types=["multiple_choice"],
-                chunk_index=0, content_hash=f"{prefix}-mc-h", embedding=[0.32] * dim, embedding_fingerprint="fp1",
-            ),
-        ]
-    )
-    from app.rag.retrieval import hybrid_search_repository
+        repo.upsert_chunks(
+            [
+                KnowledgeChunk(
+                    id=f"{prefix}-mh", source_id=f"{prefix}-src", heading="Matching Headings",
+                    content="Matching Headings asks you to match paragraphs to headings.", language="en",
+                    skill="reading", test_type="academic", topics=["reading"], question_types=["matching_headings"],
+                    chunk_index=0, content_hash=f"{prefix}-mh-h", embedding=[0.31] * dim, embedding_fingerprint="fp1",
+                ),
+                KnowledgeChunk(
+                    id=f"{prefix}-mc", source_id=f"{prefix}-src", heading="Multiple Choice",
+                    content="Multiple Choice questions have several options.", language="en",
+                    skill="reading", test_type="academic", topics=["reading"], question_types=["multiple_choice"],
+                    chunk_index=0, content_hash=f"{prefix}-mc-h", embedding=[0.32] * dim, embedding_fingerprint="fp1",
+                ),
+            ]
+        )
+        from app.rag.retrieval import hybrid_search_repository
 
-    results = hybrid_search_repository(repo, "Reading headings", [0.31] * dim, SearchFilters(skill="reading"), top_k=5)
-    assert any(r.chunk_id == f"{prefix}-mh" for r in results)
-
-    # Cleanup.
-    from app.storage.models import KnowledgeChunkRow, KnowledgeSourceRow
-
-    with repo._session_factory() as session:
-        for row in session.query(KnowledgeChunkRow).filter(KnowledgeChunkRow.source_id == f"{prefix}-src").all():
-            session.delete(row)
-        s = session.get(KnowledgeSourceRow, f"{prefix}-src")
-        if s:
-            session.delete(s)
-        session.commit()
+        results = hybrid_search_repository(repo, "Reading headings", [0.31] * dim, SearchFilters(skill="reading"), top_k=5)
+        assert any(r.chunk_id == f"{prefix}-mh" for r in results)
+    finally:
+        cleanup()

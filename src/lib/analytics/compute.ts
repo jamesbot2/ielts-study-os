@@ -38,15 +38,23 @@ export async function computeAnalytics(): Promise<AnalyticsData> {
   const cards = await listVocabCards();
   const due = await getDueVocabCards();
 
-  const bySkill: Record<string, { attempts: number; accuracy: number; avgBand: number }> = {};
+  const bySkill: Record<string, { attempts: number; accuracy: number; avgBand: number; bandCount: number }> = {};
   for (const a of completed) {
     const qas = await getQuestionAttempts(a.id);
     const acc = qas.length ? qas.filter((q) => q.correct === 1).length / qas.length : 0;
-    const entry = bySkill[a.skill] ?? { attempts: 0, accuracy: 0, avgBand: 0 };
+    const entry = bySkill[a.skill] ?? { attempts: 0, accuracy: 0, avgBand: 0, bandCount: 0 };
     entry.attempts += 1;
     entry.accuracy = (entry.accuracy * (entry.attempts - 1) + acc) / entry.attempts;
-    entry.avgBand = (entry.avgBand * (entry.attempts - 1) + (a.band ?? 0)) / entry.attempts;
+    // Targeted drills persist band=null; only real band-bearing attempts count.
+    if (typeof a.band === "number") {
+      entry.avgBand = (entry.avgBand * entry.bandCount + a.band) / (entry.bandCount + 1);
+      entry.bandCount += 1;
+    }
     bySkill[a.skill] = entry;
+  }
+  const bySkillSummary: Record<string, { attempts: number; accuracy: number; avgBand: number }> = {};
+  for (const [skill, e] of Object.entries(bySkill)) {
+    bySkillSummary[skill] = { attempts: e.attempts, accuracy: e.accuracy, avgBand: e.avgBand };
   }
 
   return {
@@ -57,7 +65,7 @@ export async function computeAnalytics(): Promise<AnalyticsData> {
       totalMocks: mocks.length,
       vocabTotal: cards.length,
       vocabDue: due.length,
-      bySkill,
+      bySkill: bySkillSummary,
     },
     recentAttempts: completed.slice(0, 20).map((a) => ({
       id: a.id,

@@ -53,6 +53,19 @@ describe("practice accuracy semantics", () => {
     const snap = await buildLearnerContextSnapshot();
     expect(snap.practice.accuracyBySkill.reading.avgBand).toBeCloseTo(6, 3);
   });
+
+  it("targeted drills contribute accuracy but never pollute avgBand", async () => {
+    // Full attempt with real band 6.
+    await seedAttempt(30, 40, [], 6);
+    // Two targeted (band-less) attempts.
+    await seedAttempt(2, 8, [], null);
+    await seedAttempt(8, 8, [], null);
+    const snap = await buildLearnerContextSnapshot();
+    const reading = snap.practice.accuracyBySkill.reading;
+    expect(reading.avgBand).toBeCloseTo(6, 3);
+    // Accuracy includes all question attempts: (30+2+8) / (40+8+8) = 40/56.
+    expect(reading.accuracy).toBeCloseTo(40 / 56, 4);
+  });
 });
 
 describe("weak question types use real types, not question ids", () => {

@@ -59,7 +59,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   const [deadline, setDeadline] = useState<number | null>(null);
   const [results, setResults] = useState<Result[] | null>(null);
   const [rawScore, setRawScore] = useState(0);
-  const [band, setBand] = useState(0);
+  const [band, setBand] = useState<number | null>(0);
   const startRef = useRef<number | null>(null);
 
   const questions = set.questions;
@@ -205,21 +205,25 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   };
 
   if (phase === "intro") {
+    const isTargeted = set.practiceMode === "targeted";
     return (
       <div className="mx-auto max-w-2xl px-4 py-10">
         <h1 className="text-2xl font-semibold">{set.meta.title}</h1>
         <p className="mt-2 text-sm text-muted">
           {set.questions.length} questions · {set.meta.testType === "academic" ? "Academic" : "General Training"} Reading
+          {isTargeted && <span className="badge ml-2">{locale === "zh" ? "专项训练" : "Targeted drill"}</span>}
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <button onClick={() => startAttempt("practice")} className="card card-pad text-left hover:border-accent">
             <p className="font-semibold">{t("practice.practiceMode")}</p>
-            <p className="mt-1 text-sm text-muted">{t("practice.flexible")}</p>
+            <p className="mt-1 text-sm text-muted">{isTargeted ? (locale === "zh" ? "短篇专项练习，不限时" : "Short focused drill, untimed") : t("practice.flexible")}</p>
           </button>
-          <button onClick={() => startAttempt("exam")} className="card card-pad text-left hover:border-accent">
-            <p className="font-semibold">{t("practice.examMode")}</p>
-            <p className="mt-1 text-sm text-muted">60 minutes · {t("practice.strict")}</p>
-          </button>
+          {!isTargeted && (
+            <button onClick={() => startAttempt("exam")} className="card card-pad text-left hover:border-accent">
+              <p className="font-semibold">{t("practice.examMode")}</p>
+              <p className="mt-1 text-sm text-muted">60 minutes · {t("practice.strict")}</p>
+            </button>
+          )}
         </div>
       </div>
     );
@@ -514,13 +518,15 @@ export function ResultsView({
   set: PracticeSet;
   results: Result[];
   rawScore: number;
-  band: number;
+  band: number | null;
   answers: Record<string, Answer>;
   mode: string;
 }) {
   const { t, locale } = useI18n();
   const [filter, setFilter] = useState<"all" | "incorrect" | "unanswered">("all");
   const correct = results.filter((r) => r.correct).length;
+  const isTargeted = set.practiceMode === "targeted";
+  const accuracy = set.questions.length > 0 ? Math.round((correct / set.questions.length) * 100) : 0;
 
   const filtered = set.questions.filter((q) => {
     const r = results.find((x) => x.questionId === q.id)!;
@@ -541,10 +547,15 @@ export function ResultsView({
             <p className="text-sm text-muted">
               {correct}/{set.questions.length} correct · raw score {rawScore} · {mode} mode
             </p>
+            {isTargeted && (
+              <p className="mt-1 text-sm text-muted">
+                {locale === "zh" ? `准确率 ${accuracy}% · 专项练习不折算雅思分数` : `Accuracy ${accuracy}% · a targeted drill is not band-scored`}
+              </p>
+            )}
           </div>
-          <BandBadge band={band} />
+          {band != null ? <BandBadge band={band} /> : <span className="badge">{accuracy}%</span>}
         </div>
-        <p className="mt-2 text-xs text-muted">{t("scoring.rawToBandNote")}</p>
+        {!isTargeted && <p className="mt-2 text-xs text-muted">{t("scoring.rawToBandNote")}</p>}
       </div>
 
       <div className="mb-4 flex gap-2">

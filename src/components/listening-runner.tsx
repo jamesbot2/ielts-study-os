@@ -43,7 +43,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState<Awaited<ReturnType<typeof submitPractice>>["results"] | null>(null);
   const [rawScore, setRawScore] = useState(0);
-  const [band, setBand] = useState(0);
+  const [band, setBand] = useState<number | null>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedAt = useRef<number>(Date.now());
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateAllContent, getPracticeSetIssues, questionTypeCoverage } from "./validate";
+import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet } from "./validate";
 import { computeCoverage } from "./coverage";
 import { allPracticeSets } from "./practice";
 import type { PracticeSet, QuestionType } from "@/types/ielts";
@@ -147,5 +147,119 @@ describe("getPracticeSetIssues (pure)", () => {
       ],
     });
     expect(getPracticeSetIssues(set, new Set()).some((i) => i.message.includes("not in options"))).toBe(true);
+  });
+});
+
+describe("additional structural validation", () => {
+  function mkSet(overrides: Partial<PracticeSet> = {}): PracticeSet {
+    const meta = {
+      id: "t-fixture-2", title: "Fixture 2", skill: "reading" as const, testType: "academic" as const,
+      sourceType: "ORIGINAL" as const, sourceName: "IELTS Study OS", license: "CC0",
+      copyrightStatus: "original", academicOrGeneral: "academic" as const,
+      questionTypes: ["true_false_not_given"] as const, difficulty: 3 as const,
+      estimatedBandRange: { min: 5, max: 7 }, createdAt: "2026-09-01",
+      generatedByAI: false, reviewStatus: "published" as const,
+    };
+    return {
+      meta, kind: "reading",
+      passages: [{ id: "p1", title: "P", body: "The sun is a star. Planets orbit stars.", sourceType: "ORIGINAL", license: "CC0" }],
+      practiceMode: "targeted", targetQuestionType: "true_false_not_given",
+      questions: Array.from({ length: 8 }, (_, i) => ({
+        id: `xq${i}`, type: "true_false_not_given" as const, answerType: "text" as const,
+        prompt: "Statement", passageId: "p1", explanation: "Because it says so.", evidence: "x",
+        skillTags: ["reading"], difficulty: 3 as const, bandRange: { min: 5, max: 7 },
+        correctAnswer: "The sun is a star",
+      })),
+      ...overrides,
+    } as PracticeSet;
+  }
+
+  it("targeted set with 16 questions fails", () => {
+    const set = mkSet({ questions: Array.from({ length: 16 }, () => mkSet().questions[0]) });
+    expect(getPracticeSetIssues(set, new Set()).some((i) => i.message.includes("6–15"))).toBe(true);
+  });
+
+  it("full set with targetQuestionType fails", () => {
+    const set = mkSet({ practiceMode: "full", targetQuestionType: "true_false_not_given" as never, questions: Array.from({ length: 40 }, (_, i) => ({ ...mkSet().questions[0], id: `fq${i}` })) });
+    expect(getPracticeSetIssues(set, new Set()).some((i) => i.message.includes("must not set targetQuestionType"))).toBe(true);
+  });
+
+  it("dangling passageId fails", () => {
+    const set = mkSet({ questions: mkSet().questions.map((q, i) => ({ ...q, id: `dq${i}`, passageId: "missing-passage" })) });
+    expect(getPracticeSetIssues(set, new Set()).some((i) => i.message.includes("not found in set"))).toBe(true);
+  });
+
+  it("multiple choice selectCount mismatch fails", () => {
+    const set = mkSet({
+      targetQuestionType: "multiple_choice",
+      questions: Array.from({ length: 8 }, (_, i) => ({
+        id: `sc${i}`, type: "multiple_choice" as const, answerType: "multiple_choice" as const,
+        prompt: "Pick two", passageId: "p1", explanation: "x", skillTags: ["reading"],
+        difficulty: 3 as const, bandRange: { min: 5, max: 7 },
+        options: [{ id: "A", label: "A", text: "a" }, { id: "B", label: "B", text: "b" }],
+        correctAnswers: ["A", "B"], selectCount: 3,
+      })),
+    });
+    expect(getPracticeSetIssues(set, new Set()).some((i) => i.message.includes("selectCount"))).toBe(true);
+  });
+
+  it("matching correctOptionId not in options fails", () => {
+    const set = mkSet({
+      targetQuestionType: "matching_information",
+      questions: Array.from({ length: 8 }, (_, i) => ({
+        id: `mt${i}`, type: "matching_information" as const, answerType: "matching" as const,
+        prompt: "Match the statements", passageId: "p1", explanation: "x", skillTags: ["reading"],
+        difficulty: 3 as const, bandRange: { min: 5, max: 7 },
+        options: [{ id: "A", label: "A", text: "Option A" }],
+        items: [{ id: "i1", text: "Item", correctOptionId: "ZZZ" }],
+      })),
+    });
+    expect(getPracticeSetIssues(set, new Set()).some((i) => i.message.includes("not in options"))).toBe(true);
+  });
+
+  it("duplicate option IDs fail", () => {
+    const set = mkSet({
+      targetQuestionType: "multiple_choice",
+      questions: Array.from({ length: 8 }, (_, i) => ({
+        id: `do${i}`, type: "multiple_choice" as const, answerType: "single_choice" as const,
+        prompt: "Pick one", passageId: "p1", explanation: "x", skillTags: ["reading"],
+        difficulty: 3 as const, bandRange: { min: 5, max: 7 },
+        options: [{ id: "A", label: "A", text: "a" }, { id: "A", label: "B", text: "b" }],
+        correctAnswers: ["A"],
+      })),
+    });
+    expect(getPracticeSetIssues(set, new Set()).some((i) => i.message.includes("duplicate option ids"))).toBe(true);
+  });
+
+  it("duplicate item IDs fail", () => {
+    const set = mkSet({
+      targetQuestionType: "matching_information",
+      questions: Array.from({ length: 8 }, (_, i) => ({
+        id: `di${i}`, type: "matching_information" as const, answerType: "matching" as const,
+        prompt: "Match", passageId: "p1", explanation: "x", skillTags: ["reading"],
+        difficulty: 3 as const, bandRange: { min: 5, max: 7 },
+        options: [{ id: "A", label: "A", text: "a" }],
+        items: [{ id: "same", text: "One", correctOptionId: "A" }, { id: "same", text: "Two", correctOptionId: "A" }],
+      })),
+    });
+    expect(getPracticeSetIssues(set, new Set()).some((i) => i.message.includes("duplicate item id"))).toBe(true);
+  });
+
+  it("duplicate practice set ids fail", () => {
+    const a = mkSet({ meta: { ...mkSet().meta, id: "dup-id" } });
+    const b = mkSet({ meta: { ...mkSet().meta, id: "dup-id" }, questions: mkSet().questions.map((q) => ({ ...q, id: `b-${q.id}` })) });
+    const report = validateSets([a, b]);
+    expect(report.issues.some((i) => i.message.includes("duplicate practice set id"))).toBe(true);
+  });
+
+  it("malformed targeted set does not count as structurally valid", () => {
+    const bad = mkSet({ targetQuestionType: undefined });
+    expect(isStructurallyValidTargetedSet(bad)).toBe(false);
+    const good = mkSet({});
+    expect(isStructurallyValidTargetedSet(good)).toBe(true);
+    expect(isPublishedTargetedSet(good)).toBe(true);
+    const draft = mkSet({ meta: { ...mkSet().meta, reviewStatus: "draft" as const } });
+    expect(isStructurallyValidTargetedSet(draft)).toBe(true);
+    expect(isPublishedTargetedSet(draft)).toBe(false);
   });
 });
