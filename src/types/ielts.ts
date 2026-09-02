@@ -51,6 +51,9 @@ export interface BaseQuestion {
   prompt: string;
   // For reading: passage context
   passageId?: string;
+  // For spatial Listening (plan/map/diagram labelling): which blank marker
+  // this question asks the learner to label.
+  markerId?: string;
   // Human-readable explanation (why the correct answer is correct)
   explanation: string;
   // Evidence location in passage/transcript (reading/listening)
@@ -147,12 +150,44 @@ export interface PracticeSet {
   kind: "reading" | "listening";
   passages: Passage[];
   audio?: AudioAsset;
+  // Structured blank-marker visual for plan/map/diagram labelling. Contains
+  // spatial structure and blank markers ONLY — never answer names.
+  visual?: ListeningVisual;
   questions: Question[];
   // Grouping for synchronized question display (listening parts)
   groups?: { id: string; title: string; questionIds: string[] }[];
   // Targeted drill metadata. Full tests are practiceMode "full".
   practiceMode?: PracticeMode;
   targetQuestionType?: QuestionType;
+}
+
+// Minimal spatial stimulus for Listening plan/map/diagram labelling.
+export interface ListeningVisual {
+  kind: "plan" | "map" | "diagram";
+  width: number;
+  height: number;
+  // Structural shapes (rooms, roads, paths, parts). `label` may only contain
+  // non-answer orientation text (e.g. "Entrance", "Lake", "North").
+  shapes: Array<{
+    id: string;
+    shape: "rect" | "circle" | "ellipse" | "line" | "polygon";
+    x?: number;
+    y?: number;
+    w?: number;
+    h?: number;
+    cx?: number;
+    cy?: number;
+    r?: number;
+    rx?: number;
+    ry?: number;
+    x2?: number;
+    y2?: number;
+    points?: string;
+    label?: string;
+    className?: string;
+  }>;
+  // Blank markers the learner must label from the audio (answers NEVER shown).
+  markers: Array<{ id: string; label: string; x: number; y: number }>;
 }
 
 // --- Writing ---

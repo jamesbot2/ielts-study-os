@@ -39,10 +39,10 @@ function unitsOf(q: import("@/types/ielts").Question): number {
 function unitTotalFor(questions: import("@/types/ielts").Question[]): number {
   return questions.reduce((n, q) => n + unitsOf(q), 0);
 }
-function unitIndexFor(questions: import("@/types/ielts").Question[], current: number): number {
+function unitRangeFor(questions: import("@/types/ielts").Question[], current: number): { start: number; end: number } {
   let n = 0;
   for (let i = 0; i < current; i++) n += unitsOf(questions[i]);
-  return n;
+  return { start: n + 1, end: n + unitsOf(questions[current] ?? 0) };
 }
 
 const storageKey = (setId: string) => `ielts-listening:${setId}`;
@@ -326,7 +326,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
               {mode === "exam" && playback.finished ? ` · ${t("listening.onePlay")}` : ""}
             </p>
           </div>
-          <span className="text-sm font-semibold">{answered}/{questions.length}</span>
+          <span className="text-sm font-semibold">{answered}/{unitTotalFor(questions)}</span>
         </div>
       </div>
 
@@ -368,8 +368,9 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
                   return next;
                 })
               }
-              index={unitIndexFor(questions, current)}
+              range={unitRangeFor(questions, current)}
               total={unitTotalFor(questions)}
+              visual={set.visual}
             />
           </div>
 

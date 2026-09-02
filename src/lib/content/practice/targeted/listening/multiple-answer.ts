@@ -22,13 +22,13 @@ export const listeningMultipleAnswer01: PracticeSet = {
     { speaker: "Librarian", voice: "en_US-lessac-medium", text: "Thank you — opening hours, caf\u00e9, noise and sockets. We'll take these to the next planning meeting." },
   ]),
   questions: [
-    choiceQ("multiple_answer", "multiple_choice", "listening-targeted-multiple-answer-01-q01", "Choose TWO services the students say they use.", [
-      { id: "A", text: "Group study rooms" },
-      { id: "B", text: "Online journals" },
-      { id: "C", text: "A language caf\u00e9" },
-      { id: "D", text: "A bookshop" },
-      { id: "E", text: "Printing service" },
-    ], ["A", "B"], "Student A uses group study rooms and Student B the online journals; the printing service is also mentioned but the other options are not.", { selectCount: 2, difficulty: 3 }),
+    choiceQ("multiple_answer", "multiple_choice", "listening-targeted-multiple-answer-01-q01", "Choose TWO services that Student B mentions using.", [
+      { id: "A", text: "Online journals" },
+      { id: "B", text: "Group study rooms" },
+      { id: "C", text: "Borrowing a laptop" },
+      { id: "D", text: "The printing service" },
+      { id: "E", text: "The silent area" },
+    ], ["A", "C"], "Student B mentions the online journals and borrowing a laptop; rooms and printing are other students' services, and the silent area is only a complaint.", { selectCount: 2, difficulty: 3 }),
     choiceQ("multiple_answer", "multiple_choice", "listening-targeted-multiple-answer-01-q02", "Choose TWO improvements the students request.", [
       { id: "A", text: "Longer opening hours" },
       { id: "B", text: "More comfortable chairs" },

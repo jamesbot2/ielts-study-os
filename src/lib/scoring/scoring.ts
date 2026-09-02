@@ -261,13 +261,18 @@ export function scoreQuestionUnits(question: Question, userAnswer: unknown): Sco
     if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) {
       // Multiple-answer: each expected correct choice is one scored unit.
       // Partial credit: 2/2 or 1/2, never 0/1 for the whole group.
-      const chosen = new Set(selected ?? []);
+      const optionIds = new Set(q.options.map((o) => o.id));
+      const raw = (selected ?? []).filter((id) => optionIds.has(id));
+      const chosen = new Set(raw);
+      // Defensive rule: over-selection (> selectCount unique valid choices)
+      // is an invalid response — no credit for any unit in the group.
+      const invalid = chosen.size > q.selectCount;
       return q.correctAnswers.map((expected) => ({
         id: scoredUnitId(q.id, `choice:${expected}`),
         parentQuestionId: q.id,
         itemId: `choice:${expected}`,
         questionType: q.type,
-        correct: chosen.has(expected),
+        correct: !invalid && chosen.has(expected),
         userAnswer: selected,
         correctAnswer: expected,
         prompt: q.prompt,

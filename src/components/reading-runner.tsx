@@ -6,6 +6,7 @@ import { useI18n } from "@/components/i18n-provider";
 import Link from "next/link";
 import { coachLink } from "@/lib/coach/page-link";
 import { effectiveQuestionCount } from "@/lib/content/practice-validation";
+import { ListeningVisualView } from "@/components/listening-visual";
 import { submitPractice } from "@/lib/practice/submit";
 import type { ScoredUnitResult } from "@/lib/scoring/scoring";
 import { BandBadge, Spinner } from "@/components/ui";
@@ -37,17 +38,20 @@ interface PersistedReading {
 
 const storageKey = (setId: string) => `ielts-reading:${setId}`;
 
-// Scored-unit positions: matching items each occupy one numbered question.
+// Scored-unit numbering: matching items / multiple-answer choices each occupy
+// one numbered question, so groups display a range (Questions 1–7 of 40).
 function unitsOf(q: Question): number {
-  return q.answerType === "matching" || q.answerType === "heading_matching" ? q.items.length : 1;
+  if (q.answerType === "matching" || q.answerType === "heading_matching") return q.items.length;
+  if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) return q.selectCount;
+  return 1;
 }
 function unitTotalFor(questions: Question[]): number {
   return questions.reduce((n, q) => n + unitsOf(q), 0);
 }
-function unitIndexFor(questions: Question[], current: number): number {
+function unitRangeFor(questions: Question[], current: number): { start: number; end: number } {
   let n = 0;
   for (let i = 0; i < current; i++) n += unitsOf(questions[i]);
-  return n;
+  return { start: n + 1, end: n + unitsOf(questions[current] ?? 0) };
 }
 
 export function ReadingRunner({ set }: { set: PracticeSet }) {
@@ -267,7 +271,13 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   }
 
   const q = questions[current];
-  const answered = questions.filter((x) => answers[x.id] !== undefined && answers[x.id] !== "").length;
+  const answered = questions.reduce((n, x) => {
+    const a = answers[x.id];
+    if (a == null || a === "") return n;
+    if (Array.isArray(a)) return n + a.length;
+    if (typeof a === "object") return n + Object.values(a).filter((v) => v !== "" && v != null).length;
+    return n + 1;
+  }, 0);
 
   return (
     <div className="flex h-screen flex-col">
@@ -276,7 +286,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold">{set.meta.title}</span>
           <span className="text-xs text-muted">
-            {answered}/{questions.length} {t("common.answered")}
+            {answered}/{unitTotalFor(questions)} {t("common.answered")}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -376,8 +386,9 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
               onChange={(v) => setAnswer(q.id, v)}
               flagged={flags.has(q.id)}
               onToggleFlag={() => toggleFlag(q.id)}
-              index={unitIndexFor(questions, current)}
+              range={unitRangeFor(questions, current)}
               total={unitTotalFor(questions)}
+              visual={set.visual}
             />
           </div>
           <div className="flex items-center justify-between border-t border-border px-4 py-2">
@@ -403,27 +414,36 @@ export function QuestionPanel({
   onChange,
   flagged,
   onToggleFlag,
-  index,
+  range,
   total,
+  visual,
 }: {
   question: Question;
   value: Answer | undefined;
   onChange: (v: Answer) => void;
   flagged: boolean;
   onToggleFlag: () => void;
-  index: number;
+  range: { start: number; end: number };
   total: number;
+  visual?: import("@/types/ielts").ListeningVisual;
 }) {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-semibold text-muted">
-          Question {index + 1} of {total}
+          {range.start === range.end
+            ? `Question ${range.start} of ${total}`
+            : `Questions ${range.start}–${range.end} of ${total}`}
         </p>
         <button onClick={onToggleFlag} className={`text-xs ${flagged ? "text-yellow-600" : "text-muted"}`}>
           {flagged ? "★ Flagged" : "☆ Flag"}
         </button>
       </div>
+      {visual && (
+        <div className="mb-4">
+          <ListeningVisualView visual={visual} />
+        </div>
+      )}
       <p className="mb-4 text-[15px] font-medium leading-relaxed">{question.prompt}</p>
 
       {question.answerType === "text" || question.answerType === "number" ? (

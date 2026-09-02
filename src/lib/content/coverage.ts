@@ -103,6 +103,10 @@ function targetedByType(kind: "reading" | "listening", publishedOnly = true): Re
   return out;
 }
 
+// NOTE: this is a metadata-declared playability signal (published + valid +
+// audio parts/script declared). FINAL playable acceptance is the intersection
+// of this + asset-existence validation (listening-assets.test.ts) + E2E audio
+// load. A path string alone does not prove playback.
 function playableTargetedByType(kind: "reading" | "listening"): Record<string, number> {
   const out: Record<string, number> = {};
   for (const set of allPracticeSets) {

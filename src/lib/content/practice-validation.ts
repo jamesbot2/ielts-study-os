@@ -149,6 +149,37 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
   // Mode-aware question-count + targeted contract.
   const mode = set.practiceMode ?? "full";
   const effectiveCount = effectiveQuestionCount(set);
+
+  // Spatial (plan/map/diagram) guardrails: the visual must provide blank
+  // markers only, and the answers must never be prefilled as shape labels.
+  const isSpatial = set.kind === "listening" && (set.targetQuestionType === "plan_labelling" || set.targetQuestionType === "map_labelling" || set.targetQuestionType === "diagram_labelling");
+  if (isSpatial && mode === "targeted") {
+    if (!set.visual || set.visual.markers.length === 0) {
+      issues.push({ setId: id, message: "spatial targeted set must declare a visual with blank markers" });
+    } else {
+      const markerIds = set.visual.markers.map((m) => m.id);
+      if (new Set(markerIds).size !== markerIds.length) {
+        issues.push({ setId: id, message: "duplicate visual marker ids" });
+      }
+      const markerIdSet = new Set(markerIds);
+      const shapeLabels = (set.visual.shapes ?? [])
+        .map((sh) => (sh.label ?? "").toLowerCase().replace(/[^a-z0-9 ]/g, "").trim())
+        .filter(Boolean);
+      for (const q of set.questions) {
+        if (!q.markerId) {
+          issues.push({ setId: id, questionId: q.id, message: "spatial question missing markerId" });
+        } else if (!markerIdSet.has(q.markerId)) {
+          issues.push({ setId: id, questionId: q.id, message: `markerId "${q.markerId}" not found in visual` });
+        }
+        if (q.answerType === "text" && q.correctAnswer) {
+          const norm = q.correctAnswer.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim();
+          if (norm && shapeLabels.includes(norm)) {
+            issues.push({ setId: id, questionId: q.id, message: `answer "${q.correctAnswer}" leaked as a prefilled shape label` });
+          }
+        }
+      }
+    }
+  }
   if (mode === "full") {
     if (effectiveCount !== 40) {
       issues.push({ setId: id, message: `full test expected 40 scored units, found ${effectiveCount}` });

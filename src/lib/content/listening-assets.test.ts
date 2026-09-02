@@ -30,3 +30,44 @@ describe("targeted Listening playable assets", () => {
     }
   });
 });
+
+describe("TTS export drift", () => {
+  it("generated targeted-listening.json matches canonical audio.script data", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const { buildTtsJobs } = await import("@/lib/content/practice/targeted/listening/tts-export");
+    const generated = JSON.parse(readFileSync(join(process.cwd(), "scripts/tts/generated/targeted-listening.json"), "utf8"));
+    const canonical = buildTtsJobs();
+    expect(JSON.stringify(generated)).toBe(JSON.stringify(canonical));
+  });
+});
+
+describe("manifest consistency", () => {
+  it("global manifest matches per-set audio parts, sizes and uniqueness", async () => {
+    const { readFileSync, existsSync, statSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const manifest = JSON.parse(readFileSync(join(process.cwd(), "public/audio/targeted/manifest.json"), "utf8"));
+    const parts = manifest.parts ?? [];
+    expect(parts.length).toBeGreaterThanOrEqual(14);
+
+    const seen = new Set<string>();
+    for (const set of targetedListeningSets.filter(isPublishedTargetedSet)) {
+      const setParts = parts.filter((p: { setId: string }) => p.setId === set.meta.id);
+      expect(setParts.length, `${set.meta.id} manifest entries`).toBe(1);
+      const src = set.audio?.parts?.[0]?.src;
+      expect(setParts[0].src, `${set.meta.id} src matches`).toBe(src);
+      const path = join(process.cwd(), src!.replace(/^\/audio\//, "public/audio/"));
+      expect(existsSync(path)).toBe(true);
+      expect(setParts[0].sizeBytes, `${set.meta.id} size matches`).toBe(statSync(path).size);
+      expect(setParts[0].durationSeconds, `${set.meta.id} duration positive`).toBeGreaterThan(0);
+    }
+    for (const p of parts) {
+      const key = `${p.setId}:${p.part}`;
+      expect(seen.has(key), `duplicate manifest entry ${key}`).toBe(false);
+      seen.add(key);
+    }
+    // No manifest entries for nonexistent sets.
+    const ids = new Set(targetedListeningSets.filter(isPublishedTargetedSet).map((s) => s.meta.id));
+    for (const p of parts) expect(ids.has(p.setId), `orphan manifest entry ${p.setId}`).toBe(true);
+  });
+});

@@ -124,3 +124,31 @@ export function matchingQ(
     bandRange: { min: 5, max: 7.5 },
   };
 }
+
+// Spatial labelling question: prompt carries only the blank-marker letter —
+// the audio provides the answer. Never leaks the answer text.
+export function markerQ(
+  type: QuestionType,
+  id: string,
+  markerId: string,
+  markerLabel: string,
+  correctAnswer: string,
+  explanation: string,
+  options: { acceptableAnswers?: string[]; difficulty?: 1 | 2 | 3 | 4 | 5; evidence?: string } = {},
+) {
+  return {
+    id,
+    type,
+    answerType: "text" as const,
+    prompt: `Label the place marked ${markerLabel} on the ${type === "plan_labelling" ? "plan" : type === "map_labelling" ? "map" : "diagram"}.`,
+    markerId,
+    correctAnswer,
+    acceptableAnswers: options.acceptableAnswers,
+    wordLimit: 2,
+    explanation,
+    evidence: options.evidence,
+    skillTags: ["listening"],
+    difficulty: options.difficulty ?? 3,
+    bandRange: { min: 5, max: 7.5 },
+  };
+}

@@ -39,6 +39,25 @@ interface PersistedMock {
 
 const storageKey = (kind: string) => `ielts-mock:${kind}`;
 
+function mockUnitRange(questions: import("@/types/ielts").Question[], current: number): { start: number; end: number } {
+  let n = 0;
+  for (let i = 0; i < current; i++) {
+    const q = questions[i];
+    if (q.answerType === "matching" || q.answerType === "heading_matching") n += q.items.length;
+    else if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) n += q.selectCount;
+    else n += 1;
+  }
+  const q = questions[current];
+  const units = q
+    ? q.answerType === "matching" || q.answerType === "heading_matching"
+      ? q.items.length
+      : q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1
+        ? q.selectCount
+        : 1
+    : 0;
+  return { start: n + 1, end: n + units };
+}
+
 export function MockRunner({
   kind,
   testType,
@@ -605,8 +624,8 @@ function QuestionSection({
               onChange={(v) => onAnswer(q.id, v)}
               flagged={Boolean(flags[q.id])}
               onToggleFlag={() => onToggleFlag(q.id)}
-              index={current}
-              total={questions.length}
+              range={mockUnitRange(questions, current)}
+              total={questions.reduce((n, q) => n + (q.answerType === "matching" || q.answerType === "heading_matching" ? q.items.length : q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1 ? q.selectCount : 1), 0)}
             />
           ) : null}
           <div className="mt-4 flex justify-between">

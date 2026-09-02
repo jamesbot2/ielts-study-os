@@ -168,3 +168,17 @@ describe("multiple-answer effective count + validation", () => {
     expect(wrongAnswerType.some((i) => i.message.includes("multiple_answer question must use"))).toBe(true);
   });
 });
+
+describe("defensive multiple-answer scoring", () => {
+  it("over-selection (> selectCount unique choices) gives 0 credit", () => {
+    const units = scoreQuestionUnits(multipleAnswerQuestion(2, ["B", "D"]), ["B", "D", "C"]);
+    expect(units.length).toBe(2);
+    expect(units.filter((u) => u.correct).length).toBe(0);
+  });
+
+  it("unknown option ids are ignored when counting selections", () => {
+    const units = scoreQuestionUnits(multipleAnswerQuestion(2, ["B", "D"]), ["B", "ZZZ"]);
+    // "ZZZ" is not a real option: B correct, D missing -> 1/2.
+    expect(units.filter((u) => u.correct).length).toBe(1);
+  });
+});

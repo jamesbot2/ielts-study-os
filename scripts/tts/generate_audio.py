@@ -3,23 +3,15 @@
 
 Generic CLI:
 
-    python scripts/tts/generate_audio.py --input <job.json> --output <out_dir>
-    python scripts/tts/generate_audio.py --input <job.json> --output <out_dir> --set <setId>
+    python scripts/tts/generate_audio.py --input <job.json> --output <out_dir> [--set setId] [--url-root /audio/targeted]
 
-Without arguments it preserves the legacy full-test behavior
-(listening-scripts.json -> public/audio/listening-1/).
+Legacy no-argument invocation preserves the original full-test behavior and
+writes public/audio/listening-1/partN.mp3 + manifest.json directly (no setId
+subdirectory).
 
-Job JSON shape:
-
-    {
-      "parts": [
-        { "part": 1, "title": "...", "lines": [
-            { "speaker": "Officer", "voice": "en_US-lessac-medium", "text": "..." }
-        ]}
-      ]
-    }
-
-Output: one MP3 per part plus manifest.json with src/sizeBytes/durationSeconds.
+Sets mode writes one subdirectory per setId, each with its own manifest.json,
+and deterministically rebuilds the GLOBAL manifest.json from every per-set
+manifest (so `--set` never clobbers unrelated entries).
 """
 
 import argparse
@@ -35,11 +27,12 @@ LEGACY_SCRIPTS = os.path.join(HERE, "listening-scripts.json")
 VOICES_DIR = os.path.join(HERE, "voices")
 LEGACY_OUT = os.path.join(ROOT, "public", "audio", "listening-1")
 
-PY = sys.executable  # the venv python that has piper installed
-# Prefer a dedicated TTS venv if one exists (e.g. /home/box/tts-venv).
+# Prefer a dedicated TTS venv if one exists (e.g. ~/tts-venv).
+PY = sys.executable
 _TTS_VENV = os.path.expanduser(os.environ.get("PIPER_VENV", "~/tts-venv"))
 if os.path.exists(os.path.join(_TTS_VENV, "bin", "python")):
     PY = os.path.join(_TTS_VENV, "bin", "python")
+
 SILENCE_SECONDS = 0.5
 
 
@@ -94,20 +87,46 @@ def probe_duration(path: str) -> float | None:
         return None
 
 
-def generate(job_path: str, out_dir: str, only_set: str | None = None) -> None:
+def rebuild_global_manifest(out_dir: str, url_root: str) -> None:
+    """Deterministically merge every per-set manifest.json into one global file."""
+    parts = []
+    if os.path.isdir(out_dir):
+        for setId in sorted(os.listdir(out_dir)):
+            per = os.path.join(out_dir, setId, "manifest.json")
+            if not os.path.isfile(per):
+                continue
+            with open(per, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for part in data.get("parts", []):
+                part = dict(part)
+                part["src"] = f"{url_root.rstrip('/')}/{setId}/{part['src'].rsplit('/', 1)[-1]}"
+                parts.append(part)
+    with open(os.path.join(out_dir, "manifest.json"), "w", encoding="utf-8") as f:
+        json.dump({"parts": parts}, f, indent=2)
+
+
+def generate(job_path: str, out_dir: str, url_root: str, only_set: str | None = None) -> None:
     with open(job_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     os.makedirs(out_dir, exist_ok=True)
-    entries = data.get("sets", [data]) if "sets" in data else [data]
-    manifest = []
+    # Legacy single-job format (no "sets" wrapper) -> full-test layout.
+    entries = data.get("sets", [data])
+    is_legacy = "sets" not in data
 
     for entry in entries:
         setId = entry.get("setId", "listening-1")
         if only_set and setId != only_set:
             continue
-        set_out = os.path.join(out_dir, setId)
-        os.makedirs(set_out, exist_ok=True)
+        if is_legacy:
+            set_out = out_dir
+            set_manifest_path = os.path.join(out_dir, "manifest.json")
+        else:
+            set_out = os.path.join(out_dir, setId)
+            os.makedirs(set_out, exist_ok=True)
+            set_manifest_path = os.path.join(set_out, "manifest.json")
+
+        manifest_parts = []
         with tempfile.TemporaryDirectory() as tmp:
             for part in entry["parts"]:
                 wavs = []
@@ -124,31 +143,39 @@ def generate(job_path: str, out_dir: str, only_set: str | None = None) -> None:
                 concat_and_convert(wavs, mp3)
                 size = os.path.getsize(mp3)
                 duration = probe_duration(mp3)
-                manifest.append({
+                manifest_parts.append({
                     "setId": setId,
                     "part": part["part"],
                     "title": part.get("title", f"Part {part['part']}"),
-                    "src": f"/audio/targeted/{setId}/part{part['part']}.mp3",
+                    "src": f"part{part['part']}.mp3",
                     "sizeBytes": size,
                     "durationSeconds": round(duration, 1) if duration is not None else None,
                 })
                 print(f"  -> {mp3} ({size} bytes, {duration}s)")
 
-    with open(os.path.join(out_dir, "manifest.json"), "w", encoding="utf-8") as f:
-        json.dump({"parts": manifest}, f, indent=2)
-    print(f"Done. Wrote manifest.json ({len(manifest)} parts)")
+        with open(set_manifest_path, "w", encoding="utf-8") as f:
+            json.dump({"parts": manifest_parts}, f, indent=2)
+
+    if not is_legacy:
+        rebuild_global_manifest(out_dir, url_root)
+    print("Done.")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate Listening audio via Piper TTS")
     parser.add_argument("--input", default=None, help="Job JSON path (default: legacy listening-scripts.json)")
     parser.add_argument("--output", default=None, help="Output directory (default: public/audio/listening-1)")
+    parser.add_argument("--url-root", default=None, help="URL root for global-manifest src entries")
     parser.add_argument("--set", default=None, help="Only generate the given setId")
     args = parser.parse_args()
 
     job = args.input or LEGACY_SCRIPTS
     out = args.output or LEGACY_OUT
-    generate(job, out, only_set=args.set)
+    if args.url_root:
+        url_root = args.url_root
+    else:
+        url_root = "/audio/targeted" if "targeted" in out else "/audio/listening-1"
+    generate(job, out, url_root, only_set=args.set)
 
 
 if __name__ == "__main__":
