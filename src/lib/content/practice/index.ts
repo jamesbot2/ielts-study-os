@@ -2,13 +2,15 @@ import type { PracticeSet } from "@/types/ielts";
 import { academicReadingSet } from "./reading-academic";
 import { generalReadingSet } from "./reading-general";
 import { listeningSets } from "./listening-sets";
+import { targetedReadingSets } from "./targeted/reading";
 
 export const readingSets: PracticeSet[] = [academicReadingSet, generalReadingSet];
 
 export { academicReadingSet, generalReadingSet };
 export { listeningSets, listeningSet } from "./listening-sets";
+export { targetedReadingSets } from "./targeted/reading";
 
-export const allPracticeSets: PracticeSet[] = [...readingSets, ...listeningSets];
+export const allPracticeSets: PracticeSet[] = [...readingSets, ...targetedReadingSets, ...listeningSets];
 
 export function getPracticeSet(id: string): PracticeSet | undefined {
   return allPracticeSets.find((s) => s.meta.id === id);

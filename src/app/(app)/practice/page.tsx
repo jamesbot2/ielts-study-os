@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { readingSets, listeningSets } from "@/lib/content/practice";
+import { readingSets, listeningSets, targetedReadingSets } from "@/lib/content/practice";
 import { useStudyProfile } from "@/components/study-profile-provider";
 import { useI18n } from "@/components/i18n-provider";
 import { Spinner } from "@/components/ui";
@@ -55,6 +55,29 @@ export default function PracticePage() {
           </ul>
         </section>
       </div>
+
+      {targetedReadingSets.length > 0 && (
+        <section className="card card-pad mt-4">
+          <h2 className="mb-1 text-base font-semibold">{locale === "zh" ? "阅读专项训练" : "Targeted Reading drills"}</h2>
+          <p className="mb-3 text-xs text-muted">
+            {locale === "zh" ? "按题型分类的短篇专项练习，每套 6–15 题。" : "Short question-type drills of 6–15 questions each."}
+          </p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {targetedReadingSets.filter((s) => s.meta.testType === testType || s.meta.testType === "both").map((set) => (
+              <li key={set.meta.id}>
+                <Link
+                  href={`/practice/reading/${set.meta.id}`}
+                  className="flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-sm hover:border-accent"
+                >
+                  <span className="font-medium">{set.meta.title}</span>
+                  <span className="badge ml-2">{set.targetQuestionType?.replace(/_/g, " ")}</span>
+                  <span className="text-xs text-muted">{set.questions.length} {t("mock.questions")}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <section className="card card-pad">

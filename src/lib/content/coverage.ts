@@ -6,6 +6,7 @@ import { allPracticeSets } from "./practice";
 import { writingPrompts } from "./practice/writing-prompts";
 import { speakingTopics } from "./practice/speaking-topics";
 import { grammarExercises } from "./practice/grammar-exercises";
+import { isValidTargetedSet } from "./validate";
 import type { QuestionType, Skill } from "@/types/ielts";
 
 export interface SkillCoverage {
@@ -60,12 +61,14 @@ export function computeCoverage(): {
   listeningFullSets: number;
   listeningTargetedSets: number;
   listeningTargetedByType: Record<string, number>;
+  listeningPlayableTargetedByType: Record<string, number>;
   allQuestionTypes: Record<string, { label: string; present: boolean; count: number }>;
 } {
   const reading = computeSkill("reading", "reading");
   const listening = computeSkill("listening", "listening");
   const readingTargetedByType = targetedByType("reading");
   const listeningTargetedByType = targetedByType("listening");
+  const listeningPlayableTargetedByType = playableTargetedByType("listening");
   const readingFullSets = allPracticeSets.filter((s) => s.kind === "reading" && (s.practiceMode ?? "full") === "full").length;
   const listeningFullSets = allPracticeSets.filter((s) => s.kind === "listening" && (s.practiceMode ?? "full") === "full").length;
 
@@ -102,6 +105,7 @@ export function computeCoverage(): {
     listeningFullSets,
     listeningTargetedSets: Object.values(listeningTargetedByType).reduce((n, x) => n + x, 0),
     listeningTargetedByType,
+    listeningPlayableTargetedByType,
     allQuestionTypes,
   };
 }
@@ -109,7 +113,22 @@ export function computeCoverage(): {
 function targetedByType(kind: "reading" | "listening"): Record<string, number> {
   const out: Record<string, number> = {};
   for (const set of allPracticeSets) {
-    if (set.kind !== kind || set.practiceMode !== "targeted") continue;
+    // Only count sets that satisfy the canonical targeted contract.
+    if (set.kind !== kind || !isValidTargetedSet(set)) continue;
+    const t = set.targetQuestionType ?? "unknown";
+    out[t] = (out[t] ?? 0) + 1;
+  }
+  return out;
+}
+
+function playableTargetedByType(kind: "reading" | "listening"): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const set of allPracticeSets) {
+    if (set.kind !== kind || !isValidTargetedSet(set)) continue;
+    const published = set.meta.reviewStatus === "published";
+    const hasAudio = Boolean(set.audio && (set.audio.src || (set.audio.parts && set.audio.parts.length > 0)));
+    const hasScript = Boolean(set.audio?.script && set.audio.script.length > 0);
+    if (!published || !hasAudio || !hasScript) continue;
     const t = set.targetQuestionType ?? "unknown";
     out[t] = (out[t] ?? 0) + 1;
   }

@@ -88,11 +88,18 @@ def test_full_filter_matrix_live(repo):
     repo.upsert_source(src(f"{prefix}-gen-read", True, "official"))
     repo.upsert_source(src(f"{prefix}-acad-write", False, "original"))
     repo.upsert_source(src(f"{prefix}-gen-write", False, "original"))
+    repo.upsert_source(
+        KnowledgeSource(
+            id=f"{prefix}-zh", title=f"{prefix}-zh", provider="T", url=None, source_type="original",
+            official=False, license="CC0", redistribution_policy="original_full", language="zh",
+            skill="reading", test_type="both", topics=[], last_verified="2026-09-01",
+        )
+    )
 
-    def chunk(cid, sid, skill, test_type, qtypes):
+    def chunk(cid, sid, skill, test_type, qtypes, language="en"):
         return KnowledgeChunk(
             id=cid, source_id=sid, heading=cid, content=f"{skill} {test_type} {qtypes[0]}",
-            language="en", skill=skill, test_type=test_type, topics=[skill],
+            language=language, skill=skill, test_type=test_type, topics=[skill],
             question_types=qtypes, chunk_index=0, content_hash=f"{cid}-h",
             embedding=[0.13] * dim, embedding_fingerprint="fp1",
         )
@@ -102,15 +109,21 @@ def test_full_filter_matrix_live(repo):
         chunk(f"{prefix}-c2", f"{prefix}-gen-read", "reading", "general", ["multiple_choice"]),
         chunk(f"{prefix}-c3", f"{prefix}-acad-write", "writing", "academic", ["process"]),
         chunk(f"{prefix}-c4", f"{prefix}-gen-write", "writing", "general", ["letter"]),
+        chunk(f"{prefix}-c5", f"{prefix}-zh", "reading", "both", ["multiple_choice"], language="zh"),
     ])
 
     cases = [
-        (SearchFilters(skill="reading"), {f"{prefix}-c1", f"{prefix}-c2"}),
+        (SearchFilters(skill="reading"), {f"{prefix}-c1", f"{prefix}-c2", f"{prefix}-c5"}),
         (SearchFilters(test_type="academic"), {f"{prefix}-c1", f"{prefix}-c3"}),
-        (SearchFilters(source_type="original"), {f"{prefix}-c3", f"{prefix}-c4"}),
+        (SearchFilters(source_type="original"), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
         (SearchFilters(official=True), {f"{prefix}-c1", f"{prefix}-c2"}),
+        (SearchFilters(official=False), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
         (SearchFilters(question_type="matching_headings"), {f"{prefix}-c1"}),
         (SearchFilters(language="en"), {f"{prefix}-c1", f"{prefix}-c2", f"{prefix}-c3", f"{prefix}-c4"}),
+        (SearchFilters(language="zh"), {f"{prefix}-c5"}),
+        (SearchFilters(skill="reading", test_type="academic"), {f"{prefix}-c1"}),
+        (SearchFilters(source_type="original", official=False), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
+        (SearchFilters(language="en", question_type="multiple_choice"), {f"{prefix}-c2"}),
     ]
     for flt, expected in cases:
         v = {r.chunk_id for r in repo.search_vector([0.13] * dim, flt, 10)}
@@ -118,15 +131,18 @@ def test_full_filter_matrix_live(repo):
         assert v == expected, f"vector {flt}: {v} != {expected}"
         assert l == expected, f"lexical {flt}: {l} != {expected}"
 
-    # Targeted cleanup for this test only.
-    from app.storage.models import KnowledgeChunkRow, KnowledgeSourceRow
+    # Targeted cleanup for this test only (try/finally ensures it runs even on failure).
+    try:
+        from app.storage.models import KnowledgeChunkRow, KnowledgeSourceRow
 
-    with repo._session_factory() as session:
-        for row in session.query(KnowledgeChunkRow).filter(KnowledgeChunkRow.source_id.like(f"{prefix}-%")).all():
-            session.delete(row)
-        for row in session.query(KnowledgeSourceRow).filter(KnowledgeSourceRow.id.like(f"{prefix}-%")).all():
-            session.delete(row)
-        session.commit()
+        with repo._session_factory() as session:
+            for row in session.query(KnowledgeChunkRow).filter(KnowledgeChunkRow.source_id.like(f"{prefix}-%")).all():
+                session.delete(row)
+            for row in session.query(KnowledgeSourceRow).filter(KnowledgeSourceRow.id.like(f"{prefix}-%")).all():
+                session.delete(row)
+            session.commit()
+    finally:
+        pass
 
 
 @pytest.mark.skipif(not URL, reason="POSTGRES_TEST_URL not set")

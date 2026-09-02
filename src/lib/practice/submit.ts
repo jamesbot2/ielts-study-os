@@ -59,7 +59,10 @@ export async function submitPractice(
 
   const rawScore = results.filter((r) => r.correct).length;
   const total = set.questions.length;
-  const band = set.kind === "listening" ? listeningBand(rawScore) : readingBand(rawScore, effectiveTestType);
+  // Targeted drills have fewer than 40 questions; scale to the 40-question band
+  // table so the estimated band remains meaningful (raw is still shown).
+  const scaledRaw = total > 0 ? Math.round((rawScore / total) * 40) : 0;
+  const band = set.kind === "listening" ? listeningBand(scaledRaw) : readingBand(scaledRaw, effectiveTestType);
 
   await completePracticeAttempt(
     attemptId,
