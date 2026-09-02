@@ -1,0 +1,116 @@
+{
+  "parts": [
+    {
+      "setId": "listening-targeted-multiple-choice-01",
+      "part": 1,
+      "title": "Multiple choice \u2014 Booking a school trip",
+      "src": "/audio/targeted/listening-targeted-multiple-choice-01/part1.mp3",
+      "sizeBytes": 579961,
+      "durationSeconds": 72.5
+    },
+    {
+      "setId": "listening-targeted-multiple-choice-02",
+      "part": 1,
+      "title": "Multiple choice \u2014 Choosing a laptop",
+      "src": "/audio/targeted/listening-targeted-multiple-choice-02/part1.mp3",
+      "sizeBytes": 635758,
+      "durationSeconds": 79.4
+    },
+    {
+      "setId": "listening-targeted-multiple-answer-01",
+      "part": 1,
+      "title": "Multiple answer \u2014 Library feedback",
+      "src": "/audio/targeted/listening-targeted-multiple-answer-01/part1.mp3",
+      "sizeBytes": 511416,
+      "durationSeconds": 63.9
+    },
+    {
+      "setId": "listening-targeted-multiple-answer-02",
+      "part": 1,
+      "title": "Multiple answer \u2014 Moving house",
+      "src": "/audio/targeted/listening-targeted-multiple-answer-02/part1.mp3",
+      "sizeBytes": 542345,
+      "durationSeconds": 67.8
+    },
+    {
+      "setId": "listening-targeted-matching-01",
+      "part": 1,
+      "title": "Matching \u2014 Course recommendations",
+      "src": "/audio/targeted/listening-targeted-matching-01/part1.mp3",
+      "sizeBytes": 424062,
+      "durationSeconds": 53.0
+    },
+    {
+      "setId": "listening-targeted-matching-02",
+      "part": 1,
+      "title": "Matching \u2014 Who said what",
+      "src": "/audio/targeted/listening-targeted-matching-02/part1.mp3",
+      "sizeBytes": 379340,
+      "durationSeconds": 47.4
+    },
+    {
+      "setId": "listening-targeted-plan-labelling-01",
+      "part": 1,
+      "title": "Plan labelling \u2014 Riverside Park",
+      "src": "/audio/targeted/listening-targeted-plan-labelling-01/part1.mp3",
+      "sizeBytes": 310377,
+      "durationSeconds": 38.8
+    },
+    {
+      "setId": "listening-targeted-plan-labelling-02",
+      "part": 1,
+      "title": "Plan labelling \u2014 College campus",
+      "src": "/audio/targeted/listening-targeted-plan-labelling-02/part1.mp3",
+      "sizeBytes": 311422,
+      "durationSeconds": 38.9
+    },
+    {
+      "setId": "listening-targeted-map-labelling-01",
+      "part": 1,
+      "title": "Map labelling \u2014 Town centre",
+      "src": "/audio/targeted/listening-targeted-map-labelling-01/part1.mp3",
+      "sizeBytes": 351755,
+      "durationSeconds": 43.9
+    },
+    {
+      "setId": "listening-targeted-map-labelling-02",
+      "part": 1,
+      "title": "Map labelling \u2014 Holiday camp",
+      "src": "/audio/targeted/listening-targeted-map-labelling-02/part1.mp3",
+      "sizeBytes": 338380,
+      "durationSeconds": 42.3
+    },
+    {
+      "setId": "listening-targeted-diagram-labelling-01",
+      "part": 1,
+      "title": "Diagram labelling \u2014 Water filter jug",
+      "src": "/audio/targeted/listening-targeted-diagram-labelling-01/part1.mp3",
+      "sizeBytes": 305362,
+      "durationSeconds": 38.1
+    },
+    {
+      "setId": "listening-targeted-diagram-labelling-02",
+      "part": 1,
+      "title": "Diagram labelling \u2014 Bicycle parts",
+      "src": "/audio/targeted/listening-targeted-diagram-labelling-02/part1.mp3",
+      "sizeBytes": 271298,
+      "durationSeconds": 33.9
+    },
+    {
+      "setId": "listening-targeted-form-completion-01",
+      "part": 1,
+      "title": "Form completion \u2014 Course enrolment",
+      "src": "/audio/targeted/listening-targeted-form-completion-01/part1.mp3",
+      "sizeBytes": 491772,
+      "durationSeconds": 61.4
+    },
+    {
+      "setId": "listening-targeted-form-completion-02",
+      "part": 1,
+      "title": "Form completion \u2014 Hotel booking",
+      "src": "/audio/targeted/listening-targeted-form-completion-02/part1.mp3",
+      "sizeBytes": 417166,
+      "durationSeconds": 52.1
+    }
+  ]
+}

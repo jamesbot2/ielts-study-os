@@ -277,3 +277,23 @@ describe("V0.6 Reading targeted threshold", () => {
     expect(coverage.readingPublishedTargetedSets).toBeGreaterThanOrEqual(28);
   });
 });
+
+describe("Round 3A targeted Listening threshold", () => {
+  it("each of the first seven Listening types has >=2 playable published sets", () => {
+    const coverage = computeCoverage();
+    for (const type of [
+      "multiple_choice",
+      "multiple_answer",
+      "matching",
+      "plan_labelling",
+      "map_labelling",
+      "diagram_labelling",
+      "form_completion",
+    ]) {
+      const n = coverage.listeningPlayableTargetedByType[type] ?? 0;
+      expect(n, `playable targeted sets for ${type}`).toBeGreaterThanOrEqual(2);
+    }
+    const total = Object.values(coverage.listeningPlayableTargetedByType).reduce((a, b) => a + b, 0);
+    expect(total).toBeGreaterThanOrEqual(14);
+  });
+});

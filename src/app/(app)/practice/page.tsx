@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { readingSets, listeningSets, targetedReadingSets } from "@/lib/content/practice";
+import { readingSets, listeningSets, targetedReadingSets, targetedListeningSets } from "@/lib/content/practice";
 import { effectiveQuestionCount } from "@/lib/content/practice-validation";
 import { useStudyProfile } from "@/components/study-profile-provider";
 import { useI18n } from "@/components/i18n-provider";
@@ -57,7 +57,30 @@ export default function PracticePage() {
         </section>
       </div>
 
-      {targetedReadingSets.length > 0 && (
+      {targetedListeningSets.length > 0 && (
+        <section className="card card-pad mt-4">
+          <h2 className="mb-1 text-base font-semibold">{locale === "zh" ? "听力专项训练" : "Targeted Listening drills"}</h2>
+          <p className="mb-3 text-xs text-muted">
+            {locale === "zh" ? "按题型分类的短篇听力专项练习（含原声音频）。" : "Short question-type listening drills with original audio."}
+          </p>
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {targetedListeningSets.map((set) => (
+              <li key={set.meta.id}>
+                <Link
+                  href={`/practice/listening/${set.meta.id}`}
+                  className="flex items-center justify-between rounded-md border border-border px-3 py-2.5 text-sm hover:border-accent"
+                >
+                  <span className="font-medium">{set.meta.title}</span>
+                  <span className="badge ml-2">{set.targetQuestionType?.replace(/_/g, " ")}</span>
+                  <span className="text-xs text-muted">{effectiveQuestionCount(set)} {t("mock.questions")}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+{targetedReadingSets.length > 0 && (
         <section className="card card-pad mt-4">
           <h2 className="mb-1 text-base font-semibold">{locale === "zh" ? "阅读专项训练" : "Targeted Reading drills"}</h2>
           <p className="mb-3 text-xs text-muted">

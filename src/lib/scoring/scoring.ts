@@ -257,7 +257,23 @@ export function scoreQuestionUnits(question: Question, userAnswer: unknown): Sco
   }
   if (question.answerType === "single_choice" || question.answerType === "multiple_choice") {
     const q = question as Extract<Question, { answerType: "single_choice" | "multiple_choice" }>;
-    const selected = Array.isArray(userAnswer) ? userAnswer : null;
+    const selected = Array.isArray(userAnswer) ? userAnswer.filter(Boolean) : null;
+    if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) {
+      // Multiple-answer: each expected correct choice is one scored unit.
+      // Partial credit: 2/2 or 1/2, never 0/1 for the whole group.
+      const chosen = new Set(selected ?? []);
+      return q.correctAnswers.map((expected) => ({
+        id: scoredUnitId(q.id, `choice:${expected}`),
+        parentQuestionId: q.id,
+        itemId: `choice:${expected}`,
+        questionType: q.type,
+        correct: chosen.has(expected),
+        userAnswer: selected,
+        correctAnswer: expected,
+        prompt: q.prompt,
+        explanation: q.explanation,
+      }));
+    }
     return [
       {
         id: q.id,

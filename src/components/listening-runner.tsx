@@ -14,6 +14,7 @@ import {
   type ListeningPlaybackState,
 } from "@/lib/practice/listening-state";
 import { QuestionPanel, ResultsView } from "@/components/reading-runner";
+import { effectiveQuestionCount } from "@/lib/content/practice-validation";
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Flag } from "lucide-react";
 
 type Answer = string | string[] | Record<string, string>;
@@ -26,6 +27,22 @@ interface PersistedListening {
   current: number;
   playback: ListeningPlaybackState;
   startedAt: number;
+}
+
+// Scored-unit positions: matching items / multiple-answer choices each occupy
+// one numbered question.
+function unitsOf(q: import("@/types/ielts").Question): number {
+  if (q.answerType === "matching" || q.answerType === "heading_matching") return q.items.length;
+  if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) return q.selectCount;
+  return 1;
+}
+function unitTotalFor(questions: import("@/types/ielts").Question[]): number {
+  return questions.reduce((n, q) => n + unitsOf(q), 0);
+}
+function unitIndexFor(questions: import("@/types/ielts").Question[], current: number): number {
+  let n = 0;
+  for (let i = 0; i < current; i++) n += unitsOf(questions[i]);
+  return n;
 }
 
 const storageKey = (setId: string) => `ielts-listening:${setId}`;
@@ -204,20 +221,28 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
     [mode, set, flags],
   );
 
+  const isTargeted = set.practiceMode === "targeted";
+
   if (phase === "intro") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-10">
         <h1 className="text-2xl font-semibold">{set.meta.title}</h1>
-        <p className="mt-2 text-sm text-muted">{set.questions.length} questions · 4 parts · real audio</p>
+        <p className="mt-2 text-sm text-muted">
+          {isTargeted
+            ? `${effectiveQuestionCount(set)} questions · ${locale === "zh" ? "专项听力训练" : "Targeted Listening drill"}`
+            : `${effectiveQuestionCount(set)} questions · 4 parts · real audio`}
+        </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <button onClick={() => startAttempt("practice")} className="card card-pad text-left hover:border-accent">
             <p className="font-semibold">{t("practice.practiceMode")}</p>
-            <p className="mt-1 text-sm text-muted">{t("practice.flexible")}</p>
+            <p className="mt-1 text-sm text-muted">{isTargeted ? (locale === "zh" ? "短篇专项练习，可随时重听" : "Short focused drill with replay") : t("practice.flexible")}</p>
           </button>
-          <button onClick={() => startAttempt("exam")} className="card card-pad text-left hover:border-accent">
-            <p className="font-semibold">{t("practice.examMode")}</p>
-            <p className="mt-1 text-sm text-muted">{t("listening.onePlay")}</p>
-          </button>
+          {!isTargeted && (
+            <button onClick={() => startAttempt("exam")} className="card card-pad text-left hover:border-accent">
+              <p className="font-semibold">{t("practice.examMode")}</p>
+              <p className="mt-1 text-sm text-muted">{t("listening.onePlay")}</p>
+            </button>
+          )}
         </div>
       </div>
     );
@@ -253,7 +278,13 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   }
 
   const q = questions[current];
-  const answered = questions.filter((x) => answers[x.id] !== undefined && answers[x.id] !== "").length;
+  const answered = questions.reduce((n, x) => {
+    const a = answers[x.id];
+    if (a == null || a === "") return n;
+    if (Array.isArray(a)) return n + a.length;
+    if (typeof a === "object") return n + Object.values(a).filter((v) => v !== "" && v != null).length;
+    return n + 1;
+  }, 0);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
@@ -337,8 +368,8 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
                   return next;
                 })
               }
-              index={current}
-              total={questions.length}
+              index={unitIndexFor(questions, current)}
+              total={unitTotalFor(questions)}
             />
           </div>
 

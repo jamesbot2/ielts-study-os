@@ -11,7 +11,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "knowledge:export": "tsx scripts/knowledge-export.ts",
-    "content:coverage": "tsx scripts/content-coverage.ts"
+    "content:coverage": "tsx scripts/content-coverage.ts",
+    "tts:export": "tsx scripts/tts/export-targeted-listening.ts",
+    "tts:generate": "python3 scripts/tts/generate_audio.py --input scripts/tts/generated/targeted-listening.json --output public/audio/targeted"
   },
   "dependencies": {
     "dexie": "^4.4.5",

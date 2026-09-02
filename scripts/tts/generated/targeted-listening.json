@@ -1,0 +1,763 @@
+{
+  "sets": [
+    {
+      "setId": "listening-targeted-multiple-choice-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Multiple choice — Booking a school trip",
+          "lines": [
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "Oakfield Activity Centre, good morning."
+            },
+            {
+              "speaker": "Teacher",
+              "voice": "en_US-ryan-high",
+              "text": "Oh, hello. I'd like to ask about a visit for a school group, please. We're thinking of coming in early June, on the twelfth, if that's possible."
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "Let me check. The twelfth is fine, yes, although the climbing wall is closed that week for repainting."
+            },
+            {
+              "speaker": "Teacher",
+              "voice": "en_US-ryan-high",
+              "text": "That's a pity. The children were really looking forward to the climbing wall. Could we switch to the canoeing session instead?"
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "Of course. Canoeing is the same price, and it's actually more popular. Just bear in mind children need a signed permission form for any water activity."
+            },
+            {
+              "speaker": "Teacher",
+              "voice": "en_US-ryan-high",
+              "text": "Right, I'll send those out with the letters. How many children can one instructor take?"
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "Twelve. So if you bring twenty-four, we'd assign two instructors, and the whole group can go together."
+            },
+            {
+              "speaker": "Teacher",
+              "voice": "en_US-ryan-high",
+              "text": "And lunch? I remember last time we had to eat outside because the dining hall was fully booked."
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "The dining hall is available this time — I can reserve it for one o'clock. There's also a picnic area if you'd rather be outdoors, but the hall is booked for you from one until two."
+            },
+            {
+              "speaker": "Teacher",
+              "voice": "en_US-ryan-high",
+              "text": "The hall, please. And do you still charge an entry fee for adults?"
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "Adults are free, yes. The children's fee is six pounds fifty each, and that includes all equipment."
+            },
+            {
+              "speaker": "Teacher",
+              "voice": "en_US-ryan-high",
+              "text": "Perfect. I'll confirm by email this afternoon."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-multiple-choice-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Multiple choice — Choosing a laptop",
+          "lines": [
+            {
+              "speaker": "Assistant",
+              "voice": "en_US-lessac-medium",
+              "text": "Hi there, are you looking for anything in particular today?"
+            },
+            {
+              "speaker": "Customer",
+              "voice": "en_US-ryan-high",
+              "text": "Yes — a laptop for university. I need something light enough to carry every day, and the battery has to last through a full day of lectures."
+            },
+            {
+              "speaker": "Assistant",
+              "voice": "en_US-lessac-medium",
+              "text": "Then I'd avoid the Stream 15. It's powerful, but it weighs over two kilos and the battery manages about five hours. It's really aimed at gamers."
+            },
+            {
+              "speaker": "Customer",
+              "voice": "en_US-ryan-high",
+              "text": "Okay, not that one. What about this silver one here?"
+            },
+            {
+              "speaker": "Assistant",
+              "voice": "en_US-lessac-medium",
+              "text": "The Feather 13? That's our lightest model — just over a kilo — and the battery lasts eleven hours. The only downside is the storage: a hundred and twenty-eight gigabytes, which is a bit tight if you keep a lot of videos."
+            },
+            {
+              "speaker": "Customer",
+              "voice": "en_US-ryan-high",
+              "text": "I mostly write essays and stream films, so that's probably fine. Does it have a good screen for long study sessions?"
+            },
+            {
+              "speaker": "Assistant",
+              "voice": "en_US-lessac-medium",
+              "text": "It does, but to be honest, if screen comfort matters most I'd look at the Vision 14. It's a little heavier, at one and a half kilos, and the battery is ten hours, but the display is much easier on the eyes."
+            },
+            {
+              "speaker": "Customer",
+              "voice": "en_US-ryan-high",
+              "text": "Hmm. The Feather is cheaper, isn't it?"
+            },
+            {
+              "speaker": "Assistant",
+              "voice": "en_US-lessac-medium",
+              "text": "Actually no — the Feather is our premium model. The Vision is on special offer this month, so it's a hundred pounds less."
+            },
+            {
+              "speaker": "Customer",
+              "voice": "en_US-ryan-high",
+              "text": "Interesting. And can I add extra memory to the Vision later?"
+            },
+            {
+              "speaker": "Assistant",
+              "voice": "en_US-lessac-medium",
+              "text": "You can, yes — the memory is user-upgradable, unlike the Feather where it's fixed. I'd say the Vision is the better fit for a student."
+            },
+            {
+              "speaker": "Customer",
+              "voice": "en_US-ryan-high",
+              "text": "I think you're right. I'll take the Vision 14."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-multiple-answer-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Multiple answer — Library feedback",
+          "lines": [
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-lessac-medium",
+              "text": "Thanks for coming, everyone. The library is reviewing its services, and I'd like to hear what you actually use."
+            },
+            {
+              "speaker": "Student A",
+              "voice": "en_US-ryan-high",
+              "text": "I mainly come for the group study rooms. They're almost always full, though — we've started booking days in advance."
+            },
+            {
+              "speaker": "Student B",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "For me it's the online journals. I work part-time, so I do most of my reading at home late at night."
+            },
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-lessac-medium",
+              "text": "So the study rooms and the digital collections. Anyone else?"
+            },
+            {
+              "speaker": "Student C",
+              "voice": "en_US-ryan-high",
+              "text": "The printing service, definitely. It's cheap and the machines almost never break, which is more than I can say for the ones in town."
+            },
+            {
+              "speaker": "Student B",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "Oh, and the borrowing scheme for laptops — I used that last term when mine needed repairing."
+            },
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-lessac-medium",
+              "text": "Right. And which areas could we improve? Let's each name two things."
+            },
+            {
+              "speaker": "Student A",
+              "voice": "en_US-ryan-high",
+              "text": "Opening hours, first. Closing at eight means night-before-exam students have nowhere to go. And the café — it's fine, but the coffee machine is broken half the time."
+            },
+            {
+              "speaker": "Student C",
+              "voice": "en_US-ryan-high",
+              "text": "I'd say the noise in the silent area. People treat it like a common room. That, and there are never enough power sockets."
+            },
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-lessac-medium",
+              "text": "Thank you — opening hours, café, noise and sockets. We'll take these to the next planning meeting."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-multiple-answer-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Multiple answer — Moving house",
+          "lines": [
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Welcome to the housing advice line. How can I help today?"
+            },
+            {
+              "speaker": "Caller",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "We're moving to the city next month and we've never rented through an agency before. What should we prepare?"
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "The two documents you'll definitely need are proof of income, usually three recent payslips, and photo identification. A reference from a previous landlord helps a lot as well."
+            },
+            {
+              "speaker": "Caller",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "And how much should we expect to pay before we move in?"
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Normally one month's rent in advance plus a deposit equal to one month's rent. Some agencies also charge an administration fee, but that's becoming less common."
+            },
+            {
+              "speaker": "Caller",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "What about viewing a property? We've both got jobs, so evenings are easiest for us."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Most agencies offer evening viewings, yes. I'd book two or three on the same evening and take notes, because it's easy to confuse properties afterwards. Check the water pressure and whether the windows open properly."
+            },
+            {
+              "speaker": "Caller",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "Useful. And the contract — anything we should look out for?"
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Two things: how long the fixed term is, and the notice period. Six-month terms are standard, and notice is usually one month. If there's a break clause, make sure you understand it."
+            },
+            {
+              "speaker": "Caller",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "Brilliant, thank you. That's very clear."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-matching-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Matching — Course recommendations",
+          "lines": [
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "So let's match each of you with the right evening course. First, Ana — you said you wanted something creative but also practical?"
+            },
+            {
+              "speaker": "Ana",
+              "voice": "en_US-ryan-high",
+              "text": "Yes, I'd love to be able to make things. I was thinking pottery, but the beginner class is full."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Then take woodwork. It's very hands-on, and the tutor says beginners pick it up quickly."
+            },
+            {
+              "speaker": "Ben",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "I need something for my job, honestly. I write reports but I'm slow at typing, and my presentations look terrible."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "The computer skills course covers exactly that — documents and slides, one evening a week."
+            },
+            {
+              "speaker": "Cara",
+              "voice": "en_US-ryan-high",
+              "text": "For me it's more about health. I sit at a desk all day, and my back is starting to complain."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "We have a yoga class on Tuesdays. It's gentle and specifically aimed at office workers."
+            },
+            {
+              "speaker": "Dan",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "I'd like to cook properly instead of heating things up. Nothing too fancy."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "The basic cookery course, then. You start with soups and simple sauces, and by the end you can manage a full dinner."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-matching-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Matching — Who said what",
+          "lines": [
+            {
+              "speaker": "Manager",
+              "voice": "en_US-lessac-medium",
+              "text": "Right, let's settle the details of the office move. The new floor is smaller, so we need to decide what happens to the furniture."
+            },
+            {
+              "speaker": "Ella",
+              "voice": "en_US-ryan-high",
+              "text": "I think we should keep the big meeting table. It's the only place the whole team can sit together, and clients use it too."
+            },
+            {
+              "speaker": "Farid",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "The old filing cabinets, though — nobody uses them any more. Everything's digital now, so they can go to recycling."
+            },
+            {
+              "speaker": "Grace",
+              "voice": "en_US-ryan-high",
+              "text": "What about the plants? I'll volunteer to water them if we keep them, because they make the office feel much less like a box."
+            },
+            {
+              "speaker": "Manager",
+              "voice": "en_US-lessac-medium",
+              "text": "And the notice board?"
+            },
+            {
+              "speaker": "Farid",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "That should stay. It's where we post the health and safety information — we're legally required to display it somewhere."
+            },
+            {
+              "speaker": "Ella",
+              "voice": "en_US-ryan-high",
+              "text": "The spare monitors can be sold, surely? There are at least six of them in the cupboard and we never use them."
+            },
+            {
+              "speaker": "Manager",
+              "voice": "en_US-lessac-medium",
+              "text": "Fine. Table and board stay, cabinets recycled, monitors sold, and Grace takes charge of the plants."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-plan-labelling-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Plan labelling — Riverside Park",
+          "lines": [
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "Welcome to Riverside Park. You've come in through the main gate at the south end, and the path straight ahead of you runs north towards the lake in the centre of the park."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "If you look to your left, just before the lake, you'll see the children's playground — you can't miss the climbing frames."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "On the opposite side of the path, to the east, is the café, which is open until six. It's right next to the path, so it's handy for a stop on the way back."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "Beyond the lake, on the far side, is the rose garden. In June it's spectacular, and there are benches all around it."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "And if you fancy going out on the water, the boat hire hut is on the lake's eastern shore — it's the small building with the blue roof."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-plan-labelling-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Plan labelling — College campus",
+          "lines": [
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "OK, this is your campus tour. You came in through the main entrance, and the building straight in front of you is reception — that's where you collect your student card."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "To the right of reception, on the east side, is the library. It's open until ten on weekdays."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "If you carry on further east, right to the edge of the campus, you'll come to the sports hall. That's the newest building here."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "On the other side of reception, to the west, is the science block. The labs are on the top floor."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "And the canteen is just behind the science block, on its north side. It's cheaper than anywhere in town, honestly."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "Oh, and if you drove, the car park is outside the west edge of the campus, near the science block."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-map-labelling-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Map labelling — Town centre",
+          "lines": [
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "Right, you've just come out of the station. The main road runs straight ahead, north, all the way to the clock tower in the middle of the town."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "As you walk up, the post office is on your left, on the west side of the road. It's directly opposite the bank."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "The bank is on the right-hand side, so on the east. If you need cash, that's where the only machine in town is."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "Keep walking past the bank and the road bends to the right at the corner. The museum is just around that corner, on your right."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "Back near the post office, the pharmacy is right next door to it, on the north side. You can't get prescriptions anywhere else on a Sunday."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-lessac-medium",
+              "text": "And if you go all the way to the clock tower, the park is just beyond it, to the north. It's a good place to sit for ten minutes."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-map-labelling-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Map labelling — Holiday camp",
+          "lines": [
+            {
+              "speaker": "Host",
+              "voice": "en_US-ryan-high",
+              "text": "Welcome! You've just come through the entrance at the south end. Follow the path north and you'll pass the shop first, on the west side — it sells everything from milk to postcards."
+            },
+            {
+              "speaker": "Host",
+              "voice": "en_US-ryan-high",
+              "text": "Opposite the shop, on the east side, is the reception office. That's where you pick up your key cards and towels."
+            },
+            {
+              "speaker": "Host",
+              "voice": "en_US-ryan-high",
+              "text": "Further up, the path splits in two. If you take the left-hand fork, heading west, you'll reach the swimming pool. It opens at seven in the morning."
+            },
+            {
+              "speaker": "Host",
+              "voice": "en_US-ryan-high",
+              "text": "The right-hand fork, to the east, takes you to the restaurant. Breakfast is served there from eight to ten."
+            },
+            {
+              "speaker": "Host",
+              "voice": "en_US-ryan-high",
+              "text": "Straight ahead between the two forks, just north of where the path splits, is the children's club. It runs activities from nine until four."
+            },
+            {
+              "speaker": "Host",
+              "voice": "en_US-ryan-high",
+              "text": "And your cabins are along the north edge of the camp, behind the children's club."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-diagram-labelling-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Diagram labelling — Water filter jug",
+          "lines": [
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "Today we're looking at how a water filter jug works. Let's go through its parts from the top down."
+            },
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "At the very top is the lid, which has a small spout so you can pour without removing it."
+            },
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "Under the lid is the upper funnel. That's where you pour the tap water in — it holds about one litre at a time."
+            },
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "Inside the funnel sits the cartridge. This is the part that actually removes impurities, and it should be replaced every four weeks."
+            },
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "The filtered water then collects in the chamber below the funnel. The clear section lets you see how much you have left."
+            },
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "And finally, attached to the side of the jug is the handle, which is wide enough to grip even when the jug is full."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-diagram-labelling-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Diagram labelling — Bicycle parts",
+          "lines": [
+            {
+              "speaker": "Instructor",
+              "voice": "en_US-ryan-high",
+              "text": "Let's run through the main parts of the bike before your first ride. Starting at the front: those are the handlebars, which you use for steering."
+            },
+            {
+              "speaker": "Instructor",
+              "voice": "en_US-ryan-high",
+              "text": "Below the handlebars is the front wheel. Make sure the tyre is firm before every ride — squeeze it with your thumb."
+            },
+            {
+              "speaker": "Instructor",
+              "voice": "en_US-ryan-high",
+              "text": "In the middle of the frame is the saddle. That's the seat, and we'll adjust its height before we set off."
+            },
+            {
+              "speaker": "Instructor",
+              "voice": "en_US-ryan-high",
+              "text": "Behind the saddle is the rear wheel. The brake lever on the right handlebar controls it."
+            },
+            {
+              "speaker": "Instructor",
+              "voice": "en_US-ryan-high",
+              "text": "Now the pedals, down between the two wheels. Pushing them turns the chain, which runs around the gears at the back."
+            },
+            {
+              "speaker": "Instructor",
+              "voice": "en_US-ryan-high",
+              "text": "If the chain ever comes off, stop pedalling immediately and let me know."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-form-completion-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Form completion — Course enrolment",
+          "lines": [
+            {
+              "speaker": "Clerk",
+              "voice": "en_US-lessac-medium",
+              "text": "Westfield College, enrolments."
+            },
+            {
+              "speaker": "Student",
+              "voice": "en_US-ryan-high",
+              "text": "Hello, I'd like to enrol on the photography course that starts in September, please."
+            },
+            {
+              "speaker": "Clerk",
+              "voice": "en_US-lessac-medium",
+              "text": "Of course. Can I take your full name?"
+            },
+            {
+              "speaker": "Student",
+              "voice": "en_US-ryan-high",
+              "text": "It's Daniel Okonkwo. That's O-K-O-N-K-W-O."
+            },
+            {
+              "speaker": "Clerk",
+              "voice": "en_US-lessac-medium",
+              "text": "Thank you. And your date of birth?"
+            },
+            {
+              "speaker": "Student",
+              "voice": "en_US-ryan-high",
+              "text": "The fourteenth of March, nineteen ninety-eight."
+            },
+            {
+              "speaker": "Clerk",
+              "voice": "en_US-lessac-medium",
+              "text": "Great. The course fee is one hundred and eighty-five pounds, which includes all materials except the memory card."
+            },
+            {
+              "speaker": "Student",
+              "voice": "en_US-ryan-high",
+              "text": "Fine. Do you need my phone number?"
+            },
+            {
+              "speaker": "Clerk",
+              "voice": "en_US-lessac-medium",
+              "text": "Please. And an email for the confirmation."
+            },
+            {
+              "speaker": "Student",
+              "voice": "en_US-ryan-high",
+              "text": "The number is oh seven eight four six, double five, two one three. And my email is daniel dot okonkwo at mail dot com."
+            },
+            {
+              "speaker": "Clerk",
+              "voice": "en_US-lessac-medium",
+              "text": "07846 55213, daniel.okonkwo@mail.com. The course runs on Tuesday evenings, starting on the ninth of September, in room fourteen of the arts block."
+            },
+            {
+              "speaker": "Student",
+              "voice": "en_US-ryan-high",
+              "text": "Tuesdays work well. How do I pay?"
+            },
+            {
+              "speaker": "Clerk",
+              "voice": "en_US-lessac-medium",
+              "text": "You can pay by card now, or in person before the first session. A receipt will be emailed to you with the joining instructions."
+            },
+            {
+              "speaker": "Student",
+              "voice": "en_US-ryan-high",
+              "text": "I'll pay now by card, thanks."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-form-completion-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Form completion — Hotel booking",
+          "lines": [
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "The Harbour Hotel, how may I help?"
+            },
+            {
+              "speaker": "Guest",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "I'd like to book a room for two nights, from the twenty-fifth of August, please."
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "Let me look. We have a standard double at eighty-six pounds a night, or a sea-view room at one hundred and ten."
+            },
+            {
+              "speaker": "Guest",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "The standard double is fine. Is breakfast included?"
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "It isn't, I'm afraid, but guests get ten per cent off at the café next door with their room key."
+            },
+            {
+              "speaker": "Guest",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "Understood. My name is Helen Marsh — M-A-R-S-H."
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "Thank you. Could I take a contact number?"
+            },
+            {
+              "speaker": "Guest",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "Sure, it's oh one one three, seven nine four, double eight six two."
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "0113 794 8862. And what time will you arrive on the twenty-fifth?"
+            },
+            {
+              "speaker": "Guest",
+              "voice": "en_GB-northern_english_male-medium",
+              "text": "Around four in the afternoon. Oh, and could I have a room on a high floor if possible?"
+            },
+            {
+              "speaker": "Receptionist",
+              "voice": "en_US-lessac-medium",
+              "text": "I've noted that. The reference for your booking is HB two nine seven one. Check-in is from three o'clock."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -440,7 +440,13 @@ export function QuestionPanel({
           ) : null}
         </div>
       ) : question.answerType === "single_choice" || question.answerType === "multiple_choice" ? (
-        <ul className="space-y-2">
+        <div>
+          {question.answerType === "multiple_choice" && question.selectCount && question.selectCount > 1 && (
+            <p className="mb-2 text-sm font-medium text-accent">
+              Choose {["ONE", "TWO", "THREE", "FOUR"][question.selectCount - 1] ?? question.selectCount}
+            </p>
+          )}
+          <ul className="space-y-2">
           {question.options.map((opt) => {
             const selected = Array.isArray(value) && value.includes(opt.id);
             return (
@@ -451,7 +457,12 @@ export function QuestionPanel({
                       onChange([opt.id]);
                     } else {
                       const cur = Array.isArray(value) ? value : [];
-                      onChange(cur.includes(opt.id) ? cur.filter((x) => x !== opt.id) : [...cur, opt.id]);
+                      if (cur.includes(opt.id)) {
+                        onChange(cur.filter((x) => x !== opt.id));
+                      } else if (!question.selectCount || cur.length < question.selectCount) {
+                        // Prevent selecting more options than selectCount.
+                        onChange([...cur, opt.id]);
+                      }
                     }
                   }}
                   className={`flex w-full items-start gap-2 rounded-md border px-3 py-2 text-left text-sm ${
@@ -464,7 +475,8 @@ export function QuestionPanel({
               </li>
             );
           })}
-        </ul>
+          </ul>
+        </div>
       ) : (
         <MatchingInput
           question={question as Extract<Question, { answerType: "matching" | "heading_matching" }>}

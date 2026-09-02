@@ -16,12 +16,15 @@ export interface ValidationIssue {
 
 // ---- Pure per-set structural validation (no global state) ----
 
-// Matching/heading-matching questions score each item as a sub-question.
+// Matching/heading-matching questions score each item as a sub-question;
+// multiple-answer groups score each expected choice as a sub-question.
 export function effectiveQuestionCount(set: PracticeSet): number {
   let n = 0;
   for (const q of set.questions) {
     if (q.answerType === "matching" || q.answerType === "heading_matching") {
       n += q.items?.length ?? 0;
+    } else if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) {
+      n += q.selectCount;
     } else {
       n += 1;
     }
@@ -90,6 +93,9 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
     }
 
     if (q.answerType === "single_choice" || q.answerType === "multiple_choice") {
+      if (q.type === "multiple_answer" && q.answerType !== "multiple_choice") {
+        issues.push({ setId: id, questionId: q.id, message: "multiple_answer question must use answerType multiple_choice" });
+      }
       if (!q.correctAnswers || q.correctAnswers.length === 0) {
         issues.push({ setId: id, questionId: q.id, message: "choice question missing correctAnswers" });
       } else {
@@ -102,14 +108,19 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
             issues.push({ setId: id, questionId: q.id, message: `correctAnswer "${cid}" not in options` });
           }
         }
+        if (new Set(q.correctAnswers).size !== q.correctAnswers.length) {
+          issues.push({ setId: id, questionId: q.id, message: "duplicate correctAnswers" });
+        }
         if (q.answerType === "multiple_choice") {
-          if (!q.selectCount || q.selectCount <= 0) {
-            issues.push({ setId: id, questionId: q.id, message: "multiple_choice missing valid selectCount" });
-          } else if (q.selectCount !== q.correctAnswers.length) {
-            issues.push({ setId: id, questionId: q.id, message: `selectCount ${q.selectCount} != correctAnswers ${q.correctAnswers.length}` });
-          }
-          if (q.selectCount && q.selectCount > q.options.length) {
-            issues.push({ setId: id, questionId: q.id, message: "selectCount exceeds option count" });
+          if (!q.selectCount || q.selectCount < 2) {
+            issues.push({ setId: id, questionId: q.id, message: "multiple_choice requires selectCount >= 2" });
+          } else {
+            if (q.selectCount !== q.correctAnswers.length) {
+              issues.push({ setId: id, questionId: q.id, message: `selectCount ${q.selectCount} != correctAnswers ${q.correctAnswers.length}` });
+            }
+            if (q.selectCount > q.options.length) {
+              issues.push({ setId: id, questionId: q.id, message: "selectCount exceeds option count" });
+            }
           }
         }
       }
