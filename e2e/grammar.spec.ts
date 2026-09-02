@@ -15,7 +15,7 @@ test.describe("Round 5 Grammar practice", () => {
     // Determine the correct option from the green highlight after answering any.
     await firstCard.locator("button").first().click();
     await expect(page.getByText(/Correct|Incorrect/)).toBeVisible();
-    await expect(page.getByText(/A colon introduces a list/)).toBeVisible();
+    await expect(page.getByText(/A colon introduces the list after the complete clause/)).toBeVisible();
   });
 
   test("mixed session uses 20 questions and mistake flow keeps working", async ({ page }) => {

@@ -560,3 +560,88 @@ describe("Round 5-C required metadata", () => {
     expect(issues.some((i) => i.message === "empty explanation")).toBe(true);
   });
 });
+
+// ---- Round 5-D: final semantic uniqueness micro-closure ----
+
+describe("Round 5-D known-six regressions", () => {
+  it("g-modal-4: recommendation context, no false 'would rather requires than' rule", () => {
+    const e = getEx("g-modal-4");
+    expect(e.sentence).toContain("recommendation, not a legal requirement");
+    expect(e.options).toEqual(["should", "must", "cannot"]);
+    expect(e.options[e.correct]).toBe("should");
+    expect(e.explanation).toMatch(/recommendation/i);
+    expect(e.explanation).not.toMatch(/would rather/i);
+    expect(e.explanation).not.toMatch(/requires? a contrast/i);
+  });
+
+  it("g-conj-2: prompt forces the concession relation", () => {
+    const e = getEx("g-conj-2");
+    expect(e.sentence).toMatch(/explicitly expresses concession/i);
+    expect(e.options).toEqual(["even though", "because", "therefore"]);
+    expect(e.options[e.correct]).toBe("even though");
+    expect(e.options).not.toContain("and");
+  });
+
+  it("g-cohesion-1: causal context is explicit, not inferred", () => {
+    const e = getEx("g-cohesion-1");
+    expect(e.sentence).toContain("vehicle-emission rules");
+    expect(e.sentence).toMatch(/expresses a result/i);
+    expect(e.options[e.correct]).toBe("Consequently");
+  });
+
+  it("g-tense-7: no 'will complete' distractor, future perfect only", () => {
+    const e = getEx("g-tense-7");
+    expect(e.options).toEqual(["will have completed", "has completed", "had completed"]);
+    expect(e.options[e.correct]).toBe("will have completed");
+    expect(e.options).not.toContain("will complete");
+    expect(e.explanation).toMatch(/future reference point/i);
+  });
+
+  it("g-cx-6: explicit non-defining test that acknowledges the defining option", () => {
+    const e = getEx("g-cx-6");
+    expect(e.sentence).toMatch(/non-defining relative clause/i);
+    expect(e.correct).toBe(2);
+    expect(e.options[2]).toBe("The scheme, which the council launched, has reduced traffic.");
+    expect(e.explanation).toMatch(/valid defining relative clause/i);
+    expect(e.explanation).not.toMatch(/option A is (globally )?incorrect/i);
+  });
+
+  it("g-punct-9: prompt names the colon convention", () => {
+    const e = getEx("g-punct-9");
+    expect(e.sentence).toMatch(/colon after a complete clause/i);
+    expect(e.correct).toBe(0);
+    expect(e.options[0]).toBe("We visited three cities: Paris, Rome and Vienna.");
+  });
+});
+
+describe("Round 5-D focused-scan regressions", () => {
+  it("g-tense-4 no longer uses 'will see' as an allegedly impossible distractor", () => {
+    const e = getEx("g-tense-4");
+    expect(e.options).toEqual(["will have seen", "has seen", "had seen"]);
+    expect(e.options[e.correct]).toBe("will have seen");
+  });
+
+  it("no explanation teaches that 'would rather' requires 'than'", () => {
+    for (const e of grammarExercises) {
+      expect(`${e.id}: ${e.explanation}`).not.toMatch(/would rather\s+(always\s+)?needs?/i);
+    }
+  });
+
+  it("no punctuation or sentence_choice prompt remains a bare 'Which is correct?'", () => {
+    for (const e of grammarExercises) {
+      if (e.kind !== "punctuation" && e.kind !== "sentence_choice") continue;
+      const prompt = e.sentence;
+      expect(`${e.id}: ${prompt}`).not.toMatch(/^Which is correct\?$/i);
+      expect(`${e.id}: ${prompt}`).not.toMatch(/^Choose the correct version\.$/i);
+      expect(`${e.id}: ${prompt}`).not.toMatch(/^Which is the clearest\?$/i);
+      expect(`${e.id}: ${prompt}`).not.toMatch(/^Which is best\?$/i);
+    }
+  });
+
+  it("error-identification labels remain accurate (no 'doubled subject')", () => {
+    for (const e of grammarExercises) {
+      if (e.kind !== "error_identification") continue;
+      expect(e.options, e.id).not.toContain("doubled subject");
+    }
+  });
+});
