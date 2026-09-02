@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet } from "./validate";
+import { effectiveQuestionCount } from "./practice-validation";
+import { READING_QUESTION_TYPES } from "./question-types";
 import { computeCoverage } from "./coverage";
 import { allPracticeSets } from "./practice";
 import type { PracticeSet, QuestionType } from "@/types/ielts";
@@ -11,8 +13,9 @@ describe("content validation", () => {
       if (mode === "full") {
         expect(set.questions.length, `${set.meta.id} question count`).toBe(40);
       } else {
-        expect(set.questions.length, `${set.meta.id} targeted count`).toBeGreaterThanOrEqual(6);
-        expect(set.questions.length, `${set.meta.id} targeted count`).toBeLessThanOrEqual(15);
+        const n = effectiveQuestionCount(set);
+        expect(n, `${set.meta.id} targeted count`).toBeGreaterThanOrEqual(6);
+        expect(n, `${set.meta.id} targeted count`).toBeLessThanOrEqual(15);
       }
     }
   });
@@ -261,5 +264,16 @@ describe("additional structural validation", () => {
     const draft = mkSet({ meta: { ...mkSet().meta, reviewStatus: "draft" as const } });
     expect(isStructurallyValidTargetedSet(draft)).toBe(true);
     expect(isPublishedTargetedSet(draft)).toBe(false);
+  });
+});
+
+describe("V0.6 Reading targeted threshold", () => {
+  it("every Reading question type has >=2 published valid targeted sets", () => {
+    const coverage = computeCoverage();
+    for (const type of READING_QUESTION_TYPES) {
+      const n = coverage.readingPublishedTargetedByType[type] ?? 0;
+      expect(n, `published targeted sets for ${type}`).toBeGreaterThanOrEqual(2);
+    }
+    expect(coverage.readingPublishedTargetedSets).toBeGreaterThanOrEqual(28);
   });
 });

@@ -330,7 +330,7 @@ export const grammarExercises: GrammarExercise[] = [
   {
     id: "g-frag-2",
     topic: "Fragments",
-    sentence: "Which is a complete sentence?",
+    sentence: "Identify the option that is NOT a complete sentence.",
     options: ["Although the economy grew slowly.", "Because of the new policy.", "The policy reduced unemployment."],
     correct: 2,
     explanation: "Only the third has a subject and a main verb; the others are dependent clauses.",
@@ -411,7 +411,7 @@ export const grammarExercises: GrammarExercise[] = [
   {
     id: "g-boundary-1",
     topic: "Sentence boundaries",
-    sentence: "Which is punctuated correctly?",
+    sentence: "Which option correctly joins the two clauses?",
     options: ["Many people work remotely. This saves time and money.", "Many people work remotely, this saves time and money.", "Many people work remotely this saves time and money."],
     correct: 0,
     explanation: "Two independent clauses need a full stop, semicolon or conjunction — not a comma alone.",
@@ -528,7 +528,7 @@ export const grammarExercises: GrammarExercise[] = [
   {
     id: "g-parallel-3",
     topic: "Parallelism",
-    sentence: "Choose the parallel version.",
+    sentence: "Choose the sentence with parallel structure.",
     options: ["The essay discusses causes, effects, and to suggest solutions.", "The essay discusses causes, effects, and solutions.", "The essay discusses causes, effects and suggesting solutions."],
     correct: 1,
     explanation: "All three items are noun phrases, keeping the list parallel.",
@@ -555,7 +555,7 @@ export const grammarExercises: GrammarExercise[] = [
   {
     id: "g-punct-3",
     topic: "Punctuation",
-    sentence: "Choose the correct list punctuation.",
+    sentence: "Which sentence uses commas correctly in a list?",
     options: ["The course covers reading writing and listening.", "The course covers reading, writing, and listening.", "The course covers, reading, writing, and listening."],
     correct: 1,
     explanation: "Commas separate the three items in the series.",
@@ -636,7 +636,7 @@ export const grammarExercises: GrammarExercise[] = [
   {
     id: "g-hedge-4",
     topic: "Hedging",
-    sentence: "Which is the most appropriately cautious claim about research?",
+    sentence: "Which statement is most cautious about research findings?",
     options: ["The study proves all students benefit.", "The study suggests that many students may benefit.", "The study definitely solves every problem."],
     correct: 1,
     explanation: "'Suggests' and 'may' appropriately limit the strength of the claim.",
@@ -663,7 +663,7 @@ export const grammarExercises: GrammarExercise[] = [
   {
     id: "g-parallel-4",
     topic: "Parallelism",
-    sentence: "Choose the parallel version.",
+    sentence: "Choose the option that keeps the verb forms consistent.",
     options: ["The programme improved literacy, reduced dropout rates and encouraging attendance.", "The programme improved literacy, reduced dropout rates and encouraged attendance.", "The programme improved literacy, reducing dropout rates and encouraged attendance."],
     correct: 1,
     explanation: "All three verbs are in the past tense, keeping the list parallel.",

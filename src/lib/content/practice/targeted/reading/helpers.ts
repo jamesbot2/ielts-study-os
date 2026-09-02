@@ -25,7 +25,10 @@ export function targetedMeta(
     createdAt: "2026-09-01",
     // AI-assisted generation — honest authorship metadata.
     generatedByAI: true,
-    reviewStatus: "draft",
+    // Marked published after the V0.6.4 manual Reading QA pass (answer keys
+    // verified against passages, TFNG/YNNG semantics reviewed, word limits
+    // checked, structure validated by getPracticeSetIssues).
+    reviewStatus: "published",
   };
 }
 
@@ -62,6 +65,59 @@ export function textQuestion(
     evidence: options.evidence,
     skillTags: ["reading"],
     difficulty: options.difficulty ?? 3,
+    bandRange: { min: 5, max: 7.5 },
+  };
+}
+
+export function choiceQuestion(
+  type: QuestionType,
+  id: string,
+  prompt: string,
+  options: { id: string; text: string }[],
+  correctAnswers: string[],
+  explanation: string,
+  passageId: string,
+  options2: { evidence?: string; difficulty?: 1 | 2 | 3 | 4 | 5; selectCount?: number } = {},
+) {
+  return {
+    id,
+    type,
+    answerType: (options2.selectCount ? "multiple_choice" : "single_choice") as "single_choice" | "multiple_choice",
+    prompt,
+    options: options.map((o) => ({ ...o, label: o.id })),
+    correctAnswers,
+    selectCount: options2.selectCount,
+    passageId,
+    explanation,
+    evidence: options2.evidence,
+    skillTags: ["reading"],
+    difficulty: options2.difficulty ?? 3,
+    bandRange: { min: 5, max: 7.5 },
+  };
+}
+
+export function matchingQuestion(
+  type: QuestionType,
+  answerType: "matching" | "heading_matching",
+  id: string,
+  prompt: string,
+  options: { id: string; text: string }[],
+  items: { id: string; text: string; correctOptionId: string }[],
+  explanation: string,
+  passageId: string,
+  difficulty: 1 | 2 | 3 | 4 | 5 = 3,
+) {
+  return {
+    id,
+    type,
+    answerType,
+    prompt,
+    options: options.map((o) => ({ ...o, label: o.id })),
+    items,
+    passageId,
+    explanation,
+    skillTags: ["reading"],
+    difficulty,
     bandRange: { min: 5, max: 7.5 },
   };
 }

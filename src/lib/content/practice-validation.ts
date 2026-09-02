@@ -16,6 +16,19 @@ export interface ValidationIssue {
 
 // ---- Pure per-set structural validation (no global state) ----
 
+// Matching/heading-matching questions score each item as a sub-question.
+export function effectiveQuestionCount(set: PracticeSet): number {
+  let n = 0;
+  for (const q of set.questions) {
+    if (q.answerType === "matching" || q.answerType === "heading_matching") {
+      n += q.items?.length ?? 0;
+    } else {
+      n += 1;
+    }
+  }
+  return n;
+}
+
 export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<string>): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const id = set.meta.id;
@@ -124,6 +137,7 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
 
   // Mode-aware question-count + targeted contract.
   const mode = set.practiceMode ?? "full";
+  const effectiveCount = effectiveQuestionCount(set);
   if (mode === "full") {
     if (set.questions.length !== 40) {
       issues.push({ setId: id, message: `full set expected 40 questions, found ${set.questions.length}` });
@@ -135,8 +149,8 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
     if (!set.targetQuestionType) {
       issues.push({ setId: id, message: "targeted set missing targetQuestionType" });
     }
-    if (set.questions.length < 6 || set.questions.length > 15) {
-      issues.push({ setId: id, message: `targeted set should have 6–15 questions, found ${set.questions.length}` });
+    if (effectiveCount < 6 || effectiveCount > 15) {
+      issues.push({ setId: id, message: `targeted set should have 6–15 questions, found ${effectiveCount}` });
     }
     if (set.targetQuestionType) {
       const mismatch = set.questions.filter((q) => q.type !== set.targetQuestionType).length;
@@ -153,7 +167,7 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
 
 export function isStructurallyValidTargetedSet(set: PracticeSet): boolean {
   if (set.practiceMode !== "targeted" || !set.targetQuestionType) return false;
-  if (set.questions.length < 6 || set.questions.length > 15) return false;
+  if (effectiveQuestionCount(set) < 6 || effectiveQuestionCount(set) > 15) return false;
   if (!set.questions.every((q) => q.type === set.targetQuestionType)) return false;
   // A fresh Set checks within-set uniqueness only; global uniqueness is
   // validated separately by validateAllContent.
