@@ -22,12 +22,21 @@ export interface SkillCoverage {
   general: boolean;
 }
 
+function countByField(rows: unknown[], key: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const r of rows) {
+    const v = (r as Record<string, unknown>)[key];
+    if (typeof v === "string" && v) out[v] = (out[v] ?? 0) + 1;
+  }
+  return out;
+}
+
 export function computeCoverage(): {
   categories: { id: Category; labelEn: string; labelZh: string; lessonCount: number }[];
   lessons: number;
   reading: SkillCoverage;
   listening: SkillCoverage;
-  writingPrompts: { academic: number; general: number; task2: number };
+  writingPrompts: { academic: number; general: number; task2: number; academicTask1ByCategory: Record<string, number>; generalTask1ByTone: Record<string, number>; task2BySubtype: Record<string, number> };
   speakingTopics: number;
   speakingParts: { part1: number; part2: number; part3: number };
   grammarLessons: number;
@@ -70,6 +79,9 @@ export function computeCoverage(): {
       academic: writingPrompts.filter((p) => p.testType === "academic" && p.task === 1).length,
       general: writingPrompts.filter((p) => p.testType === "general" && p.task === 1).length,
       task2: writingPrompts.filter((p) => p.task === 2).length,
+      academicTask1ByCategory: countByField(writingPrompts.filter((p) => p.task === 1 && p.testType === "academic"), "academicVisualCategory"),
+      generalTask1ByTone: countByField(writingPrompts.filter((p) => p.task === 1 && p.testType === "general"), "letterTone"),
+      task2BySubtype: countByField(writingPrompts.filter((p) => p.task === 2), "taskSubtype"),
     },
     speakingTopics: speakingTopics.length,
     speakingParts: {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet } from "./validate";
+import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet, validateWritingPrompts } from "./validate";
 import { effectiveQuestionCount } from "./practice-validation";
 import { READING_QUESTION_TYPES, LISTENING_QUESTION_TYPES } from "./question-types";
 import { computeCoverage } from "./coverage";
@@ -303,5 +303,44 @@ describe("global text-answer instruction consistency", () => {
       const typeSum = Object.values(s.questionTypes).reduce((a, b) => a + b, 0);
       expect(typeSum, `${skill} questionTypes sum equals questionCount`).toBe(s.questionCount);
     }
+  });
+});
+
+describe("V0.6 final Writing thresholds", () => {
+  it("prompt totals meet the quota", () => {
+    const c = computeCoverage();
+    expect(c.writingPrompts.academic).toBeGreaterThanOrEqual(30);
+    expect(c.writingPrompts.general).toBeGreaterThanOrEqual(25);
+    expect(c.writingPrompts.task2).toBeGreaterThanOrEqual(60);
+  });
+
+  it("Academic Task 1 covers all major visual categories", () => {
+    const byCat = computeCoverage().writingPrompts.academicTask1ByCategory;
+    for (const cat of ["line", "bar", "pie", "table", "process", "map", "mixed"]) {
+      expect(byCat[cat] ?? 0, `academic category ${cat}`).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  it("General Task 1 covers all three registers", () => {
+    const byTone = computeCoverage().writingPrompts.generalTask1ByTone;
+    expect(byTone.formal ?? 0).toBeGreaterThanOrEqual(9);
+    expect(byTone.semi_formal ?? 0).toBeGreaterThanOrEqual(8);
+    expect(byTone.informal ?? 0).toBeGreaterThanOrEqual(8);
+  });
+
+  it("Task 2 covers every major subtype", () => {
+    const bySub = computeCoverage().writingPrompts.task2BySubtype;
+    expect(bySub.agree_disagree ?? 0).toBeGreaterThanOrEqual(10);
+    expect(bySub.discuss_both_views ?? 0).toBeGreaterThanOrEqual(9);
+    expect(bySub.advantages_disadvantages ?? 0).toBeGreaterThanOrEqual(9);
+    expect((bySub.problem_solution ?? 0) + (bySub.causes_solutions ?? 0)).toBeGreaterThanOrEqual(10);
+    expect(bySub.two_part ?? 0).toBeGreaterThanOrEqual(9);
+    expect(bySub.positive_negative ?? 0).toBeGreaterThanOrEqual(7);
+  });
+
+  it("writing prompts pass structural validation", () => {
+    const r = validateWritingPrompts();
+    expect(r.issues, JSON.stringify(r.issues, null, 2)).toEqual([]);
+    expect(r.valid).toBe(true);
   });
 });

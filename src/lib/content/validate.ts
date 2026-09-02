@@ -73,9 +73,22 @@ export interface DuplicatePair {
 export function detectDuplicates(threshold = 0.85): DuplicatePair[] {
   const out: DuplicatePair[] = [];
 
+  // Strip shared IELTS instruction boilerplate before comparing writing
+  // prompts, so map/process/agree/disagree prompts are not flagged as
+  // duplicates merely for sharing the standard task instruction.
+  const stripInstruction = (text: string) =>
+    text
+      .replace(/Summarise the information by selecting and reporting the main features[^.]*\.?/gi, "")
+      .replace(/To what extent do you agree or disagree\?/gi, "")
+      .replace(/Discuss both views and give your own opinion\./gi, "")
+      .replace(/Do the advantages .*? outweigh the disadvantages\?/gi, "")
+      .replace(/Is this a positive or negative development\?/gi, "")
+      .replace(/Write a letter to [^.]+\. In your letter:/gi, "");
   for (let i = 0; i < writingPrompts.length; i++) {
     for (let j = i + 1; j < writingPrompts.length; j++) {
-      const s = tokenOverlap(writingPrompts[i].prompt, writingPrompts[j].prompt);
+      const a = stripInstruction(writingPrompts[i].prompt);
+      const b = stripInstruction(writingPrompts[j].prompt);
+      const s = tokenOverlap(a, b);
       if (s >= threshold) out.push({ kind: "writing", idA: writingPrompts[i].id, idB: writingPrompts[j].id, similarity: s });
     }
   }
@@ -97,4 +110,40 @@ export function detectDuplicates(threshold = 0.85): DuplicatePair[] {
   }
 
   return out;
+}
+
+// ---- Writing prompt validation ----
+
+export function validateWritingPrompts(): ValidationReport {
+  const issues = [];
+  const ids = new Set<string>();
+  for (const p of writingPrompts) {
+    if (!p.id) issues.push({ setId: "writing", message: "prompt missing id" });
+    if (ids.has(p.id)) issues.push({ setId: "writing", message: `duplicate writing prompt id "${p.id}"` });
+    ids.add(p.id);
+    if (!p.title || !p.title.trim()) issues.push({ setId: p.id, message: "empty title" });
+    if (!p.prompt || !p.prompt.trim()) issues.push({ setId: p.id, message: "empty prompt" });
+    if (!p.sourceType) issues.push({ setId: p.id, message: "missing sourceType" });
+    if (p.task === 1) {
+      if (p.wordLimit !== 150) issues.push({ setId: p.id, message: `Task 1 wordLimit should be 150, got ${p.wordLimit}` });
+      if (p.suggestedMinutes !== 20) issues.push({ setId: p.id, message: `Task 1 suggestedMinutes should be 20` });
+      if (p.testType === "academic") {
+        const hasStimulus = Boolean(p.dataTable || (p.visualDescription && p.visualDescription.trim().length > 20));
+        if (!hasStimulus) issues.push({ setId: p.id, message: "Academic Task 1 missing usable data stimulus" });
+        if (!p.academicVisualCategory) issues.push({ setId: p.id, message: "Academic Task 1 missing academicVisualCategory" });
+      }
+      if (p.testType === "general") {
+        if (!p.letterTone) issues.push({ setId: p.id, message: "General Task 1 missing letterTone" });
+        const body = p.prompt.split("In your letter:")[1] ?? p.prompt;
+        const bullets = (body.match(/\b(describe|explain|say|ask|suggest|offer|tell|mention|give|recommend|invite|welcome|express|state|list)\b/gi) ?? []).length;
+        if (bullets < 3) issues.push({ setId: p.id, message: `General Task 1 should have three requirement points, found ${bullets}` });
+      }
+    }
+    if (p.task === 2) {
+      if (p.wordLimit !== 250) issues.push({ setId: p.id, message: `Task 2 wordLimit should be 250` });
+      if (p.suggestedMinutes !== 40) issues.push({ setId: p.id, message: `Task 2 suggestedMinutes should be 40` });
+      if (!p.taskSubtype) issues.push({ setId: p.id, message: "Task 2 missing taskSubtype" });
+    }
+  }
+  return { issues, valid: issues.length === 0 };
 }

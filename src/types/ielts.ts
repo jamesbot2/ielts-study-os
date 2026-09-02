@@ -214,7 +214,23 @@ export interface WritingPrompt {
   wordLimit: number;
   suggestedMinutes: number;
   sourceType: SourceType;
+  // Lightweight quality metadata (machine-readable coverage).
+  taskSubtype?: WritingTaskSubtype;
+  letterTone?: "formal" | "semi_formal" | "informal";
+  letterPurpose?: string;
+  academicVisualCategory?: string;
 }
+
+export type WritingTaskSubtype =
+  | "agree_disagree"
+  | "discuss_both_views"
+  | "advantages_disadvantages"
+  | "outweigh"
+  | "positive_negative"
+  | "problem_solution"
+  | "causes_solutions"
+  | "causes_effects"
+  | "two_part";
 
 export type WritingCriterion =
   | "taskAchievement"
