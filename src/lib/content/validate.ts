@@ -6,7 +6,7 @@ import { allLessons } from "./curriculum";
 import { writingPrompts } from "./practice/writing-prompts";
 import { speakingTopics } from "./practice/speaking-topics";
 import { grammarExercises } from "./practice/grammar-exercises";
-import { getPracticeSetIssues } from "./practice-validation";
+import { getPracticeSetIssues, type ValidationIssue } from "./practice-validation";
 import { READING_QUESTION_TYPES, LISTENING_QUESTION_TYPES } from "./question-types";
 
 export { getPracticeSetIssues, isStructurallyValidTargetedSet, isPublishedTargetedSet } from "./practice-validation";
@@ -47,34 +47,62 @@ export function questionTypeCoverage(): { missingReading: string[]; missingListe
 
 // ---- Grammar exercise validation ----
 
-export function validateGrammarExercises(): ValidationReport {
-  const lessonIds = new Set(grammarExercises.map((e) => e.lessonId).filter((x): x is string => Boolean(x)));
-  const issues = [];
+const GRAMMAR_EXERCISE_KINDS = [
+  "gap_fill",
+  "sentence_choice",
+  "error_identification",
+  "correction",
+  "style_choice",
+  "punctuation",
+] as const;
+
+type GrammarExerciseLike = import("./practice/grammar-exercises").GrammarExercise;
+
+/**
+ * Core structural contract for every grammar exercise. Note: this validates
+ * STRUCTURE only (metadata, ranges, uniqueness). Semantic one-answer
+ * uniqueness is manual content QA + the regression tests in
+ * validate.test.ts — never claimed as PASS from these checks alone.
+ */
+export function validateGrammarExerciseList(
+  exercises: GrammarExerciseLike[],
+  lessonIds: ReadonlySet<string>,
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
   const ids = new Set<string>();
-  for (const e of grammarExercises) {
-    if (!e.id) issues.push({ setId: "(grammar)", message: "exercise missing id" });
-    if (ids.has(e.id)) issues.push({ setId: e.id, message: "duplicate exercise id" });
-    ids.add(e.id);
-    if (!e.topic || !e.topic.trim()) issues.push({ setId: e.id, message: "empty topic" });
-    if (!e.sentence || !e.sentence.trim()) issues.push({ setId: e.id, message: "empty sentence" });
-    if (!e.options || e.options.length < 2) issues.push({ setId: e.id, message: "fewer than 2 options" });
-    for (const o of e.options) if (!o || !o.trim()) issues.push({ setId: e.id, message: "empty option" });
-    if (new Set(e.options).size !== e.options.length) issues.push({ setId: e.id, message: "duplicate options" });
-    if (!Number.isInteger(e.correct) || e.correct < 0 || e.correct >= e.options.length) {
-      issues.push({ setId: e.id, message: "invalid correct index" });
+  for (const e of exercises) {
+    const sid = e.id ?? "(missing id)";
+    if (!e.id || !e.id.trim()) issues.push({ setId: sid, message: "missing id" });
+    else if (ids.has(e.id)) issues.push({ setId: e.id, message: "duplicate exercise id" });
+    if (e.id) ids.add(e.id);
+    if (!e.lessonId || !e.lessonId.trim()) issues.push({ setId: sid, message: "missing lessonId" });
+    else if (!lessonIds.has(e.lessonId)) issues.push({ setId: sid, message: `lessonId does not match a grammar lesson: ${e.lessonId}` });
+    if (!e.topic || !e.topic.trim()) issues.push({ setId: sid, message: "empty topic" });
+    if (!e.sentence || !e.sentence.trim()) issues.push({ setId: sid, message: "empty sentence" });
+    if (!Array.isArray(e.options) || e.options.length < 2) {
+      issues.push({ setId: sid, message: "fewer than 2 options" });
+    } else {
+      for (const o of e.options) if (!o || !o.trim()) issues.push({ setId: sid, message: "empty option" });
+      if (new Set(e.options).size !== e.options.length) issues.push({ setId: sid, message: "duplicate options" });
+      if (!Number.isInteger(e.correct) || e.correct < 0 || e.correct >= e.options.length) {
+        issues.push({ setId: sid, message: "invalid correct index" });
+      }
     }
-    if (!e.explanation || !e.explanation.trim()) issues.push({ setId: e.id, message: "empty explanation" });
-    if (!e.errorType || !e.errorType.trim()) issues.push({ setId: e.id, message: "empty errorType" });
-    if (e.difficulty != null && (e.difficulty < 1 || e.difficulty > 3)) issues.push({ setId: e.id, message: "invalid difficulty" });
-    if (e.kind != null && !["gap_fill", "sentence_choice", "error_identification", "correction", "style_choice", "punctuation"].includes(e.kind)) {
-      issues.push({ setId: e.id, message: `invalid kind ${e.kind}` });
+    if (!e.explanation || !e.explanation.trim()) issues.push({ setId: sid, message: "empty explanation" });
+    if (!e.errorType || !e.errorType.trim()) issues.push({ setId: sid, message: "empty errorType" });
+    if (!e.kind || !(GRAMMAR_EXERCISE_KINDS as readonly string[]).includes(e.kind)) {
+      issues.push({ setId: sid, message: `missing or invalid kind: ${String(e.kind)}` });
+    }
+    if (!Number.isInteger(e.difficulty) || (e.difficulty as number) < 1 || (e.difficulty as number) > 3) {
+      issues.push({ setId: sid, message: `missing or invalid difficulty: ${String(e.difficulty)}` });
     }
   }
-  // Validate lessonIds used actually match a grammar lesson.
+  return issues;
+}
+
+export function validateGrammarExercises(): ValidationReport {
   const grammarLessonIds = new Set(allLessons.filter((l) => l.category === "grammar").map((l) => l.id));
-  for (const lid of lessonIds) {
-    if (!grammarLessonIds.has(lid)) issues.push({ setId: lid, message: "exercise lessonId does not match a grammar lesson" });
-  }
+  const issues = validateGrammarExerciseList(grammarExercises, grammarLessonIds);
   return { issues, valid: issues.length === 0 };
 }
 

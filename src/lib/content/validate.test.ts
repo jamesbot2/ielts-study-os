@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet, validateWritingPrompts, validateGrammarExercises } from "./validate";
+import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet, validateWritingPrompts, validateGrammarExercises, validateGrammarExerciseList } from "./validate";
 import { effectiveQuestionCount } from "./practice-validation";
 import { writingPrompts as allWritingPrompts } from "./practice/writing-prompts";
-import { grammarExercises } from "./practice/grammar-exercises";
+import { grammarExercises, type GrammarExercise } from "./practice/grammar-exercises";
 import { allLessons } from "./curriculum";
 import { READING_QUESTION_TYPES, LISTENING_QUESTION_TYPES } from "./question-types";
 import { computeCoverage } from "./coverage";
@@ -403,5 +403,160 @@ describe("V0.6 final Grammar thresholds", () => {
     const e = grammarExercises.find((x) => x.id === "g-frag-2")!;
     expect(e.sentence).toMatch(/IS a complete sentence/i);
     expect(e.correct).toBe(2);
+  });
+});
+
+// ---- Round 5-C: Grammar correctness closure ----
+
+const GRAMMAR_LESSON_IDS = new Set(
+  allLessons.filter((l) => l.category === "grammar").map((l) => l.id),
+);
+
+function getEx(id: string): GrammarExercise {
+  const e = grammarExercises.find((x) => x.id === id);
+  if (!e) throw new Error(`missing grammar exercise: ${id}`);
+  return e;
+}
+
+function fixture(overrides: Record<string, unknown>): GrammarExercise {
+  return {
+    id: "g-fixture",
+    topic: "Topic",
+    sentence: "The policy ___ introduced last year.",
+    options: ["was", "were", "is"],
+    correct: 0,
+    explanation: "A past passive needs 'was'.",
+    errorType: "test",
+    lessonId: "gram-agreement",
+    kind: "gap_fill",
+    difficulty: 2,
+    ...overrides,
+  };
+}
+
+describe("Round 5-C known-defect regressions", () => {
+  it("g-agree-8 uses an unambiguous plural subject", () => {
+    const e = getEx("g-agree-8");
+    expect(e.sentence).toContain("The results from the survey");
+    expect(e.options[e.correct]).toBe("are");
+    expect(e.explanation).not.toMatch(/data/i);
+  });
+
+  it("g-nounclause-7 forces 'whether'", () => {
+    const e = getEx("g-nounclause-7");
+    expect(e.sentence).toContain("not yet decided");
+    expect(e.options[e.correct]).toBe("whether");
+  });
+
+  it("g-part-3 asks for an opening participle clause", () => {
+    const e = getEx("g-part-3");
+    expect(e.sentence).toMatch(/opening participle clause/i);
+    expect(e.correct).toBe(2);
+    expect(e.options[2]).toContain("Walking to school, we saw the bus");
+  });
+
+  it("g-par-6 canonical answer is the shared-'to' bare infinitive", () => {
+    const e = getEx("g-par-6");
+    expect(e.options[e.correct]).toBe("save");
+    expect(e.explanation).toMatch(/share the first 'to'/);
+  });
+
+  it("g-comp-8 names the two entities 'respectively' maps", () => {
+    const e = getEx("g-comp-8");
+    expect(e.sentence).toContain("London and Bristol");
+    expect(e.options[e.correct]).toBe("respectively");
+  });
+
+  it("g-t1-5 names the two categories 'respectively' maps", () => {
+    const e = getEx("g-t1-5");
+    expect(e.sentence).toContain("Product A and Product B");
+    expect(e.options[e.correct]).toBe("respectively");
+  });
+
+  it("g-t1-11 correct option is a natural model sentence", () => {
+    const e = getEx("g-t1-11");
+    expect(e.options[e.correct]).toContain("with transport recording the largest rise");
+    expect(e.explanation).toMatch(/with \+ noun \+ -ing/i);
+  });
+
+  it("g-t2-10 uses an accurate error taxonomy", () => {
+    const e = getEx("g-t2-10");
+    expect(e.options[e.correct]).toBe("missing connector after 'reasons'");
+    expect(e.options).not.toContain("doubled subject");
+    expect(e.explanation).toMatch(/reasons that explain|reasons for this trend/);
+  });
+
+  it("g-punct-10 forces comma-marking of a non-essential participial phrase", () => {
+    const e = getEx("g-punct-10");
+    expect(e.sentence).toMatch(/non-essential participial phrase/i);
+    expect(e.correct).toBe(1);
+    expect(e.options[1]).toBe("The survey, carried out in June, covered 500 residents.");
+  });
+
+  it("g-frag-2 regression remains intact", () => {
+    const e = getEx("g-frag-2");
+    expect(e.sentence).toMatch(/IS a complete sentence/i);
+    expect(e.correct).toBe(2);
+    expect(e.options[2]).toBe("The policy reduced unemployment.");
+  });
+});
+
+describe("Round 5-C required metadata", () => {
+  it("every exercise carries a valid lessonId, kind and difficulty at runtime", () => {
+    for (const e of grammarExercises) {
+      expect(typeof e.lessonId, `${e.id} lessonId`).toBe("string");
+      expect(GRAMMAR_LESSON_IDS.has(e.lessonId), `${e.id} lessonId ${e.lessonId}`).toBe(true);
+      expect(
+        ["gap_fill", "sentence_choice", "error_identification", "correction", "style_choice", "punctuation"],
+        `${e.id} kind`,
+      ).toContain(e.kind);
+      expect([1, 2, 3], `${e.id} difficulty`).toContain(e.difficulty);
+    }
+    expect(grammarExercises.length).toBe(200);
+  });
+
+  it("validator rejects missing lessonId", () => {
+    const issues = validateGrammarExerciseList([fixture({ lessonId: undefined })], GRAMMAR_LESSON_IDS);
+    expect(issues.map((i) => i.message)).toContain("missing lessonId");
+  });
+
+  it("validator rejects a lessonId that is not a grammar lesson", () => {
+    const issues = validateGrammarExerciseList([fixture({ lessonId: "writing-task2" })], GRAMMAR_LESSON_IDS);
+    expect(issues.some((i) => i.message.includes("does not match a grammar lesson"))).toBe(true);
+  });
+
+  it("validator rejects missing kind", () => {
+    const issues = validateGrammarExerciseList([fixture({ kind: undefined })], GRAMMAR_LESSON_IDS);
+    expect(issues.some((i) => i.message.includes("missing or invalid kind"))).toBe(true);
+  });
+
+  it("validator rejects an invalid kind", () => {
+    const issues = validateGrammarExerciseList([fixture({ kind: "multiple_choice" })], GRAMMAR_LESSON_IDS);
+    expect(issues.some((i) => i.message.includes("missing or invalid kind"))).toBe(true);
+  });
+
+  it("validator rejects missing difficulty", () => {
+    const issues = validateGrammarExerciseList([fixture({ difficulty: undefined })], GRAMMAR_LESSON_IDS);
+    expect(issues.some((i) => i.message.includes("missing or invalid difficulty"))).toBe(true);
+  });
+
+  it("validator rejects invalid difficulty", () => {
+    const issues = validateGrammarExerciseList([fixture({ difficulty: 4 })], GRAMMAR_LESSON_IDS);
+    expect(issues.some((i) => i.message.includes("missing or invalid difficulty"))).toBe(true);
+  });
+
+  it("validator rejects an out-of-range correct index", () => {
+    const issues = validateGrammarExerciseList([fixture({ correct: 5 })], GRAMMAR_LESSON_IDS);
+    expect(issues.some((i) => i.message === "invalid correct index")).toBe(true);
+  });
+
+  it("validator rejects duplicate options", () => {
+    const issues = validateGrammarExerciseList([fixture({ options: ["was", "was", "is"] })], GRAMMAR_LESSON_IDS);
+    expect(issues.some((i) => i.message === "duplicate options")).toBe(true);
+  });
+
+  it("validator rejects an empty explanation", () => {
+    const issues = validateGrammarExerciseList([fixture({ explanation: "  " })], GRAMMAR_LESSON_IDS);
+    expect(issues.some((i) => i.message === "empty explanation")).toBe(true);
   });
 });

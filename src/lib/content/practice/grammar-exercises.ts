@@ -18,9 +18,9 @@ export interface GrammarExercise {
   explanation: string;
   errorType: string;
   // Links this exercise to a canonical Grammar lesson (Learn → Practice).
-  lessonId?: string;
-  kind?: GrammarExerciseKind;
-  difficulty?: 1 | 2 | 3;
+  lessonId: string;
+  kind: GrammarExerciseKind;
+  difficulty: 1 | 2 | 3;
 }
 
 export const grammarExercises: GrammarExercise[] = [
@@ -33,6 +33,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'The number of…' takes a singular verb, so 'has' is correct.",
     lessonId: "gram-agreement",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "subject-verb agreement",
   },
   {
@@ -44,6 +45,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'A number of…' takes a plural verb, so 'have' is correct.",
     lessonId: "gram-agreement",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "subject-verb agreement",
   },
   {
@@ -55,17 +57,19 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Advice' is uncountable and takes no article.",
     lessonId: "gram-articles-countability",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "articles / countable nouns",
   },
   {
     id: "g-art-2",
     topic: "Articles",
     sentence: "___ information you provided was very helpful.",
-    options: ["A", "The", "—"],
+    options: ["A", "The", "An"],
     correct: 1,
-    explanation: "'The' is used because the information is specific and previously mentioned.",
+    explanation: "'The' is used because the information is specific and previously mentioned; 'a/an' cannot precede uncountable 'information'.",
     lessonId: "gram-articles-countability",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "articles",
   },
   {
@@ -77,6 +81,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Past perfect ('had started') is used for an action completed before another past action.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "tense",
   },
   {
@@ -88,6 +93,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Since + past time' requires the present perfect ('has expanded').",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "tense",
   },
   {
@@ -99,17 +105,19 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Don't have to' expresses lack of obligation, matching 'but most choose to'.",
     lessonId: "gram-passive-modals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "modals",
   },
   {
     id: "g-cond-1",
     topic: "Conditionals",
     sentence: "If the government ___ more in education, results would improve.",
-    options: ["invests", "invested", "had invested"],
+    options: ["invests", "invested", "will invest"],
     correct: 1,
-    explanation: "Second conditional (unreal present) uses past simple in the if-clause and 'would'.",
+    explanation: "Second conditional (unreal present): past simple in the if-clause, 'would' in the result; 'will' never follows 'if' here.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "conditionals",
   },
   {
@@ -121,6 +129,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Third conditional (unreal past) uses 'would have + past participle'.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "conditionals",
   },
   {
@@ -132,17 +141,19 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Process descriptions use the passive: 'are cleaned'.",
     lessonId: "gram-passive-modals",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "passive voice",
   },
   {
     id: "g-rel-1",
     topic: "Relative clauses",
-    sentence: "The policy, ___ was introduced last year, has reduced waste.",
+    sentence: "The new cycle lane, ___ opened in May, is already popular.",
     options: ["that", "which", "who"],
     correct: 1,
     explanation: "A non-defining relative clause uses 'which' (with commas), not 'that'.",
     lessonId: "gram-relative-clauses",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "relative clauses",
   },
   {
@@ -154,6 +165,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'What' introduces a noun clause as the subject of the sentence.",
     lessonId: "gram-noun-clauses",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "noun clauses",
   },
   {
@@ -165,6 +177,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Because' introduces a cause-effect relationship between the clauses.",
     lessonId: "gram-adverbial-clauses",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "adverbial clauses",
   },
   {
@@ -176,6 +189,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Enjoy' is followed by a gerund ('travelling').",
     lessonId: "gram-gerunds-infinitives",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "gerunds/infinitives",
   },
   {
@@ -187,6 +201,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Superlative with 'the most' is used for three or more items.",
     lessonId: "gram-comparisons-quantifiers",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "comparatives/superlatives",
   },
   {
@@ -198,6 +213,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Focus on' is the correct collocation.",
     lessonId: "gram-prepositions-collocations",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "prepositions",
   },
   {
@@ -209,6 +225,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'However' contrasts the difficulty with the successful completion.",
     lessonId: "gram-cohesion-reference",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "conjunctions",
   },
   {
@@ -220,6 +237,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "A colon introduces a list.",
     lessonId: "gram-punctuation",
     kind: "punctuation",
+    difficulty: 1,
     errorType: "punctuation",
   },
   {
@@ -231,6 +249,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Parallel structure requires matching gerunds: planning, organising, writing.",
     lessonId: "gram-parallelism",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "parallelism",
   },
   {
@@ -242,6 +261,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Only the middle option has a complete independent clause.",
     lessonId: "gram-punctuation",
     kind: "sentence_choice",
+    difficulty: 1,
     errorType: "fragments",
   },
   {
@@ -253,6 +273,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "A semicolon (or full stop) correctly joins the two independent clauses.",
     lessonId: "gram-punctuation",
     kind: "sentence_choice",
+    difficulty: 1,
     errorType: "run-on sentences",
   },
   {
@@ -263,18 +284,20 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 1,
     explanation: "Nominalisation ('the government's decision') is a feature of formal academic style.",
     lessonId: "gram-academic-style",
-    kind: "gap_fill",
+    kind: "style_choice",
+    difficulty: 2,
     errorType: "formal style / nominalisation",
   },
   {
     id: "g-hedge-1",
     topic: "Hedging",
     sentence: "Which sentence uses appropriate hedging?",
-    options: ["This proves that all students fail.", "This may result in higher costs.", "This absolutely must cause a disaster."],
+    options: ["The policy will definitely solve every problem.", "The policy is likely to reduce some of the pressure on housing.", "The policy must end all homelessness at once."],
     correct: 1,
-    explanation: "'May result in' is appropriately cautious; the others overstate.",
+    explanation: "'Likely' and 'some of the pressure' hedge the claim appropriately; the others overstate.",
     lessonId: "gram-academic-style",
-    kind: "gap_fill",
+    kind: "style_choice",
+    difficulty: 2,
     errorType: "hedging",
   },
   {
@@ -286,6 +309,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "With 'neither…nor', the verb agrees with the nearer subject ('the employees' → plural).",
     lessonId: "gram-agreement",
     kind: "gap_fill",
+    difficulty: 3,
     errorType: "subject-verb agreement",
   },
   {
@@ -297,6 +321,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'An' precedes a vowel sound ('important').",
     lessonId: "gram-articles-countability",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "articles",
   },
   {
@@ -308,17 +333,19 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Present perfect ('has lived') is used with 'since' for an action continuing to now.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "tense",
   },
   {
     id: "g-cond-3",
     topic: "Conditionals",
-    sentence: "If I had studied harder, I ___ the exam.",
+    sentence: "If I had studied harder, I ___ the exam last week.",
     options: ["would pass", "would have passed", "will pass"],
     correct: 1,
-    explanation: "Third conditional: past perfect in the if-clause, 'would have + past participle' in the main clause.",
+    explanation: "Third conditional with a past-time anchor: past perfect in the if-clause, 'would have + past participle' in the result.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "conditionals",
   },
   {
@@ -330,6 +357,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Non-defining relative clauses use 'which' (with commas), never 'that'.",
     lessonId: "gram-relative-clauses",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "relative clauses",
   },
   {
@@ -341,6 +369,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Future passive: 'will be + past participle'.",
     lessonId: "gram-passive-modals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "passive voice",
   },
   {
@@ -352,6 +381,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'The later…, the worse…' is a double comparative structure.",
     lessonId: "gram-comparisons-quantifiers",
     kind: "gap_fill",
+    difficulty: 3,
     errorType: "comparatives",
   },
   {
@@ -363,6 +393,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'May' expresses permission/possibility without obligation; 'must' would make it compulsory.",
     lessonId: "gram-passive-modals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "modals",
   },
   {
@@ -373,7 +404,8 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 0,
     explanation: "Parallel structure: 'reading, writing, and speaking clearly' keeps the gerund form consistent.",
     lessonId: "gram-parallelism",
-    kind: "gap_fill",
+    kind: "sentence_choice",
+    difficulty: 2,
     errorType: "parallelism",
   },
   {
@@ -385,6 +417,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'This' refers back to the whole previous idea, a common cohesive device.",
     lessonId: "gram-cohesion-reference",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "reference / cohesion",
   },
   {
@@ -396,6 +429,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Evidence' is uncountable, so 'much' is correct.",
     lessonId: "gram-articles-countability",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "countability",
   },
   {
@@ -407,6 +441,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Concerned about' is the standard collocation.",
     lessonId: "gram-prepositions-collocations",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "prepositions / collocation",
   },
   {
@@ -418,6 +453,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Only the third has a subject ('the policy') and a main verb ('reduced'); the other two are dependent fragments.",
     lessonId: "gram-punctuation",
     kind: "sentence_choice",
+    difficulty: 1,
     errorType: "sentence fragments",
   },
   {
@@ -429,17 +465,19 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "A coordinating conjunction ('so') or a semicolon is needed between two independent clauses.",
     lessonId: "gram-punctuation",
     kind: "sentence_choice",
+    difficulty: 2,
     errorType: "run-on sentences",
   },
   {
     id: "g-punct-2",
     topic: "Punctuation",
     sentence: "Choose the correct punctuation.",
-    options: ["The test is difficult, however, students pass it.", "The test is difficult; however, students pass it.", "The test is difficult however students pass it."],
+    options: ["After the meeting ended the team celebrated.", "After the meeting ended, the team celebrated.", "After the meeting, ended the team celebrated."],
     correct: 1,
-    explanation: "A semicolon (or a full stop) is required before 'however' when it joins two clauses.",
+    explanation: "A comma follows an introductory adverbial clause before the main clause.",
     lessonId: "gram-punctuation",
     kind: "punctuation",
+    difficulty: 1,
     errorType: "punctuation",
   },
   {
@@ -451,6 +489,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Whether' introduces a noun clause expressing an indirect yes/no question.",
     lessonId: "gram-noun-clauses",
     kind: "gap_fill",
+    difficulty: 3,
     errorType: "noun clauses",
   },
   {
@@ -462,6 +501,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Avoid' is followed by a gerund ('avoid studying').",
     lessonId: "gram-gerunds-infinitives",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "gerunds / infinitives",
   },
   {
@@ -473,6 +513,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Although' introduces a contrast, which matches the unexpected stability of demand.",
     lessonId: "gram-adverbial-clauses",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "adverbial clauses / contrast",
   },
   {
@@ -484,6 +525,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Even though' links the positive and negative ideas with contrast.",
     lessonId: "gram-cohesion-reference",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "conjunctions",
   },
   {
@@ -495,6 +537,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Consequently' shows the result of the first sentence, linking the ideas.",
     lessonId: "gram-cohesion-reference",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "cohesion / linking devices",
   },
   {
@@ -505,7 +548,8 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 0,
     explanation: "A subordinate clause with 'although' creates a correct complex sentence.",
     lessonId: "gram-complex-control",
-    kind: "gap_fill",
+    kind: "sentence_choice",
+    difficulty: 2,
     errorType: "complex sentences",
   },
   {
@@ -517,6 +561,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Two independent clauses need a full stop, semicolon or conjunction — not a comma alone.",
     lessonId: "gram-punctuation",
     kind: "sentence_choice",
+    difficulty: 1,
     errorType: "sentence boundaries",
   },
   {
@@ -528,6 +573,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Adverb 'rapidly' modifies the participle 'rising' inside the noun phrase.",
     lessonId: "gram-noun-phrases",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "noun phrases",
   },
   {
@@ -539,6 +585,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Every one' is singular, so the verb is 'is'.",
     lessonId: "gram-agreement",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "subject-verb agreement",
   },
   {
@@ -550,6 +597,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'The' is used with 'only' to mark uniqueness.",
     lessonId: "gram-articles-countability",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "articles",
   },
   {
@@ -561,6 +609,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Future perfect ('will have seen') is used for an action completed before a future point.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 3,
     errorType: "tense",
   },
   {
@@ -572,6 +621,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "First conditional (real possibility): present in the if-clause, 'will' in the result.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "conditionals",
   },
   {
@@ -583,6 +633,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Where' is the relative adverb for place.",
     lessonId: "gram-relative-clauses",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "relative clauses",
   },
   {
@@ -593,7 +644,8 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 1,
     explanation: "Present perfect passive: 'has been + past participle'.",
     lessonId: "gram-passive-modals",
-    kind: "gap_fill",
+    kind: "sentence_choice",
+    difficulty: 2,
     errorType: "passive voice",
   },
   {
@@ -605,6 +657,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Cheap' is a one-syllable adjective, so the comparative is 'cheaper'.",
     lessonId: "gram-comparisons-quantifiers",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "comparatives",
   },
   {
@@ -616,6 +669,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Can' expresses permission without obligation, matching 'optional'.",
     lessonId: "gram-passive-modals",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "modals",
   },
   {
@@ -626,7 +680,8 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 1,
     explanation: "'Tends to' and 'certain types' make the claim appropriately cautious.",
     lessonId: "gram-academic-style",
-    kind: "gap_fill",
+    kind: "style_choice",
+    difficulty: 2,
     errorType: "hedging",
   },
   {
@@ -638,6 +693,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Information' is uncountable; 'a great deal of' is used with uncountables.",
     lessonId: "gram-articles-countability",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "countability",
   },
   {
@@ -649,6 +705,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "The standard collocation is 'a rise in'.",
     lessonId: "gram-prepositions-collocations",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "prepositions / collocation",
   },
   {
@@ -659,7 +716,8 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 1,
     explanation: "All three items are noun phrases, keeping the list parallel.",
     lessonId: "gram-parallelism",
-    kind: "gap_fill",
+    kind: "sentence_choice",
+    difficulty: 1,
     errorType: "parallelism",
   },
   {
@@ -671,6 +729,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'This' refers back to the whole idea of investing in education.",
     lessonId: "gram-cohesion-reference",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "reference / cohesion",
   },
   {
@@ -681,7 +740,8 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 1,
     explanation: "Measured, precise vocabulary marks formal academic style.",
     lessonId: "gram-academic-style",
-    kind: "gap_fill",
+    kind: "style_choice",
+    difficulty: 2,
     errorType: "formal style",
   },
   {
@@ -693,6 +753,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Commas separate the three items in the series.",
     lessonId: "gram-punctuation",
     kind: "punctuation",
+    difficulty: 1,
     errorType: "punctuation",
   },
   {
@@ -704,6 +765,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'The percentage' is singular, so the verb is 'has'.",
     lessonId: "gram-agreement",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "subject-verb agreement",
   },
   {
@@ -715,6 +777,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'The number of…' refers to a specific, defined quantity, so 'the' is used.",
     lessonId: "gram-articles-countability",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "articles",
   },
   {
@@ -726,6 +789,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Present perfect ('has improved') is used with 'since' for a change continuing to now.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "tense",
   },
   {
@@ -737,6 +801,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Second conditional (hypothetical present): past in the if-clause, 'would' in the result.",
     lessonId: "gram-tenses-conditionals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "conditionals",
   },
   {
@@ -748,6 +813,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Who' refers to people (students).",
     lessonId: "gram-relative-clauses",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "relative clauses",
   },
   {
@@ -759,6 +825,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "Past simple passive: 'was + past participle' for a completed past action.",
     lessonId: "gram-passive-modals",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "passive voice",
   },
   {
@@ -770,17 +837,19 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Damaging' is a long adjective, so the comparative is 'more damaging'.",
     lessonId: "gram-comparisons-quantifiers",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "comparatives",
   },
   {
     id: "g-modal-4",
     topic: "Modals",
     sentence: "Governments ___ invest more in public transport to reduce congestion.",
-    options: ["should", "may", "might"],
+    options: ["should", "must not", "would rather"],
     correct: 0,
-    explanation: "'Should' expresses a recommendation/obligation, fitting the policy context.",
+    explanation: "'Should' expresses a recommendation; 'must not' contradicts the stated purpose, and 'would rather' needs a contrast (would rather…than).",
     lessonId: "gram-passive-modals",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "modals",
   },
   {
@@ -791,7 +860,8 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 1,
     explanation: "'Suggests' and 'may' appropriately limit the strength of the claim.",
     lessonId: "gram-academic-style",
-    kind: "gap_fill",
+    kind: "style_choice",
+    difficulty: 2,
     errorType: "hedging",
   },
   {
@@ -803,6 +873,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Opportunities' is countable and plural, so 'many' is correct.",
     lessonId: "gram-articles-countability",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "countability",
   },
   {
@@ -814,6 +885,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "The standard collocation is 'a decrease in'.",
     lessonId: "gram-prepositions-collocations",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "prepositions / collocation",
   },
   {
@@ -824,18 +896,20 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 1,
     explanation: "All three verbs are in the past tense, keeping the list parallel.",
     lessonId: "gram-parallelism",
-    kind: "gap_fill",
+    kind: "sentence_choice",
+    difficulty: 2,
     errorType: "parallelism",
   },
   {
     id: "g-ref-3",
     topic: "Reference words",
-    sentence: "Many countries have ageing populations. ___ creates pressure on healthcare systems.",
-    options: ["This", "They", "It is"],
+    sentence: "The policy has many critics. ___ remains popular with voters.",
+    options: ["It", "They", "These"],
     correct: 0,
-    explanation: "'This' refers back to the whole previous situation.",
+    explanation: "'It' refers back to the singular noun 'the policy'; the plural pronouns do not agree.",
     lessonId: "gram-cohesion-reference",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "reference / cohesion",
   },
   {
@@ -846,7 +920,8 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 1,
     explanation: "The middle option uses measured, formal academic vocabulary.",
     lessonId: "gram-academic-style",
-    kind: "gap_fill",
+    kind: "style_choice",
+    difficulty: 2,
     errorType: "formal style",
   },
   {
@@ -858,6 +933,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "A semicolon correctly joins two closely related independent clauses.",
     lessonId: "gram-punctuation",
     kind: "sentence_choice",
+    difficulty: 1,
     errorType: "sentence boundaries",
   },
   {
@@ -869,6 +945,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'Expansion' is the noun form needed as the head of the noun phrase.",
     lessonId: "gram-noun-phrases",
     kind: "gap_fill",
+    difficulty: 1,
     errorType: "noun phrases",
   },
   {
@@ -880,6 +957,7 @@ export const grammarExercises: GrammarExercise[] = [
     explanation: "'As a result' signals the causal consequence of rising unemployment.",
     lessonId: "gram-cohesion-reference",
     kind: "gap_fill",
+    difficulty: 2,
     errorType: "cohesion / linking devices",
   },
   {
@@ -890,18 +968,20 @@ export const grammarExercises: GrammarExercise[] = [
     correct: 0,
     explanation: "A subordinating conjunction ('after') creates a correct complex sentence.",
     lessonId: "gram-complex-control",
-    kind: "gap_fill",
+    kind: "sentence_choice",
+    difficulty: 2,
     errorType: "complex sentences",
   },
   {
     id: "g-punct-4",
     topic: "Punctuation",
     sentence: "Choose the correct apostrophe use.",
-    options: ["The governments policy was criticised.", "The government's policy was criticised.", "The governments' policy was criticised for the one policy."],
+    options: ["Its a well-known fact that rents are rising.", "It's a well-known fact that rents are rising.", "Its' a well-known fact that rents are rising."],
     correct: 1,
-    explanation: "A singular possessor ('the government') takes an apostrophe before 's'.",
+    explanation: "'It's' is a contraction of 'it is'; 'its' (no apostrophe) is the possessive, and 'its'' does not exist.",
     lessonId: "gram-punctuation",
     kind: "punctuation",
+    difficulty: 1,
     errorType: "punctuation / apostrophes",
   },
 ];
@@ -969,8 +1049,8 @@ grammarExercises.push(
     "Choose the correctly joined pair.", ["The shop closed early; because of the storm.", "The shop closed early because of the storm.", "Because the shop closed early, and the storm."], 1,
     "A main clause plus 'because of + noun phrase' forms a grammatical sentence.", "cause clauses"),
   E("g-clause-7", "gram-clauses", "Clauses and clause boundaries", "gap_fill", 2,
-    "She will start the course ___ she has saved enough money.", ["while", "once", "unless"], 1,
-    "'Once' means 'as soon as', fitting the condition of saving money first.", "time clauses"),
+    "She will start the course ___ she has saved enough money.", ["once", "during", "because of"], 0,
+    "'Once' means 'as soon as'; 'during' and 'because of' cannot join these clauses ('because of' needs a noun phrase).", "time clauses"),
   E("g-clause-8", "gram-clauses", "Clauses and clause boundaries", "sentence_choice", 2,
     "Which sentence contains an adverbial clause?", ["The museum, which opened in May, is popular.", "We visited the museum after it opened in May.", "The new museum is popular."], 1,
     "'after it opened in May' is an adverbial clause of time.", "adverbial clauses"),
@@ -983,8 +1063,8 @@ grammarExercises.push(
     "Each of the candidates ___ asked to give a short presentation.", ["were", "was", "have been"], 1,
     "'Each' is singular; ignore the 'of' phrase when choosing the verb.", "subject-verb agreement"),
   E("g-agree-8", "gram-agreement", "Subject–verb agreement", "gap_fill", 3,
-    "The data from the survey ___ inconclusive.", ["are", "is", "be"], 0,
-    "'Data' is plural in formal/academic usage, so 'are' is expected here; many style guides accept either, but academic writing prefers plural.", "subject-verb agreement"),
+    "The results from the survey ___ inconclusive.", ["are", "is", "be"], 0,
+    "'Results' is plural, so the plural verb 'are' is required.", "subject-verb agreement"),
 
   // --- gram-relative-clauses (+4) ---
   E("g-rel-5", "gram-relative-clauses", "Relative clauses", "gap_fill", 2,
@@ -1002,8 +1082,8 @@ grammarExercises.push(
 
   // --- gram-noun-clauses (+6) ---
   E("g-nounclause-3", "gram-noun-clauses", "Noun clauses", "gap_fill", 2,
-    "The report shows ___ demand has fallen for the third year.", ["that", "whether", "if"], 0,
-    "'That' introduces a reported fact.", "noun clauses"),
+    "It is clear ___ demand has fallen for the third year.", ["that", "whether", "if"], 0,
+    "'It is clear that…' is the fixed pattern for a settled fact; 'clear whether/if' is not standard.", "noun clauses"),
   E("g-nounclause-4", "gram-noun-clauses", "Noun clauses", "gap_fill", 2,
     "___ the scheme will be extended is still uncertain.", ["Whether", "That", "Because"], 0,
     "'Whether' introduces a yes/no idea as the subject of the sentence.", "noun clauses"),
@@ -1014,8 +1094,8 @@ grammarExercises.push(
     "Which is correct?", ["The question is that whether prices will fall.", "The question is whether prices will fall.", "The question is if that prices will fall."], 1,
     "Use a single connector: 'whether', not 'that whether'.", "noun clauses"),
   E("g-nounclause-7", "gram-noun-clauses", "Noun clauses", "gap_fill", 3,
-    "The committee will announce ___ the proposal has been accepted.", ["that", "whether", "where"], 1,
-    "'Whether' fits an announcement of a yes/no outcome.", "noun clauses"),
+    "The committee has not yet decided ___ the proposal will be accepted.", ["whether", "that", "because"], 0,
+    "'Decide whether' introduces an unresolved yes/no question; 'that' would state a settled fact.", "noun clauses"),
   E("g-nounclause-8", "gram-noun-clauses", "Noun clauses", "sentence_choice", 2,
     "Which uses a noun clause as subject?", ["What the study reveals is significant.", "The study reveals a significant trend.", "The study is significant."], 0,
     "'What the study reveals' is a noun clause acting as the subject.", "noun clauses"),
@@ -1031,8 +1111,8 @@ grammarExercises.push(
     "Which is punctuated correctly?", ["If the price rises demand will fall.", "If the price rises, demand will fall.", "If the price rises; demand will fall."], 1,
     "A conditional clause at the start of the sentence takes a comma.", "adverbial clauses"),
   E("g-adv-6", "gram-adverbial-clauses", "Adverbial clauses", "gap_fill", 2,
-    "She has worked from home ___ the office closed last year.", ["since", "although", "while"], 0,
-    "'Since' marks the starting point of the continuing action.", "adverbial clauses"),
+    "She has worked from home ___ the start of the pandemic.", ["since", "for", "while"], 0,
+    "'Since' marks the starting point of the continuing action; 'for' needs a duration and 'while' a clause.", "adverbial clauses"),
   E("g-adv-7", "gram-adverbial-clauses", "Adverbial clauses", "error_identification", 2,
     "Identify the error: 'Because of the train was late, we missed the start.'", ["because of + clause", "tense", "word order"], 0,
     "'Because of' takes a noun phrase; use 'because the train was late' or 'because of the late train'.", "adverbial clauses"),
@@ -1048,20 +1128,20 @@ grammarExercises.push(
     "Households ___ solar panels have lower electricity bills.", ["using", "used", "to use"], 0,
     "Active meaning ('households that use') takes the -ing participle.", "participle clauses"),
   E("g-part-3", "gram-participle-clauses", "Participle clauses", "sentence_choice", 3,
-    "Which avoids a dangling participle?", ["Walking to school, the bus passed us.", "While we were walking to school, the bus passed us.", "Walking to school, we saw the bus pass us."], 2,
-    "The participle's implied subject must match the main clause subject: 'we' were walking.", "participle clauses"),
+    "Which sentence correctly uses an opening participle clause?", ["Walking to school, the bus passed us.", "While we were walking to school, the bus passed us.", "Walking to school, we saw the bus pass us."], 2,
+    "Only C opens with a participle clause whose implied subject 'we' matches the main clause subject; A is dangling and B has no participle clause.", "participle clauses"),
   E("g-part-4", "gram-participle-clauses", "Participle clauses", "sentence_choice", 2,
     "Which is correct?", ["Faced with rising rents, many people delay buying a home.", "Facing with rising rents, many people delay buying.", "Faced by rising rents, many people are delaying to buy."], 0,
     "'Faced with' is the standard passive participle expression.", "participle clauses"),
   E("g-part-5", "gram-participle-clauses", "Participle clauses", "gap_fill", 2,
-    "The graph shows spending ___ sharply in 2019.", ["rising", "risen", "rose"], 0,
-    "Active meaning ('spending that rose') takes the -ing participle after 'shows'.", "participle clauses"),
+    "The graph shows spending ___ sharply in 2019.", ["rising", "risen", "to rise"], 0,
+    "'Shows + noun + -ing' uses the participle to describe the movement; 'to rise' does not fit this pattern.", "participle clauses"),
   E("g-part-6", "gram-participle-clauses", "Participle clauses", "sentence_choice", 3,
     "Choose the best sentence.", ["The report, written by two researchers, was well received.", "The report, writing by two researchers, was well received.", "The report, wrote by two researchers, was well received."], 0,
     "Passive participle 'written' describes the report.", "participle clauses"),
   E("g-part-7", "gram-participle-clauses", "Participle clauses", "gap_fill", 2,
-    "___ all the options, the committee chose the cheapest.", ["Having considered", "Considered", "Considering"], 0,
-    "'Having considered' shows the action was completed before choosing.", "participle clauses"),
+    "___ all the options, the committee chose the cheapest.", ["Having considered", "Considered", "To consider"], 0,
+    "'Having considered' shows the action was completed before choosing; the other forms do not express that sequence.", "participle clauses"),
   E("g-part-8", "gram-participle-clauses", "Participle clauses", "sentence_choice", 2,
     "Which sentence is grammatical?", ["Given more time, the results would improve.", "Giving more time, the results would improve.", "To give more time, the results would improve."], 0,
     "'Given more time' is a passive participle meaning 'if more time were given'.", "participle clauses"),
@@ -1094,11 +1174,11 @@ grammarExercises.push(
     "The north region performed ___ better than the south.", ["far", "more", "much more"], 0,
     "'Far better' intensifies the comparative correctly (avoid 'more better').", "comparatives"),
   E("g-comp-7", "gram-comparisons-quantifiers", "Comparatives", "gap_fill", 3,
-    "Car use fell, ___ cycling increased significantly.", ["whereas", "although", "therefore"], 0,
-    "'Whereas' contrasts the two trends in one sentence.", "comparatives"),
+    "Car use fell, ___ cycling increased significantly.", ["whereas", "so that", "in case"], 0,
+    "'Whereas' contrasts the two trends; 'so that' expresses purpose and 'in case' precaution, neither of which fits.", "comparatives"),
   E("g-comp-8", "gram-comparisons-quantifiers", "Comparatives", "gap_fill", 2,
-    "Rents were 800 and 650 pounds __________.", ["each", "respectively", "individually"], 1,
-    "'Respectively' matches the two figures to the two named items in order.", "comparatives"),
+    "Monthly rents in London and Bristol were £800 and £650 ______.", ["each", "respectively", "individually"], 1,
+    "'Respectively' maps the figures to the two named cities in order: London → £800, Bristol → £650.", "comparatives"),
 
   // --- gram-prepositions-collocations (+4) ---
   E("g-prep-5", "gram-prepositions-collocations", "Prepositions", "gap_fill", 2,
@@ -1108,24 +1188,24 @@ grammarExercises.push(
     "We discussed ___ the proposal for an hour.", ["about", "on", "—"], 2,
     "'Discuss' takes a direct object with no preposition.", "prepositions / collocation"),
   E("g-prep-7", "gram-prepositions-collocations", "Prepositions", "gap_fill", 2,
-    "There are several possible solutions ___ the housing shortage.", ["of", "to", "for"], 1,
-    "The collocation is 'solutions to'.", "prepositions / collocation"),
+    "There are several possible solutions ___ the housing shortage.", ["of", "to", "with"], 1,
+    "The standard collocation is 'solutions to' (a problem).", "prepositions / collocation"),
   E("g-prep-8", "gram-prepositions-collocations", "Prepositions", "gap_fill", 3,
     "Prices remained stable ___ the period.", ["over", "since", "until"], 0,
     "'Over the period' describes a span of time.", "prepositions / collocation"),
 
   // --- gram-cohesion-reference (+1) ---
   E("g-coh-3", "gram-cohesion-reference", "Cohesion", "gap_fill", 2,
-    "Rents have risen sharply. ___ has made city living harder for young people.", ["This", "They", "It is"], 0,
-    "'This' refers back to the whole previous idea.", "reference / cohesion"),
+    "Rents have risen sharply. ___, transport costs have also increased.", ["In addition", "As a result", "In contrast"], 0,
+    "'In addition' adds a second similar trend; 'As a result' implies cause and 'In contrast' a difference, which the 'also' rules out.", "cohesion / linking devices"),
 
   // --- gram-parallelism (+4) ---
   E("g-par-5", "gram-parallelism", "Parallelism", "sentence_choice", 2,
     "Choose the parallel version.", ["The course teaches reading, writing and how to speak clearly.", "The course teaches reading, writing and speaking clearly.", "The course teaches reading, writing and clearly speaking."], 1,
     "All three items are gerunds, keeping the list parallel.", "parallelism"),
   E("g-par-6", "gram-parallelism", "Parallelism", "gap_fill", 2,
-    "The policy aims to reduce traffic, improve air quality and ___ money.", ["saving", "save", "to save"], 2,
-    "Parallel to the other to-infinitives: to reduce, (to) improve, to save.", "parallelism"),
+    "The policy aims to reduce traffic, improve air quality and ___ money.", ["saving", "save", "to save"], 1,
+    "After 'aims to', coordinated infinitives may share the first 'to': to reduce, improve and save.", "parallelism"),
   E("g-par-7", "gram-parallelism", "Parallelism", "error_identification", 2,
     "Identify the error: 'The scheme reduced costs, improved safety, and it saved time.'", ["non-parallel list", "tense", "article"], 0,
     "The third item 'it saved time' breaks the parallel verb pattern.", "parallelism"),
@@ -1161,8 +1241,8 @@ grammarExercises.push(
     "Which sentence combines the ideas most clearly?", ["The policy was expensive. It was introduced. It reduced fares.", "Although expensive, the policy reduced fares.", "The policy expensive reduced fares."], 1,
     "'Although expensive' compresses the concession without a run-on.", "complex sentences"),
   E("g-cx-3", "gram-complex-control", "Complex clauses", "error_identification", 3,
-    "Identify the problem: 'The more people cycle, the roads become safer.'", ["mixed comparative structure", "tense", "article"], 0,
-    "The double comparative needs 'the safer the roads become'.", "complex sentences"),
+    "Identify the problem: 'The more people cycle, the roads become safer.'", ["incomplete double comparative", "tense", "article"], 0,
+    "The second half of the double comparative is incomplete: it needs 'the safer the roads become'.", "complex sentences"),
   E("g-cx-4", "gram-complex-control", "Complex clauses", "gap_fill", 3,
     "The more you practise, ___ your accuracy becomes.", ["the better", "better", "the best"], 0,
     "Double comparative: 'the more…, the better…'.", "complex sentences"),
@@ -1178,8 +1258,8 @@ grammarExercises.push(
     "Choose the most academic wording.", ["Kids watch too much TV.", "Children's excessive television viewing has been linked to negative outcomes.", "Watching telly a lot is bad for kids."], 1,
     "The second option uses formal vocabulary and nominalisation.", "formal style"),
   E("g-style-5", "gram-academic-style", "Hedging", "style_choice", 3,
-    "Which claim is appropriately hedged?", ["The study proves all students benefit.", "The study suggests that many students may benefit.", "The study definitely solves the problem."], 1,
-    "'Suggests' and 'may' limit the claim to what the evidence supports.", "hedging"),
+    "Which claim is appropriately hedged?", ["Online learning always harms social skills.", "Online learning may limit face-to-face interaction for some students.", "Online learning destroys all social development."], 1,
+    "'May' and 'for some students' limit the claim to what the evidence supports.", "hedging"),
 
   // --- gram-task1-grammar (+12) ---
   E("g-t1-1", "gram-task1-grammar", "Academic Task 1 grammar", "gap_fill", 2,
@@ -1192,29 +1272,29 @@ grammarExercises.push(
     "Demand is predicted ___ sharply next year.", ["to fall", "falling", "falls"], 0,
     "'Is predicted to + verb' expresses a projection.", "tense"),
   E("g-t1-4", "gram-task1-grammar", "Academic Task 1 grammar", "gap_fill", 1,
-    "Car use fell, ___ cycling rose.", ["whereas", "although", "because"], 0,
-    "'Whereas' contrasts the two trends.", "comparison"),
+    "Car use fell, ___ cycling rose.", ["whereas", "while it", "despite"], 0,
+    "'Whereas' contrasts the two trends; 'while it' is ungrammatical and 'despite' needs a noun phrase.", "comparison"),
   E("g-t1-5", "gram-task1-grammar", "Academic Task 1 grammar", "gap_fill", 2,
-    "Sales were 40 and 25 units ______.", ["each", "respectively", "both"], 1,
-    "'Respectively' links the two figures to the two items in order.", "comparison"),
+    "Sales of Product A and Product B were 40 and 25 units ______.", ["each", "respectively", "both"], 1,
+    "'Respectively' maps each value to the previously listed entity in the same order: Product A → 40, Product B → 25.", "comparison"),
   E("g-t1-6", "gram-task1-grammar", "Academic Task 1 grammar", "gap_fill", 2,
     "There was an increase ___ 5% in output.", ["of", "in", "by"], 0,
     "'An increase of + figure'; the verb form uses 'by' (rose by 5%).", "preposition"),
   E("g-t1-7", "gram-task1-grammar", "Academic Task 1 grammar", "gap_fill", 2,
-    "The bottles ___ collected, sorted and crushed.", ["are", "have", "were being"], 0,
-    "Process descriptions use the present simple passive.", "passive"),
+    "The bottles ___ collected, sorted and crushed.", ["are", "have", "been"], 0,
+    "Process descriptions use the present simple passive: 'are collected, sorted and crushed'.", "passive"),
   E("g-t1-8", "gram-task1-grammar", "Academic Task 1 grammar", "gap_fill", 2,
-    "The factory was converted ___ apartments.", ["into", "to", "for"], 0,
-    "'Converted into' describes the new use.", "map language"),
+    "The factory was converted ___ apartments.", ["into", "as", "over"], 0,
+    "'Converted into' describes the new use; 'as' and 'over' are not used in this pattern.", "map language"),
   E("g-t1-9", "gram-task1-grammar", "Academic Task 1 grammar", "sentence_choice", 2,
-    "Choose the correct Task 1 sentence.", ["The percentage of car users decreased from 65% to 45%.", "The percentage of car users decreased from 65 to 45%."], 0,
-    "Both '65%' and '45%' need the per cent sign for clarity.", "percentage"),
+    "Choose the correct Task 1 sentence.", ["The percentage of car users decreased from 65% to 45%.", "The percentage of car users decreased from 65 to 45%.", "The percentage of car users decreased from 65% until 45%."], 0,
+    "Both figures need the per cent sign, and a change of level takes 'from…to…', not 'until'.", "percentage"),
   E("g-t1-10", "gram-task1-grammar", "Academic Task 1 grammar", "gap_fill", 3,
     "Overall, the figures show a clear upward ______.", ["tendency", "tend", "tending"], 0,
     "The noun 'tendency' is required after 'a clear upward'.", "noun form"),
   E("g-t1-11", "gram-task1-grammar", "Academic Task 1 grammar", "sentence_choice", 2,
-    "Which overview is grammatically correct?", ["Overall, all categories increased, with transport the largest rise seen.", "Overall all categories increased with transport the largest rise seen."], 0,
-    "The commas after the introductory adverb and around the 'with' phrase are required.", "punctuation"),
+    "Which overview is grammatically correct?", ["Overall, all categories increased, with transport recording the largest rise.", "Overall all categories increased, with transport recorded the largest rise.", "Overall, all categories increased, with transport record the largest rise."], 0,
+    "'With + noun + -ing' (with transport recording the largest rise) adds a supplementary detail; 'recorded' and 'record' break that pattern.", "complex sentences"),
   E("g-t1-12", "gram-task1-grammar", "Academic Task 1 grammar", "gap_fill", 2,
     "Electricity generation by coal fell ___ 320 to 210 GWh.", ["from", "between", "of"], 0,
     "'From X to Y' expresses the range of change.", "preposition"),
@@ -1236,20 +1316,20 @@ grammarExercises.push(
     "Choose the most appropriately hedged claim.", ["This proves that all advertising is harmful.", "This may result in higher costs for consumers.", "This absolutely must cause disaster."], 1,
     "'May result in' limits the claim to possibility.", "hedging"),
   E("g-t2-6", "gram-task2-grammar", "Task 2 argument grammar", "gap_fill", 2,
-    "It ___ be argued that advertising influences children unfairly.", ["could", "must", "can't"], 0,
-    "'Could be argued' is a standard hedge.", "hedging"),
+    "It ___ be argued that advertising influences children unfairly, though the evidence is mixed.", ["could", "must", "can't"], 0,
+    "'Could be argued' is the standard hedge; 'though the evidence is mixed' rules out 'must' and 'can't'.", "hedging"),
   E("g-t2-7", "gram-task2-grammar", "Task 2 argument grammar", "sentence_choice", 2,
     "Choose the parallel thesis statement.", ["This essay will discuss causes, effects and suggest solutions.", "This essay will discuss causes, effects and solutions.", "This essay will discuss causes, effects and to suggest solutions."], 1,
     "All three items are noun phrases, keeping the list parallel.", "parallelism"),
   E("g-t2-8", "gram-task2-grammar", "Task 2 argument grammar", "gap_fill", 2,
-    "Governments ___ invest more in public transport.", ["should", "might not", "cannot"], 0,
-    "'Should' expresses a recommendation in an argument.", "modals"),
+    "Drivers ___ pay the congestion charge when entering the city centre; most commuters have switched to the metro as a result.", ["must", "must not", "cannot"], 0,
+    "'Must' expresses the obligation; the result clause confirms that drivers do pay, so 'must not' and 'cannot' contradict it.", "modals"),
   E("g-t2-9", "gram-task2-grammar", "Task 2 argument grammar", "gap_fill", 3,
     "The policy, ___ was introduced last year, has reduced congestion.", ["which", "that", "who"], 0,
     "Non-defining relative clauses use 'which' with commas.", "relative clauses"),
   E("g-t2-10", "gram-task2-grammar", "Task 2 argument grammar", "error_identification", 2,
-    "Identify the error: 'There are several reasons explain this trend.'", ["doubled subject", "tense", "preposition"], 0,
-    "Two structures are merged: 'There are several reasons for this trend' or 'Several reasons explain this trend'.", "complex sentences"),
+    "Identify the error: 'There are several reasons explain this trend.'", ["missing connector after 'reasons'", "wrong tense", "article error"], 0,
+    "A connector is missing: 'There are several reasons that explain this trend' or 'There are several reasons for this trend'.", "complex sentences"),
   E("g-t2-11", "gram-task2-grammar", "Task 2 argument grammar", "gap_fill", 2,
     "Not only ___ traffic increased, but air quality has also worsened.", ["has", "is", "does"], 0,
     "'Not only' at the start triggers inversion with the auxiliary.", "inversion"),
@@ -1271,11 +1351,11 @@ grammarExercises.push(
     "Identify the register error: 'I am writing to inform you of the delay. Cheers, mate.'", ["mixed register", "tense", "spelling"], 0,
     "A formal opening should not be paired with an informal closing.", "register"),
   E("g-letter-5", "gram-letter-grammar", "General letter grammar", "gap_fill", 2,
-    "___ you tell me where the office is located?", ["Could", "Must", "Should"], 0,
-    "'Could' is the polite request modal.", "modals"),
+    "___ you tell me where the office is located?", ["Could", "Do", "Are"], 0,
+    "'Could you…?' is the polite request form; 'Do you tell me…' and 'Are you tell me…' are ungrammatical.", "modals"),
   E("g-letter-6", "gram-letter-grammar", "General letter grammar", "gap_fill", 2,
-    "I ___ be grateful if you could reply by Friday.", ["would", "will", "am"], 0,
-    "The polite pattern is 'I would be grateful if…'.", "modals"),
+    "I ___ be grateful if you could reply by Friday.", ["would", "am", "was"], 0,
+    "The polite pattern is 'I would be grateful if…'; 'am be' and 'was be' are ungrammatical.", "modals"),
   E("g-letter-7", "gram-letter-grammar", "General letter grammar", "gap_fill", 2,
     "I look forward to ___ from you.", ["hear", "hearing", "heard"], 1,
     "'Look forward to' takes the gerund.", "gerunds / infinitives"),
@@ -1300,8 +1380,8 @@ grammarExercises.push(
     "Choose the correct version.", ["We visited three cities: Paris, Rome and Vienna.", "We visited three cities, Paris, Rome and Vienna.", "We visited three cities; Paris, Rome and Vienna."], 0,
     "A colon introduces the list after a complete clause.", "punctuation"),
   E("g-punct-10", "gram-punctuation", "Punctuation", "punctuation", 3,
-    "Choose the correct version.", ["The survey — carried out in June — covered 500 residents.", "The survey, carried out in June, covered 500 residents.", "The survey carried out in June covered 500 residents."], 1,
-    "Commas correctly set off the non-essential participial phrase.", "punctuation"),
+    "Which version correctly uses commas to mark a non-essential participial phrase?", ["The survey carried out in June, covered 500 residents.", "The survey, carried out in June, covered 500 residents.", "The survey, carried out in June covered 500 residents."], 1,
+    "Two commas — one on each side — set off the non-essential participial phrase 'carried out in June'.", "punctuation"),
 
   // --- gram-tenses-conditionals (+2) ---
   E("g-tense-6", "gram-tenses-conditionals", "Tense consistency", "gap_fill", 3,
@@ -1313,8 +1393,8 @@ grammarExercises.push(
 
   // --- gram-passive-modals (+4) ---
   E("g-pass-5", "gram-passive-modals", "Passive voice", "gap_fill", 2,
-    "A new hospital ______ in the city centre.", ["has built", "has been built", "is build"], 1,
-    "Present perfect passive: has been + past participle.", "passive voice"),
+    "The stadium ______ in time for the tournament.", ["has built", "has been built", "is build"], 1,
+    "Present perfect passive: 'has been + past participle'; the stadium cannot build itself.", "passive voice"),
   E("g-pass-6", "gram-passive-modals", "Passive voice", "sentence_choice", 3,
     "Where is the passive most appropriate?", ["The researchers carried out the experiment.", "The experiment was carried out under controlled conditions.", "Researchers carry out experiments."], 1,
     "The passive suits a process/method description where the doer is unimportant.", "passive voice"),
@@ -1322,8 +1402,8 @@ grammarExercises.push(
     "Students ___ submit the form by Friday; it is compulsory.", ["may", "must", "might"], 1,
     "'Must' expresses obligation; the sentence says it is compulsory.", "modals"),
   E("g-mod-6", "gram-passive-modals", "Modals", "gap_fill", 3,
-    "The results ___ be affected by the small sample size.", ["might", "must", "can't"], 0,
-    "'Might' hedges the possibility appropriately.", "modals"),
+    "The results ___ be affected by the small sample size, but further analysis is needed.", ["might", "must", "can't"], 0,
+    "'Might' hedges the possibility; 'but further analysis is needed' rules out the certainty of 'must' and 'can't'.", "modals"),
 );
 
 export function getGrammarExercises(): GrammarExercise[] {
