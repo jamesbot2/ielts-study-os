@@ -182,3 +182,50 @@ describe("defensive multiple-answer scoring", () => {
     expect(units.filter((u) => u.correct).length).toBe(1);
   });
 });
+
+describe("question-scoped visual applicability", () => {
+  it("questionUsesVisual is true only for marker-referencing questions", async () => {
+    const { questionUsesVisual } = await import("./units");
+    const markerQ = textQuestion() as never as Question & { markerId?: string };
+    expect(questionUsesVisual(markerQ)).toBe(false);
+    (markerQ as { markerId?: string }).markerId = "m1";
+    expect(questionUsesVisual(markerQ)).toBe(true);
+    (markerQ as { markerId?: string }).markerId = "";
+    expect(questionUsesVisual(markerQ)).toBe(false);
+  });
+
+  it("markerId without a matching visual marker fails validation", async () => {
+    const { getPracticeSetIssues } = await import("@/lib/content/practice-validation");
+    const base = {
+      meta: { id: "x", sourceType: "ORIGINAL", license: "CC0" },
+      kind: "listening",
+      passages: [],
+      practiceMode: "targeted",
+      targetQuestionType: "map_labelling",
+      questions: [],
+    } as unknown as import("@/types/ielts").PracticeSet;
+    const noVisual = getPracticeSetIssues(
+      { ...base, questions: [{ ...textQuestion(), markerId: "m1" }] } as unknown as import("@/types/ielts").PracticeSet,
+      new Set(),
+    );
+    expect(noVisual.some((i) => i.message.includes("has no visual"))).toBe(true);
+    const badMarker = getPracticeSetIssues(
+      {
+        ...base,
+        visual: { kind: "map", width: 10, height: 10, shapes: [], markers: [{ id: "other", label: "A", x: 1, y: 1 }] },
+        questions: [{ ...textQuestion(), markerId: "m1" }],
+      } as unknown as import("@/types/ielts").PracticeSet,
+      new Set(),
+    );
+    expect(badMarker.some((i) => i.message.includes("not found in visual markers"))).toBe(true);
+  });
+
+  it("scored-unit footer totals: full Listening = 40, full Reading = 40", async () => {
+    const { allPracticeSets } = await import("@/lib/content/practice");
+    const { scoredUnitCountForSet } = await import("./units");
+    for (const id of ["listening-1", "academic-reading-1", "general-reading-1"]) {
+      const set = allPracticeSets.find((s) => s.meta.id === id)!;
+      expect(scoredUnitCountForSet(set), id).toBe(40);
+    }
+  });
+});

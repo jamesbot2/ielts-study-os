@@ -159,6 +159,18 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
   const mode = set.practiceMode ?? "full";
   const effectiveCount = effectiveQuestionCount(set);
 
+  // Marker-reference validation for ALL sets (full + targeted): any question
+  // with a markerId must reference an existing marker on the set's visual.
+  for (const q of set.questions) {
+    if (q.markerId != null) {
+      if (!set.visual) {
+        issues.push({ setId: id, questionId: q.id, message: `markerId "${q.markerId}" set but the set has no visual` });
+      } else if (!set.visual.markers.some((m) => m.id === q.markerId)) {
+        issues.push({ setId: id, questionId: q.id, message: `markerId "${q.markerId}" not found in visual markers` });
+      }
+    }
+  }
+
   // Spatial (plan/map/diagram) guardrails: the visual must provide blank
   // markers only, and the answers must never be prefilled as shape labels.
   const isSpatial = set.kind === "listening" && (set.targetQuestionType === "plan_labelling" || set.targetQuestionType === "map_labelling" || set.targetQuestionType === "diagram_labelling");

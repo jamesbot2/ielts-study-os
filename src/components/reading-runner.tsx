@@ -291,16 +291,18 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
         </div>
       </div>
 
-      {/* Question navigator */}
+      {/* Question navigator (scored-unit ranges for grouped questions) */}
       <div className="flex flex-wrap gap-1 border-b border-border bg-gray-50 px-3 py-2">
         {questions.map((question, i) => {
           const a = answers[question.id];
           const isAnswered = a !== undefined && a !== "" && !(Array.isArray(a) && a.length === 0);
+          const range = scoredUnitRange(questions, i);
+          const label = range.start === range.end ? `${range.start}` : `${range.start}–${range.end}`;
           return (
             <button
               key={question.id}
               onClick={() => setCurrent(i)}
-              className={`h-8 w-8 rounded text-xs font-medium ${
+              className={`h-8 rounded px-1.5 text-xs font-medium ${
                 i === current
                   ? "bg-accent text-white"
                   : flags.has(question.id)
@@ -309,9 +311,9 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
                       ? "bg-green-200"
                       : "bg-white border border-border"
               }`}
-              aria-label={`Question ${i + 1}`}
+              aria-label={range.start === range.end ? `Question ${range.start}` : `Questions ${range.start} to ${range.end}`}
             >
-              {i + 1}
+              {label}
             </button>
           );
         })}

@@ -15,7 +15,7 @@ import {
 } from "@/lib/practice/listening-state";
 import { QuestionPanel, ResultsView } from "@/components/reading-runner";
 import { effectiveQuestionCount } from "@/lib/content/practice-validation";
-import { scoredUnitCountForQuestions, scoredUnitRange, answeredScoredUnitCount } from "@/lib/scoring/units";
+import { scoredUnitCountForQuestions, scoredUnitRange, answeredScoredUnitCount, questionUsesVisual } from "@/lib/scoring/units";
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Flag } from "lucide-react";
 
 type Answer = string | string[] | Record<string, string>;
@@ -349,7 +349,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
               }
               range={scoredUnitRange(questions, current)}
               total={scoredUnitCountForQuestions(questions)}
-              visual={set.visual}
+              visual={questionUsesVisual(q) ? set.visual : undefined}
             />
           </div>
 

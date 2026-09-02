@@ -56,3 +56,10 @@ export function answeredScoredUnitCount(question: Question, answer: AnswerValue 
   // text / number
   return typeof answer === "string" && answer.trim() !== "" ? 1 : 0;
 }
+
+// Question-scoped visual applicability: a ListeningVisual should only render
+// when the current question actually references a blank marker on it. This is
+// the single decision rule shared by ListeningRunner and MockRunner.
+export function questionUsesVisual(question: Question): boolean {
+  return typeof question.markerId === "string" && question.markerId.length > 0;
+}

@@ -96,3 +96,48 @@ test.describe("spatial and numbering corrections", () => {
     await expect(page.getByText(/4\/8/).first()).toBeVisible();
   });
 });
+
+test.describe("Round 3A-E visual scope and navigation", () => {
+  test("full Listening map appears only for marker questions", async ({ page }) => {
+    await page.goto("/practice/listening/listening-1/");
+    await page.getByRole("button", { name: /Practice mode/ }).click();
+
+    // Part 1 (hotel booking): no map.
+    await expect(page.locator('svg[aria-label="Map"]')).toHaveCount(0);
+
+    // Jump to Part 2 and reach the first map question (q13).
+    await page.getByRole("button", { name: /^Part 2$/ }).click();
+    await expect(page.locator('svg[aria-label="Map"]')).toHaveCount(0); // q11 is not a map question
+    await page.getByRole("button", { name: /Next/ }).click();
+    await page.getByRole("button", { name: /Next/ }).click();
+    await expect(page.locator('svg[aria-label="Map"]')).toBeVisible();
+
+    // Part 3 (research discussion): no map.
+    await page.getByRole("button", { name: /^Part 3$/ }).click();
+    await expect(page.locator('svg[aria-label="Map"]')).toHaveCount(0);
+  });
+
+  test("full Mock Listening renders the map question and a 40-unit footer", async ({ page }) => {
+    await page.goto("/mock/run/listening");
+    await page.getByRole("button", { name: /Start mock/ }).click();
+    await page.getByRole("button", { name: /Start section/ }).click();
+
+    await expect(page.getByText(/0\/40/).first()).toBeVisible();
+    await page.getByRole("button", { name: /Question 13$/ }).click();
+    await expect(page.locator('svg[aria-label="Map"]')).toBeVisible();
+    await expect(page.getByText(/0\/40/).first()).toBeVisible();
+  });
+
+  test("navigators show scored-unit ranges for grouped questions", async ({ page }) => {
+    // Reading: matching-headings drill navigator shows 1–7.
+    await page.goto("/practice/reading/reading-targeted-matching-headings-01/");
+    await page.getByRole("button", { name: /Practice mode/ }).click();
+    await expect(page.getByRole("button", { name: /Questions 1 to 7/ })).toBeVisible();
+
+    // Mock Reading navigator shows ranges for the academic matching group.
+    await page.goto("/mock/run/reading");
+    await page.getByRole("button", { name: /Start mock/ }).click();
+    await page.getByRole("button", { name: /Start section/ }).click();
+    await expect(page.getByRole("button", { name: /Questions 1 to 7/ })).toBeVisible();
+  });
+});

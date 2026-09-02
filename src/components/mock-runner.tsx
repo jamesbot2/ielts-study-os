@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { PracticeSet, WritingPrompt, Question } from "@/types/ielts";
+import type { PracticeSet, WritingPrompt, Question, ListeningVisual } from "@/types/ielts";
 import { startMock, finishMock, saveMockState, type MockSectionResult, type MockCompleteInput } from "@/lib/practice/mock";
 import { QuestionPanel } from "@/components/reading-runner";
-import { scoredUnitRange, scoredUnitCountForQuestions } from "@/lib/scoring/units";
+import { scoredUnitRange, scoredUnitCountForQuestions, answeredScoredUnitCount, questionUsesVisual } from "@/lib/scoring/units";
 import { BandBadge, Spinner } from "@/components/ui";
 import { useI18n } from "@/components/i18n-provider";
 import {
@@ -395,7 +395,12 @@ export function MockRunner({
   // Running
   const questions = currentQuestions();
   const sectionFlags = flags[currentSection?.key ?? ""] ?? {};
-  const answered = countAnswered(answers[currentSection?.key ?? ""] ?? {});
+  const sectionKey = currentSection?.key ?? "";
+  const sectionAnswers = answers[sectionKey] ?? {};
+  const isObjective = sectionKey === "listening" || sectionKey === "reading";
+  const answered = isObjective
+    ? questions.reduce((n, q) => n + answeredScoredUnitCount(q, sectionAnswers[q.id]), 0)
+    : countAnswered(sectionAnswers);
 
   return (
     <FullScreen>
@@ -415,12 +420,13 @@ export function MockRunner({
           onListeningStateChange={onListeningStateChange}
           onCurrentQuestionChange={onCurrentQuestionChange}
           passages={currentSection?.key === "reading" ? readingSet?.passages ?? [] : []}
+          visual={currentSection?.key === "listening" ? listeningSet?.visual : undefined}
         />
       )}
       <FooterBar
         timeLeft={timeLeft}
         answered={answered}
-        total={currentSection?.key === "writing" ? 2 : questions.length}
+        total={currentSection?.key === "writing" ? 2 : isObjective ? scoredUnitCountForQuestions(questions) : questions.length}
         onFinish={finishSection}
       />
     </FullScreen>
@@ -457,6 +463,7 @@ function QuestionSection({
   onListeningStateChange,
   onCurrentQuestionChange,
   passages,
+  visual,
 }: {
   questions: Question[];
   answers: Record<string, Answer>;
@@ -468,6 +475,7 @@ function QuestionSection({
   playbackState: ListeningPlaybackState;
   initialQuestion: number;
   onListeningStateChange: (state: ListeningPlaybackState) => void;
+  visual?: ListeningVisual;
   onCurrentQuestionChange: (index: number) => void;
   passages: PracticeSet["passages"];
 }) {
@@ -552,10 +560,13 @@ function QuestionSection({
           const a = answers[question.id];
           const isAnswered = a !== undefined && a !== "" && !(Array.isArray(a) && a.length === 0);
           const isFlagged = flags[question.id];
+          const range = scoredUnitRange(questions, i);
+          const label = range.start === range.end ? `${range.start}` : `${range.start}–${range.end}`;
           return (
             <button
               key={question.id}
               onClick={() => goToQuestion(i)}
+              aria-label={range.start === range.end ? `Question ${range.start}` : `Questions ${range.start} to ${range.end}`}
               className={`flex h-8 min-w-8 items-center justify-center gap-1 rounded px-1.5 text-xs ${
                 i === current
                   ? "bg-accent text-white"
@@ -566,7 +577,7 @@ function QuestionSection({
                       : "bg-white border border-border"
               }`}
             >
-              {i + 1}
+              {label}
               {isFlagged && <Flag className="h-3 w-3" />}
             </button>
           );
@@ -609,6 +620,7 @@ function QuestionSection({
               onToggleFlag={() => onToggleFlag(q.id)}
               range={scoredUnitRange(questions, current)}
               total={scoredUnitCountForQuestions(questions)}
+              visual={questionUsesVisual(q) ? visual : undefined}
             />
           ) : null}
           <div className="mt-4 flex justify-between">
