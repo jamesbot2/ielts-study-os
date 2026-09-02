@@ -24,6 +24,7 @@ interface BaseArgs {
   difficulty?: 1 | 2 | 3 | 4 | 5;
   bandRange?: { min: number; max: number };
   passageId?: string;
+  markerId?: string;
 }
 
 function base(args: BaseArgs): BaseQuestion {
@@ -35,6 +36,7 @@ function base(args: BaseArgs): BaseQuestion {
     explanation: args.explanation,
     evidence: args.evidence,
     skillTags: args.skillTags ?? [],
+    markerId: args.markerId,
     difficulty: args.difficulty ?? 3,
     bandRange: args.bandRange ?? { min: 5, max: 8 },
     passageId: args.passageId,

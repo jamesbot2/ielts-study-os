@@ -15,6 +15,7 @@ import {
 } from "@/lib/practice/listening-state";
 import { QuestionPanel, ResultsView } from "@/components/reading-runner";
 import { effectiveQuestionCount } from "@/lib/content/practice-validation";
+import { scoredUnitCountForQuestions, scoredUnitRange, answeredScoredUnitCount } from "@/lib/scoring/units";
 import { Play, Pause, RotateCcw, ChevronLeft, ChevronRight, Flag } from "lucide-react";
 
 type Answer = string | string[] | Record<string, string>;
@@ -27,22 +28,6 @@ interface PersistedListening {
   current: number;
   playback: ListeningPlaybackState;
   startedAt: number;
-}
-
-// Scored-unit positions: matching items / multiple-answer choices each occupy
-// one numbered question.
-function unitsOf(q: import("@/types/ielts").Question): number {
-  if (q.answerType === "matching" || q.answerType === "heading_matching") return q.items.length;
-  if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) return q.selectCount;
-  return 1;
-}
-function unitTotalFor(questions: import("@/types/ielts").Question[]): number {
-  return questions.reduce((n, q) => n + unitsOf(q), 0);
-}
-function unitRangeFor(questions: import("@/types/ielts").Question[], current: number): { start: number; end: number } {
-  let n = 0;
-  for (let i = 0; i < current; i++) n += unitsOf(questions[i]);
-  return { start: n + 1, end: n + unitsOf(questions[current] ?? 0) };
 }
 
 const storageKey = (setId: string) => `ielts-listening:${setId}`;
@@ -278,13 +263,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   }
 
   const q = questions[current];
-  const answered = questions.reduce((n, x) => {
-    const a = answers[x.id];
-    if (a == null || a === "") return n;
-    if (Array.isArray(a)) return n + a.length;
-    if (typeof a === "object") return n + Object.values(a).filter((v) => v !== "" && v != null).length;
-    return n + 1;
-  }, 0);
+  const answered = questions.reduce((n, x) => n + answeredScoredUnitCount(x, answers[x.id]), 0);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
@@ -326,7 +305,7 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
               {mode === "exam" && playback.finished ? ` · ${t("listening.onePlay")}` : ""}
             </p>
           </div>
-          <span className="text-sm font-semibold">{answered}/{unitTotalFor(questions)}</span>
+          <span className="text-sm font-semibold">{answered}/{scoredUnitCountForQuestions(questions)}</span>
         </div>
       </div>
 
@@ -368,8 +347,8 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
                   return next;
                 })
               }
-              range={unitRangeFor(questions, current)}
-              total={unitTotalFor(questions)}
+              range={scoredUnitRange(questions, current)}
+              total={scoredUnitCountForQuestions(questions)}
               visual={set.visual}
             />
           </div>

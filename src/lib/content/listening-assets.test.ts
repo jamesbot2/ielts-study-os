@@ -52,14 +52,19 @@ describe("manifest consistency", () => {
 
     const seen = new Set<string>();
     for (const set of targetedListeningSets.filter(isPublishedTargetedSet)) {
+      const audioParts = set.audio?.parts ?? [];
       const setParts = parts.filter((p: { setId: string }) => p.setId === set.meta.id);
-      expect(setParts.length, `${set.meta.id} manifest entries`).toBe(1);
-      const src = set.audio?.parts?.[0]?.src;
-      expect(setParts[0].src, `${set.meta.id} src matches`).toBe(src);
-      const path = join(process.cwd(), src!.replace(/^\/audio\//, "public/audio/"));
-      expect(existsSync(path)).toBe(true);
-      expect(setParts[0].sizeBytes, `${set.meta.id} size matches`).toBe(statSync(path).size);
-      expect(setParts[0].durationSeconds, `${set.meta.id} duration positive`).toBeGreaterThan(0);
+      // One manifest entry per declared audio part — not hardcoded to one.
+      expect(setParts.length, `${set.meta.id} manifest entries == audio parts`).toBe(audioParts.length);
+      for (const ap of audioParts) {
+        const entry = setParts.find((p: { part: number }) => p.part === ap.part);
+        expect(entry, `${set.meta.id} part ${ap.part} entry exists`).toBeTruthy();
+        expect(entry.src, `${set.meta.id} part ${ap.part} src matches`).toBe(ap.src);
+        const path = join(process.cwd(), ap.src!.replace(/^\/audio\//, "public/audio/"));
+        expect(existsSync(path), `${ap.src} exists`).toBe(true);
+        expect(entry.sizeBytes, `${ap.src} size matches`).toBe(statSync(path).size);
+        expect(entry.durationSeconds, `${ap.src} duration positive`).toBeGreaterThan(0);
+      }
     }
     for (const p of parts) {
       const key = `${p.setId}:${p.part}`;

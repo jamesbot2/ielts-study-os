@@ -215,12 +215,12 @@ export function checkQuestion(question: Question, userAnswer: unknown): boolean 
 // A SCORED UNIT is one objective IELTS mark:
 // - text question:       1 unit
 // - single choice:       1 unit
-// - multiple answer:     1 unit (one numbered question)
+// - multiple answer:     selectCount units (Choose TWO = 2 marks, partial credit)
 // - matching/headings:   EACH item is 1 unit (a 7-item group = 7 marks)
 //
-// This is the single source of truth shared by scoring, submission,
-// persistence, analytics and the Coach. Composite IDs for matching items are
-// deterministic: `${question.id}::${item.id}`.
+// See src/lib/scoring/units.ts for the canonical counting helpers shared by
+// scoring, submission, validation, coverage and the runners. Composite IDs for
+// matching items are deterministic: `${question.id}::${item.id}`.
 
 export interface ScoredUnitResult {
   id: string;

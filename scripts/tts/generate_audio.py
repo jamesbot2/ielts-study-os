@@ -143,11 +143,12 @@ def generate(job_path: str, out_dir: str, url_root: str, only_set: str | None = 
                 concat_and_convert(wavs, mp3)
                 size = os.path.getsize(mp3)
                 duration = probe_duration(mp3)
+                src_path = f"/audio/listening-1/part{part['part']}.mp3" if is_legacy else f"part{part['part']}.mp3"
                 manifest_parts.append({
                     "setId": setId,
                     "part": part["part"],
                     "title": part.get("title", f"Part {part['part']}"),
-                    "src": f"part{part['part']}.mp3",
+                    "src": src_path,
                     "sizeBytes": size,
                     "durationSeconds": round(duration, 1) if duration is not None else None,
                 })

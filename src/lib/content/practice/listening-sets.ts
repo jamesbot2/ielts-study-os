@@ -74,9 +74,9 @@ const part4Script = [
 const part1Questions: Question[] = [
   textQ({ id: "list-p1-q1", type: "form_completion", prompt: "Room type: double with a __________ view", explanation: "The caller requests a sea-view room.", evidence: "Part 1", skillTags: ["form completion", "detail"], difficulty: 1, wordLimit: 1, allowNumber: false, correctAnswer: "sea" }),
   textQ({ id: "list-p1-q2", type: "form_completion", prompt: "Number of nights: __________", explanation: "Three nights.", evidence: "Part 1", skillTags: ["form completion", "number"], difficulty: 1, wordLimit: 1, allowNumber: true, correctAnswer: "three", acceptableAnswers: ["3"] }),
-  textQ({ id: "list-p1-q3", type: "form_completion", prompt: "Date of arrival: __________ March", explanation: "The fourteenth of March.", evidence: "Part 1", skillTags: ["form completion", "date"], difficulty: 2, wordLimit: 1, allowNumber: false, correctAnswer: "fourteenth", acceptableAnswers: ["14th", "14"] }),
+  textQ({ id: "list-p1-q3", type: "form_completion", prompt: "Date of arrival: __________ March", explanation: "The fourteenth of March.", evidence: "Part 1", skillTags: ["form completion", "date"], difficulty: 2, wordLimit: 1, allowNumber: false, correctAnswer: "fourteenth", acceptableAnswers: ["14th"] }),
   textQ({ id: "list-p1-q4", type: "form_completion", prompt: "Guest surname: __________", explanation: "Sullivan, spelled S-U-L-L-I-V-A-N.", evidence: "Part 1", skillTags: ["form completion", "spelling"], difficulty: 2, wordLimit: 1, allowNumber: false, correctAnswer: "sullivan" }),
-  textQ({ id: "list-p1-q5", type: "form_completion", prompt: "Price per night: £__________", explanation: "Sea-view double is £110 per night.", evidence: "Part 1", skillTags: ["form completion", "number"], difficulty: 2, wordLimit: 2, allowNumber: true, correctAnswer: "110", acceptableAnswers: ["£110", "one hundred and ten"] }),
+  textQ({ id: "list-p1-q5", type: "form_completion", prompt: "Price per night: £__________", explanation: "Sea-view double is £110 per night.", evidence: "Part 1", skillTags: ["form completion", "number"], difficulty: 2, wordLimit: 2, allowNumber: true, correctAnswer: "110", acceptableAnswers: ["£110"] }),
   textQ({ id: "list-p1-q6", type: "form_completion", prompt: "Check-in time: __________ p.m.", explanation: "Rooms available from two p.m.", evidence: "Part 1", skillTags: ["form completion", "time"], difficulty: 2, wordLimit: 2, allowNumber: true, correctAnswer: "two", acceptableAnswers: ["2", "2:00"] }),
   choiceQ({ id: "list-p1-q7", type: "multiple_choice", prompt: "What is the Wi-Fi password at the hotel?", explanation: "The password is 'lakeside'.", evidence: "Part 1", skillTags: ["multiple choice", "detail"], difficulty: 1, options: [["A", "lakeview"], ["B", "lakeside"], ["C", "hotel123"]], correct: ["B"] }),
   textQ({ id: "list-p1-q8", type: "short_answer", prompt: "How much does breakfast cost per person if booked in advance?", explanation: "Twelve pounds per person.", evidence: "Part 1", skillTags: ["short answer", "number"], difficulty: 2, wordLimit: 2, allowNumber: true, correctAnswer: "£12", acceptableAnswers: ["12 pounds", "twelve pounds", "12"] }),
@@ -87,14 +87,14 @@ const part1Questions: Question[] = [
 const part2Questions: Question[] = [
   choiceQ({ id: "list-p2-q11", type: "multiple_choice", prompt: "How long will the tour take?", explanation: "About an hour.", evidence: "Part 2", skillTags: ["multiple choice", "detail"], difficulty: 1, options: [["A", "30 minutes"], ["B", "45 minutes"], ["C", "about an hour"]], correct: ["C"] }),
   choiceQ({ id: "list-p2-q12", type: "multiple_choice", prompt: "How much do audio guides cost?", explanation: "Five pounds.", evidence: "Part 2", skillTags: ["multiple choice", "number"], difficulty: 1, options: [["A", "free"], ["B", "£5"], ["C", "£10"]], correct: ["B"] }),
-  textQ({ id: "list-p2-q13", type: "map_labelling", prompt: "The café is directly to the __________ of the main entrance.", explanation: "To the left of the entrance.", evidence: "Part 2", skillTags: ["map labelling", "direction"], difficulty: 2, wordLimit: 1, allowNumber: false, correctAnswer: "left" }),
-  textQ({ id: "list-p2-q14", type: "map_labelling", prompt: "The natural history gallery is to the __________ of the exhibition hall.", explanation: "East of the exhibition hall.", evidence: "Part 2", skillTags: ["map labelling", "direction"], difficulty: 2, wordLimit: 1, allowNumber: false, correctAnswer: "east" }),
+  textQ({ id: "list-p2-q13", type: "map_labelling", markerId: "m2-cafe", prompt: "Label the place marked B on the map.", explanation: "The guide says the café is directly to the left of the entrance, where marker B sits.", evidence: "Part 2", skillTags: ["map labelling", "location"], difficulty: 2, wordLimit: 1, allowNumber: false, correctAnswer: "café" }),
+  textQ({ id: "list-p2-q14", type: "map_labelling", markerId: "m2-natural-history", prompt: "Label the place marked C on the map.", explanation: "The guide says the natural history gallery is east of the exhibition hall, where marker C sits.", evidence: "Part 2", skillTags: ["map labelling", "location"], difficulty: 2, wordLimit: 3, allowNumber: false, correctAnswer: "natural history gallery" }),
   choiceQ({ id: "list-p2-q15", type: "multiple_choice", prompt: "Until when has the special Egypt exhibition been extended?", explanation: "Until the end of August.", evidence: "Part 2", skillTags: ["multiple choice", "detail"], difficulty: 2, options: [["A", "end of July"], ["B", "end of August"], ["C", "end of September"]], correct: ["B"] }),
-  textQ({ id: "list-p2-q16", type: "short_answer", prompt: "In which part of the museum is photography not allowed?", explanation: "The art gallery.", evidence: "Part 2", skillTags: ["short answer", "detail"], difficulty: 2, wordLimit: 2, allowNumber: false, correctAnswer: "art gallery", acceptableAnswers: ["the art gallery"] }),
+  textQ({ id: "list-p2-q16", type: "short_answer", prompt: "In which part of the museum is photography not allowed?", explanation: "The art gallery.", evidence: "Part 2", skillTags: ["short answer", "detail"], difficulty: 2, wordLimit: 2, allowNumber: false, correctAnswer: "art gallery" }),
   choiceQ({ id: "list-p2-q17", type: "multiple_choice", prompt: "What discount do members receive at the gift shop?", explanation: "Ten percent.", evidence: "Part 2", skillTags: ["multiple choice", "number"], difficulty: 1, options: [["A", "5%"], ["B", "10%"], ["C", "15%"]], correct: ["B"] }),
   textQ({ id: "list-p2-q18", type: "short_answer", prompt: "What time does the café close?", explanation: "Four thirty.", evidence: "Part 2", skillTags: ["short answer", "time"], difficulty: 2, wordLimit: 2, allowNumber: true, correctAnswer: "4:30", acceptableAnswers: ["four thirty", "4.30"] }),
   choiceQ({ id: "list-p2-q19", type: "multiple_choice", prompt: "Why is the natural history gallery popular with children?", explanation: "Mainly because of the dinosaur skeletons.", evidence: "Part 2", skillTags: ["multiple choice", "detail"], difficulty: 2, options: [["A", "the interactive displays"], ["B", "the dinosaur skeletons"], ["C", "the gift shop"]], correct: ["B"] }),
-  textQ({ id: "list-p2-q20", type: "map_labelling", prompt: "The gift shop is in the __________ corner of the museum.", explanation: "North-east corner.", evidence: "Part 2", skillTags: ["map labelling", "direction"], difficulty: 2, wordLimit: 2, allowNumber: false, correctAnswer: "north-east", acceptableAnswers: ["northeast", "north east"] }),
+  textQ({ id: "list-p2-q20", type: "map_labelling", markerId: "m2-gift-shop", prompt: "Label the place marked D on the map.", explanation: "The guide says the gift shop is in the north-east corner, where marker D sits.", evidence: "Part 2", skillTags: ["map labelling", "location"], difficulty: 2, wordLimit: 2, allowNumber: false, correctAnswer: "gift shop" }),
 ];
 
 const part3Questions: Question[] = [
@@ -103,7 +103,7 @@ const part3Questions: Question[] = [
   choiceQ({ id: "list-p3-q23", type: "multiple_choice", prompt: "What do the students recommend about group study rooms?", explanation: "The library should add more rooms.", evidence: "Part 3", skillTags: ["multiple choice", "detail"], difficulty: 2, options: [["A", "make them smaller"], ["B", "charge for them"], ["C", "add more rooms"]], correct: ["C"] }),
   matchingQ({ id: "list-p3-q24", type: "matching", prompt: "Match each person with the point they raised.", explanation: "Maria raised the survey and study rooms; Tom raised opening hours; the tutor raised limitations.", evidence: "Part 3", skillTags: ["matching", "speaker"], difficulty: 4, options: [["A", "Maria"], ["B", "Tom"], ["C", "Tutor"]], items: [["sp1", "raised the survey of about 200 students", "A"], ["sp2", "raised the problem of opening hours", "B"], ["sp3", "raised the limitations of the study", "C"]] }),
   choiceQ({ id: "list-p3-q25", type: "multiple_choice", prompt: "When does the library currently close?", explanation: "At ten.", evidence: "Part 3", skillTags: ["multiple choice", "time"], difficulty: 1, options: [["A", "9 p.m."], ["B", "10 p.m."], ["C", "midnight"]], correct: ["B"] }),
-  textQ({ id: "list-p3-q26", type: "short_answer", prompt: "How will the students present their findings?", explanation: "A report with charts and a short presentation.", evidence: "Part 3", skillTags: ["short answer", "detail"], difficulty: 2, wordLimit: 3, allowNumber: false, correctAnswer: "report and presentation", acceptableAnswers: ["a report and presentation", "report with charts"] }),
+  textQ({ id: "list-p3-q26", type: "short_answer", prompt: "How will the students present their findings?", explanation: "A report with charts and a short presentation.", evidence: "Part 3", skillTags: ["short answer", "detail"], difficulty: 2, wordLimit: 3, allowNumber: false, correctAnswer: "report and presentation", acceptableAnswers: ["report with charts"] }),
   choiceQ({ id: "list-p3-q27", type: "multiple_choice", prompt: "What does the tutor suggest including to make the report more persuasive?", explanation: "Direct quotes from students.", evidence: "Part 3", skillTags: ["multiple choice", "detail"], difficulty: 2, options: [["A", "more statistics"], ["B", "direct quotes from students"], ["C", "photographs"]], correct: ["B"] }),
   textQ({ id: "list-p3-q28", type: "short_answer", prompt: "What limitation do the students identify about their survey?", explanation: "It only covered one week.", evidence: "Part 3", skillTags: ["short answer", "detail"], difficulty: 2, wordLimit: 3, allowNumber: false, correctAnswer: "one week", acceptableAnswers: ["only one week", "a week"] }),
 ];
@@ -148,6 +148,23 @@ export const listeningSet: PracticeSet = {
   },
   kind: "listening",
   passages: [],
+  visual: {
+    kind: "map",
+    width: 400,
+    height: 300,
+    shapes: [
+      { id: "outer", shape: "rect", x: 10, y: 10, w: 380, h: 280, className: "fill-gray-50 stroke-gray-400" },
+      { id: "hall", shape: "rect", x: 160, y: 100, w: 90, h: 90, className: "fill-white stroke-gray-400", label: "Exhibition hall" },
+      { id: "entrance-label", shape: "rect", x: 150, y: 280, w: 100, h: 16, className: "fill-transparent stroke-transparent", label: "Main entrance" },
+      { id: "north", shape: "rect", x: 188, y: 12, w: 24, h: 18, className: "fill-transparent stroke-transparent", label: "N ↑" },
+    ],
+    markers: [
+      { id: "m2-entrance", label: "A", x: 200, y: 278 },
+      { id: "m2-cafe", label: "B", x: 120, y: 265 },
+      { id: "m2-natural-history", label: "C", x: 300, y: 120 },
+      { id: "m2-gift-shop", label: "D", x: 330, y: 60 },
+    ],
+  },
   audio: {
     id: "listening-1-audio",
     title: "IELTS Study OS Listening Test 1",

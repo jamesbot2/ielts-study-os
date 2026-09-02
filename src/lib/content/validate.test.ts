@@ -297,3 +297,19 @@ describe("Round 3A targeted Listening threshold", () => {
     expect(total).toBeGreaterThanOrEqual(14);
   });
 });
+
+describe("global text-answer instruction consistency", () => {
+  it("every canonical text/number answer satisfies its own scoring instruction", () => {
+    const report = validateAllContent();
+    const instructionIssues = report.issues.filter((i) => i.message.includes("answer instruction"));
+    expect(instructionIssues, JSON.stringify(instructionIssues, null, 2)).toEqual([]);
+  });
+
+  it("coverage question-type counts equal canonical scored-unit counts per skill", () => {
+    const coverage = computeCoverage();
+    for (const [skill, s] of [["reading", coverage.reading], ["listening", coverage.listening]] as const) {
+      const typeSum = Object.values(s.questionTypes).reduce((a, b) => a + b, 0);
+      expect(typeSum, `${skill} questionTypes sum equals questionCount`).toBe(s.questionCount);
+    }
+  });
+});

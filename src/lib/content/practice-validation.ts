@@ -2,7 +2,8 @@
 // coverage.ts — one canonical implementation, no circular dependency.
 
 import type { PracticeSet } from "@/types/ielts";
-import { normalizeAnswer } from "@/lib/scoring/scoring";
+import { normalizeAnswer, checkInstruction } from "@/lib/scoring/scoring";
+import { scoredUnitCount, scoredUnitCountForQuestions } from "@/lib/scoring/units";
 
 function stripSurrounding(s: string): string {
   return s.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "");
@@ -16,21 +17,12 @@ export interface ValidationIssue {
 
 // ---- Pure per-set structural validation (no global state) ----
 
-// Matching/heading-matching questions score each item as a sub-question;
-// multiple-answer groups score each expected choice as a sub-question.
+// Canonical scored-unit count for a set (delegates to scoring/units.ts).
 export function effectiveQuestionCount(set: PracticeSet): number {
-  let n = 0;
-  for (const q of set.questions) {
-    if (q.answerType === "matching" || q.answerType === "heading_matching") {
-      n += q.items?.length ?? 0;
-    } else if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) {
-      n += q.selectCount;
-    } else {
-      n += 1;
-    }
-  }
-  return n;
+  return scoredUnitCountForQuestions(set.questions);
 }
+
+export { scoredUnitCount };
 
 export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<string>): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
@@ -70,6 +62,23 @@ export function getPracticeSetIssues(set: PracticeSet, seenQuestionIds: Set<stri
       const isJudgeType = q.type === "true_false_not_given" || q.type === "yes_no_not_given";
       if (q.wordLimit == null && !isJudgeType) {
         issues.push({ setId: id, questionId: q.id, message: "text question missing wordLimit metadata" });
+      }
+      // Canonical answer-instruction self-consistency: the declared correct
+      // answer itself must satisfy the question's own word-limit/number rules,
+      // otherwise the scorer could never accept it.
+      if (q.wordLimit != null || q.allowNumber === true || q.allowNumber === false) {
+        const instruction = q.wordLimit != null
+          ? { maxWords: q.wordLimit, allowNumber: q.allowNumber ?? false }
+          : q.allowNumber === true
+            ? { maxWords: q.wordLimit ?? 0, allowNumber: true }
+            : undefined;
+        for (const [label, value] of [["correctAnswer", q.correctAnswer], ...((q.acceptableAnswers ?? []).map((a) => ["acceptableAnswer", a] as const))]) {
+          if (value == null || value === "") continue;
+          const check = checkInstruction(value, instruction);
+          if (!check.compliant) {
+            issues.push({ setId: id, questionId: q.id, message: `${label} "${value}" violates its own answer instruction (${check.reason ?? "invalid"})` });
+          }
+        }
       }
       if (set.kind === "reading" && !q.type.endsWith("not_given")) {
         const haystack = set.passages

@@ -42,7 +42,7 @@ export const listeningMultipleAnswer01: PracticeSet = {
       { id: "C", text: "The staff are unfriendly" },
       { id: "D", text: "The building is too cold" },
     ], ["A", "B"], "Student A says the rooms are almost always full and the caf\u00e9 coffee machine is broken half the time.", { selectCount: 2, difficulty: 3 }),
-    choiceQ("multiple_answer", "multiple_choice", "listening-targeted-multiple-answer-01-q04", "Choose TWO things the librarian promises to do.", [
+    choiceQ("multiple_answer", "multiple_choice", "listening-targeted-multiple-answer-01-q04", "Choose TWO actions the librarian says the library is taking or will take.", [
       { id: "A", text: "Take the issues to a planning meeting" },
       { id: "B", text: "Extend the opening hours immediately" },
       { id: "C", text: "Buy new furniture" },

@@ -7,6 +7,7 @@ import { writingPrompts } from "./practice/writing-prompts";
 import { speakingTopics } from "./practice/speaking-topics";
 import { grammarExercises } from "./practice/grammar-exercises";
 import { isPublishedTargetedSet, isStructurallyValidTargetedSet, effectiveQuestionCount } from "./practice-validation";
+import { scoredUnitCount } from "@/lib/scoring/units";
 import { QUESTION_TYPE_LABELS } from "./question-types";
 export { questionTypeLabel } from "./question-types";
 import type { Skill } from "@/types/ielts";
@@ -129,8 +130,7 @@ function computeSkill(skill: Skill, kind: "reading" | "listening"): SkillCoverag
     // Canonical scored units: matching items each count as one question.
     questionCount += effectiveQuestionCount(set);
     for (const q of set.questions) {
-      const units = q.answerType === "matching" || q.answerType === "heading_matching" ? q.items.length : 1;
-      questionTypes[q.type] = (questionTypes[q.type] ?? 0) + units;
+      questionTypes[q.type] = (questionTypes[q.type] ?? 0) + scoredUnitCount(q);
     }
   }
   return {

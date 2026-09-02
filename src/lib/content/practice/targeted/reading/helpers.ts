@@ -38,6 +38,7 @@ export function originalPassage(id: string, title: string, body: string) {
 
 export interface TextQOptions {
   wordLimit?: number;
+  allowNumber?: boolean;
   evidence?: string;
   acceptableAnswers?: string[];
   difficulty?: 1 | 2 | 3 | 4 | 5;
@@ -60,6 +61,7 @@ export function textQuestion(
     correctAnswer,
     acceptableAnswers: options.acceptableAnswers,
     wordLimit: options.wordLimit,
+    allowNumber: options.allowNumber,
     passageId,
     explanation,
     evidence: options.evidence,

@@ -6,6 +6,7 @@ import { useI18n } from "@/components/i18n-provider";
 import Link from "next/link";
 import { coachLink } from "@/lib/coach/page-link";
 import { effectiveQuestionCount } from "@/lib/content/practice-validation";
+import { scoredUnitCountForQuestions, scoredUnitRange, answeredScoredUnitCount } from "@/lib/scoring/units";
 import { ListeningVisualView } from "@/components/listening-visual";
 import { submitPractice } from "@/lib/practice/submit";
 import type { ScoredUnitResult } from "@/lib/scoring/scoring";
@@ -37,22 +38,6 @@ interface PersistedReading {
 }
 
 const storageKey = (setId: string) => `ielts-reading:${setId}`;
-
-// Scored-unit numbering: matching items / multiple-answer choices each occupy
-// one numbered question, so groups display a range (Questions 1–7 of 40).
-function unitsOf(q: Question): number {
-  if (q.answerType === "matching" || q.answerType === "heading_matching") return q.items.length;
-  if (q.answerType === "multiple_choice" && q.selectCount && q.selectCount > 1) return q.selectCount;
-  return 1;
-}
-function unitTotalFor(questions: Question[]): number {
-  return questions.reduce((n, q) => n + unitsOf(q), 0);
-}
-function unitRangeFor(questions: Question[], current: number): { start: number; end: number } {
-  let n = 0;
-  for (let i = 0; i < current; i++) n += unitsOf(questions[i]);
-  return { start: n + 1, end: n + unitsOf(questions[current] ?? 0) };
-}
 
 export function ReadingRunner({ set }: { set: PracticeSet }) {
   const { t, locale } = useI18n();
@@ -271,13 +256,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
   }
 
   const q = questions[current];
-  const answered = questions.reduce((n, x) => {
-    const a = answers[x.id];
-    if (a == null || a === "") return n;
-    if (Array.isArray(a)) return n + a.length;
-    if (typeof a === "object") return n + Object.values(a).filter((v) => v !== "" && v != null).length;
-    return n + 1;
-  }, 0);
+  const answered = questions.reduce((n, x) => n + answeredScoredUnitCount(x, answers[x.id]), 0);
 
   return (
     <div className="flex h-screen flex-col">
@@ -286,7 +265,7 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold">{set.meta.title}</span>
           <span className="text-xs text-muted">
-            {answered}/{unitTotalFor(questions)} {t("common.answered")}
+            {answered}/{scoredUnitCountForQuestions(questions)} {t("common.answered")}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -386,8 +365,8 @@ export function ReadingRunner({ set }: { set: PracticeSet }) {
               onChange={(v) => setAnswer(q.id, v)}
               flagged={flags.has(q.id)}
               onToggleFlag={() => toggleFlag(q.id)}
-              range={unitRangeFor(questions, current)}
-              total={unitTotalFor(questions)}
+              range={scoredUnitRange(questions, current)}
+              total={scoredUnitCountForQuestions(questions)}
               visual={set.visual}
             />
           </div>

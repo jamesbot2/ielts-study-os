@@ -43,7 +43,7 @@ export const listeningPlanLabelling01: PracticeSet = {
     markerQ("plan_labelling", "listening-targeted-plan-labelling-01-q03", "lake", "C", "lake", "Marker C is in the centre of the park — the lake the path runs towards.", { difficulty: 1, evidence: "lake in the centre" }),
     markerQ("plan_labelling", "listening-targeted-plan-labelling-01-q04", "cafe", "D", "café", "Marker D is east of the path — the café open until six.", { acceptableAnswers: ["cafe"], difficulty: 2, evidence: "café" }),
     markerQ("plan_labelling", "listening-targeted-plan-labelling-01-q05", "rose", "E", "rose garden", "Marker E is beyond the lake — the rose garden.", { difficulty: 2, evidence: "rose garden" }),
-    markerQ("plan_labelling", "listening-targeted-plan-labelling-01-q06", "boats", "F", "boat hire hut", "Marker F is on the lake's eastern shore — the boat hire hut with the blue roof.", { difficulty: 2, evidence: "boat hire hut" }),
+    markerQ("plan_labelling", "listening-targeted-plan-labelling-01-q06", "boats", "F", "boat hire hut", "Marker F is on the lake's eastern shore — the boat hire hut with the blue roof.", { difficulty: 2, evidence: "boat hire hut", wordLimit: 3 }),
   ],
 };
 

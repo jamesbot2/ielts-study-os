@@ -58,7 +58,7 @@ export function textQ(
   prompt: string,
   correctAnswer: string,
   explanation: string,
-  options: { wordLimit?: number; evidence?: string; acceptableAnswers?: string[]; difficulty?: 1 | 2 | 3 | 4 | 5 } = {},
+  options: { wordLimit?: number; allowNumber?: boolean; evidence?: string; acceptableAnswers?: string[]; difficulty?: 1 | 2 | 3 | 4 | 5 } = {},
 ) {
   return {
     id,
@@ -68,6 +68,7 @@ export function textQ(
     correctAnswer,
     acceptableAnswers: options.acceptableAnswers,
     wordLimit: options.wordLimit,
+    allowNumber: options.allowNumber,
     explanation,
     evidence: options.evidence,
     skillTags: ["listening"],
@@ -134,7 +135,7 @@ export function markerQ(
   markerLabel: string,
   correctAnswer: string,
   explanation: string,
-  options: { acceptableAnswers?: string[]; difficulty?: 1 | 2 | 3 | 4 | 5; evidence?: string } = {},
+  options: { acceptableAnswers?: string[]; difficulty?: 1 | 2 | 3 | 4 | 5; evidence?: string; wordLimit?: number } = {},
 ) {
   return {
     id,
@@ -144,7 +145,7 @@ export function markerQ(
     markerId,
     correctAnswer,
     acceptableAnswers: options.acceptableAnswers,
-    wordLimit: 2,
+    wordLimit: options.wordLimit ?? 2,
     explanation,
     evidence: options.evidence,
     skillTags: ["listening"],

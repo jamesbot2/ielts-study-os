@@ -29,11 +29,11 @@ export const listeningFormCompletion01: PracticeSet = {
     textQ("form_completion", "listening-targeted-form-completion-01-q01", "Course name: __________", "photography", "The student asks to enrol on the photography course.", { wordLimit: 1, evidence: "photography course", difficulty: 1 }),
     textQ("form_completion", "listening-targeted-form-completion-01-q02", "Family name: __________", "Okonkwo", "The surname is spelled O-K-O-N-K-W-O.", { wordLimit: 1, evidence: "O-K-O-N-K-W-O", difficulty: 2 }),
     textQ("form_completion", "listening-targeted-form-completion-01-q03", "Date of birth: 14 __________ 1998", "March", "The student says the fourteenth of March, nineteen ninety-eight.", { wordLimit: 1, evidence: "fourteenth of March", difficulty: 2 }),
-    textQ("form_completion", "listening-targeted-form-completion-01-q04", "Course fee: £__________", "185", "The fee is one hundred and eighty-five pounds.", { wordLimit: 1, evidence: "eighty-five pounds", acceptableAnswers: ["185"], difficulty: 2 }),
+    textQ("form_completion", "listening-targeted-form-completion-01-q04", "Course fee: £__________", "185", "The fee is one hundred and eighty-five pounds.", { wordLimit: 1, allowNumber: true, evidence: "eighty-five pounds", acceptableAnswers: ["185"], difficulty: 2 }),
     textQ("form_completion", "listening-targeted-form-completion-01-q05", "Fee does NOT include the memory __________.", "card", "All materials are included except the memory card.", { wordLimit: 1, evidence: "memory card", difficulty: 2 }),
-    textQ("form_completion", "listening-targeted-form-completion-01-q06", "Phone number: 07846 552__________", "13", "The number ends in two one three.", { wordLimit: 1, evidence: "two one three", acceptableAnswers: ["13"], difficulty: 2 }),
+    textQ("form_completion", "listening-targeted-form-completion-01-q06", "Phone number: 07846 552__________", "13", "The number ends in two one three.", { wordLimit: 1, allowNumber: true, evidence: "two one three", acceptableAnswers: ["13"], difficulty: 2 }),
     textQ("form_completion", "listening-targeted-form-completion-01-q07", "Course day: __________ evenings", "Tuesday", "The course runs on Tuesday evenings.", { wordLimit: 1, evidence: "Tuesday evenings", difficulty: 1 }),
-    textQ("form_completion", "listening-targeted-form-completion-01-q08", "Room number: __________", "14", "The course is in room fourteen of the arts block.", { wordLimit: 1, evidence: "room fourteen", acceptableAnswers: ["fourteen", "14"], difficulty: 2 }),
+    textQ("form_completion", "listening-targeted-form-completion-01-q08", "Room number: __________", "14", "The course is in room fourteen of the arts block.", { wordLimit: 1, allowNumber: true, evidence: "room fourteen", acceptableAnswers: ["fourteen", "14"], difficulty: 2 }),
   ],
 };
 
@@ -58,12 +58,12 @@ export const listeningFormCompletion02: PracticeSet = {
   ]),
   questions: [
     textQ("form_completion", "listening-targeted-form-completion-02-q01", "Arrival date: 25 __________", "August", "The booking is from the twenty-fifth of August.", { wordLimit: 1, evidence: "twenty-fifth of August", difficulty: 1 }),
-    textQ("form_completion", "listening-targeted-form-completion-02-q02", "Number of nights: __________", "2", "The guest books two nights.", { wordLimit: 1, evidence: "two nights", acceptableAnswers: ["two", "2"], difficulty: 1 }),
-    textQ("form_completion", "listening-targeted-form-completion-02-q03", "Standard double rate: £__________ per night", "86", "The standard double costs eighty-six pounds a night.", { wordLimit: 1, evidence: "eighty-six pounds", acceptableAnswers: ["86"], difficulty: 2 }),
-    textQ("form_completion", "listening-targeted-form-completion-02-q04", "Sea-view room rate: £__________ per night", "110", "The sea-view room costs one hundred and ten.", { wordLimit: 1, evidence: "one hundred and ten", acceptableAnswers: ["110"], difficulty: 2 }),
+    textQ("form_completion", "listening-targeted-form-completion-02-q02", "Number of nights: __________", "2", "The guest books two nights.", { wordLimit: 1, allowNumber: true, evidence: "two nights", acceptableAnswers: ["two", "2"], difficulty: 1 }),
+    textQ("form_completion", "listening-targeted-form-completion-02-q03", "Standard double rate: £__________ per night", "86", "The standard double costs eighty-six pounds a night.", { wordLimit: 1, allowNumber: true, evidence: "eighty-six pounds", acceptableAnswers: ["86"], difficulty: 2 }),
+    textQ("form_completion", "listening-targeted-form-completion-02-q04", "Sea-view room rate: £__________ per night", "110", "The sea-view room costs one hundred and ten.", { wordLimit: 1, allowNumber: true, evidence: "one hundred and ten", acceptableAnswers: ["110"], difficulty: 2 }),
     textQ("form_completion", "listening-targeted-form-completion-02-q05", "Guest name: Helen __________", "Marsh", "The name is Helen Marsh, spelled M-A-R-S-H.", { wordLimit: 1, evidence: "M-A-R-S-H", difficulty: 2 }),
-    textQ("form_completion", "listening-targeted-form-completion-02-q06", "Contact number: 0113 794 __________", "8862", "The number ends with double eight six two.", { wordLimit: 1, evidence: "double eight six two", acceptableAnswers: ["8862"], difficulty: 2 }),
-    textQ("form_completion", "listening-targeted-form-completion-02-q07", "Arrival time: around __________ pm", "4", "The guest will arrive around four in the afternoon.", { wordLimit: 1, evidence: "four in the afternoon", acceptableAnswers: ["four", "4"], difficulty: 1 }),
+    textQ("form_completion", "listening-targeted-form-completion-02-q06", "Contact number: 0113 794 __________", "8862", "The number ends with double eight six two.", { wordLimit: 1, allowNumber: true, evidence: "double eight six two", acceptableAnswers: ["8862"], difficulty: 2 }),
+    textQ("form_completion", "listening-targeted-form-completion-02-q07", "Arrival time: around __________ pm", "4", "The guest will arrive around four in the afternoon.", { wordLimit: 1, allowNumber: true, evidence: "four in the afternoon", acceptableAnswers: ["four", "4"], difficulty: 1 }),
     textQ("form_completion", "listening-targeted-form-completion-02-q08", "Booking reference: __________ 2971", "HB", "The reference is HB two nine seven one.", { wordLimit: 1, evidence: "HB two nine seven one", difficulty: 2 }),
   ],
 };
