@@ -19,11 +19,30 @@ test.describe("Round 4 Writing content", () => {
     await expect(page.getByText(/North/)).toBeVisible();
   });
 
-  test("General Task 1 shows three requirement bullets", async ({ page }) => {
+  test("General Task 1 shows three requirement bullets (all three registers)", async ({ page }) => {
+    // Formal
+    await page.goto("/practice/writing/gen-t1-formal-reschedule-01/");
+    await expect(page.getByText(/give the details of your appointment/)).toBeVisible();
+    await expect(page.getByText(/explain why you cannot attend/)).toBeVisible();
+    await expect(page.getByText(/ask for an alternative date or time/)).toBeVisible();
+    await page.getByRole("button", { name: /Practice mode/ }).click();
+    await expect(page.locator("textarea").first()).toBeVisible();
+    // Semi-formal
     await page.goto("/practice/writing/gen-t1-semi-advice-01/");
     await expect(page.getByText(/welcome them to the neighbourhood/)).toBeVisible();
     await expect(page.getByText(/tell them about local services/)).toBeVisible();
     await expect(page.getByText(/offer practical help/)).toBeVisible();
+    // Informal
+    await page.goto("/practice/writing/gen-t1-informal-apology-02/");
+    await expect(page.getByText(/explain why you could not attend/)).toBeVisible();
+    await expect(page.getByText(/say how sorry you are/)).toBeVisible();
+    await expect(page.getByText(/suggest meeting up soon/)).toBeVisible();
+  });
+
+  test("acad-t1-line-4 has no false crossing claim", async ({ page }) => {
+    await page.goto("/practice/writing/acad-t1-line-4/");
+    await expect(page.getByText(/remains higher throughout/)).toBeVisible();
+    await expect(page.getByText(/cross/)).not.toBeVisible();
   });
 
   test("Task 2 shows prompt with 250-word guidance", async ({ page }) => {

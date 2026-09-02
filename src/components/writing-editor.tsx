@@ -181,7 +181,18 @@ export function WritingEditor({ prompt }: { prompt: WritingPrompt }) {
         </p>
         <h1 className="mt-1 text-xl font-semibold">{prompt.title}</h1>
         <div className="card card-pad mt-4">
-          <p className="text-[15px] leading-relaxed">{prompt.prompt}</p>
+          {prompt.letterRequirements && prompt.letterRequirements.length === 3 ? (
+            <>
+              <p className="text-[15px] leading-relaxed">{prompt.prompt.split("In your letter:")[0].trim()} In your letter:</p>
+              <ul className="mt-2 list-disc space-y-1 pl-6 text-[15px] leading-relaxed">
+                {prompt.letterRequirements.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="text-[15px] leading-relaxed">{prompt.prompt}</p>
+          )}
           {prompt.visualDescription && (
             <div className="mt-3 rounded-md bg-gray-50 p-3 text-sm text-muted">
               <p className="font-medium">Visual description:</p>

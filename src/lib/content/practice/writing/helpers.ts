@@ -42,6 +42,7 @@ export function generalTask1(
   prompt: string,
   letterTone: "formal" | "semi_formal" | "informal",
   letterPurpose: string,
+  requirements: [string, string, string],
 ): WritingPrompt {
   return {
     id,
@@ -54,6 +55,7 @@ export function generalTask1(
     sourceType: "ORIGINAL",
     letterTone,
     letterPurpose,
+    letterRequirements: requirements,
   };
 }
 

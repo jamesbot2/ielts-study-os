@@ -60,7 +60,7 @@ export const academicTask1Prompts: WritingPrompt[] = [
     "line"),
   academicTask1("acad-t1-line-4", "Fish and meat consumption (line graph)",
     `The line graph below shows the average weekly consumption of fish and red meat, in grams per person, in a country between 1980 and 2020. ${V}`,
-    { visualType: "line graph", visualDescription: "Red meat: 1980 900g, declines steadily to 550g by 2020. Fish: 1980 200g, rises slowly to 280g by 2005, then accelerates to 420g by 2020. The two lines cross in 2015." },
+    { visualType: "line graph", visualDescription: "Red meat: 1980 900g, declines steadily to 550g by 2020. Fish: 1980 200g, rises slowly to 280g by 2005, then accelerates to 420g by 2020. Red meat consumption remains higher throughout the period, although the gap narrows substantially." },
     "line"),
   academicTask1("acad-t1-line-5", "Smartphone sales by brand (line graph)",
     `The line graph below shows annual smartphone sales, in millions of units, for four brands between 2015 and 2020. ${V}`,

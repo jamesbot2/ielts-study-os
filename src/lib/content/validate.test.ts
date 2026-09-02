@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet, validateWritingPrompts } from "./validate";
 import { effectiveQuestionCount } from "./practice-validation";
+import { writingPrompts as allWritingPrompts } from "./practice/writing-prompts";
 import { READING_QUESTION_TYPES, LISTENING_QUESTION_TYPES } from "./question-types";
 import { computeCoverage } from "./coverage";
 import { allPracticeSets } from "./practice";
@@ -342,5 +343,35 @@ describe("V0.6 final Writing thresholds", () => {
     const r = validateWritingPrompts();
     expect(r.issues, JSON.stringify(r.issues, null, 2)).toEqual([]);
     expect(r.valid).toBe(true);
+  });
+});
+
+describe("Round 4-C register corrections", () => {
+  it("corrected register cases are semantically classified", () => {
+    const c = computeCoverage().writingPrompts.generalTask1ByTone;
+    expect(c.formal ?? 0).toBeGreaterThanOrEqual(9);
+    expect(c.semi_formal ?? 0).toBeGreaterThanOrEqual(8);
+    expect(c.informal ?? 0).toBeGreaterThanOrEqual(8);
+
+    const toneOf = (id: string) => allWritingPrompts.find((p) => p.id === id)?.letterTone;
+    // Clinic reschedule -> formal; friend birthday apology -> informal;
+    // train lost-property office -> formal.
+    expect(toneOf("gen-t1-formal-reschedule-01")).toBe("formal");
+    expect(toneOf("gen-t1-informal-apology-02")).toBe("informal");
+    expect(toneOf("gen-t1-formal-lost-01")).toBe("formal");
+  });
+
+  it("every General Task 1 prompt has exactly three structured requirements", () => {
+    const r = validateWritingPrompts();
+    expect(r.issues, JSON.stringify(r.issues, null, 2)).toEqual([]);
+    for (const p of allWritingPrompts.filter((x) => x.task === 1 && x.testType === "general")) {
+      expect(p.letterRequirements, p.id).toHaveLength(3);
+    }
+  });
+
+  it("acad-t1-line-4 no longer contains a false crossing claim", () => {
+    const p = allWritingPrompts.find((x) => x.id === "acad-t1-line-4")!;
+    expect(p.visualDescription).not.toContain("cross");
+    expect(p.visualDescription).toContain("remains higher throughout");
   });
 });

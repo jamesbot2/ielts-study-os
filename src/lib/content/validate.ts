@@ -131,12 +131,43 @@ export function validateWritingPrompts(): ValidationReport {
         const hasStimulus = Boolean(p.dataTable || (p.visualDescription && p.visualDescription.trim().length > 20));
         if (!hasStimulus) issues.push({ setId: p.id, message: "Academic Task 1 missing usable data stimulus" });
         if (!p.academicVisualCategory) issues.push({ setId: p.id, message: "Academic Task 1 missing academicVisualCategory" });
+        // Data-consistency guardrails (machine-checkable cases only).
+        if (p.dataTable) {
+          const width = p.dataTable.columns.length;
+          for (const row of p.dataTable.rows) {
+            if (row.length !== width) issues.push({ setId: p.id, message: `dataTable row width ${row.length} != columns ${width}` });
+            for (const cell of row) if (!cell || !String(cell).trim()) issues.push({ setId: p.id, message: "dataTable has an empty cell" });
+          }
+        }
+        if (p.visualType === "pie chart" && p.visualDescription) {
+          // Split multi-pie descriptions (e.g. "2000: ... 2020: ..." or
+          // "Country A: ... Country B: ...") and check each group separately.
+          const groups = p.visualDescription.split(/:\s*/).slice(1);
+          const pieces = groups.length > 1 ? groups : [p.visualDescription];
+          for (const piece of pieces) {
+            const cleaned = piece.replace(/\(sums? to 100%\)/gi, "");
+            const pcts = (cleaned.match(/\d+%/g) ?? []).map((x) => Number(x.slice(0, -1)));
+            if (pcts.length === 0) continue;
+            const sum = pcts.reduce((a, b) => a + b, 0);
+            if (Math.abs(sum - 100) > 3) {
+              issues.push({ setId: p.id, message: `pie chart percentages sum to ${sum}, expected ~100 (group: "${piece.slice(0, 40)}...")` });
+            }
+          }
+        }
       }
       if (p.testType === "general") {
         if (!p.letterTone) issues.push({ setId: p.id, message: "General Task 1 missing letterTone" });
-        const body = p.prompt.split("In your letter:")[1] ?? p.prompt;
-        const bullets = (body.match(/\b(describe|explain|say|ask|suggest|offer|tell|mention|give|recommend|invite|welcome|express|state|list)\b/gi) ?? []).length;
-        if (bullets < 3) issues.push({ setId: p.id, message: `General Task 1 should have three requirement points, found ${bullets}` });
+        if (!p.letterPurpose) issues.push({ setId: p.id, message: "General Task 1 missing letterPurpose" });
+        if (!p.letterRequirements || p.letterRequirements.length !== 3) {
+          issues.push({ setId: p.id, message: `General Task 1 must have exactly 3 structured requirements, found ${p.letterRequirements?.length ?? 0}` });
+        } else {
+          for (const r of p.letterRequirements) {
+            if (!r || !r.trim()) issues.push({ setId: p.id, message: "General Task 1 has an empty requirement" });
+          }
+          if (new Set(p.letterRequirements).size !== 3) {
+            issues.push({ setId: p.id, message: "General Task 1 requirements are not distinct" });
+          }
+        }
       }
     }
     if (p.task === 2) {

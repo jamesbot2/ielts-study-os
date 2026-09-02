@@ -218,6 +218,8 @@ export interface WritingPrompt {
   taskSubtype?: WritingTaskSubtype;
   letterTone?: "formal" | "semi_formal" | "informal";
   letterPurpose?: string;
+  // Exactly three structured learner-visible requirements for General Task 1.
+  letterRequirements?: string[];
   academicVisualCategory?: string;
 }
 
