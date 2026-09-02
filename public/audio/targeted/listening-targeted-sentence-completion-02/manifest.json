@@ -1,0 +1,12 @@
+{
+  "parts": [
+    {
+      "setId": "listening-targeted-sentence-completion-02",
+      "part": 1,
+      "title": "Sentence completion \u2014 Museum audio guide",
+      "src": "part1.mp3",
+      "sizeBytes": 383729,
+      "durationSeconds": 47.9
+    }
+  ]
+}

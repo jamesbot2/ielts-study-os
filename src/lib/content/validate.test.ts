@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet } from "./validate";
 import { effectiveQuestionCount } from "./practice-validation";
-import { READING_QUESTION_TYPES } from "./question-types";
+import { READING_QUESTION_TYPES, LISTENING_QUESTION_TYPES } from "./question-types";
 import { computeCoverage } from "./coverage";
 import { allPracticeSets } from "./practice";
 import type { PracticeSet, QuestionType } from "@/types/ielts";
@@ -278,23 +278,15 @@ describe("V0.6 Reading targeted threshold", () => {
   });
 });
 
-describe("Round 3A targeted Listening threshold", () => {
-  it("each of the first seven Listening types has >=2 playable published sets", () => {
+describe("final targeted Listening threshold (all 13 types)", () => {
+  it("every Listening question type has >=2 playable published sets", () => {
     const coverage = computeCoverage();
-    for (const type of [
-      "multiple_choice",
-      "multiple_answer",
-      "matching",
-      "plan_labelling",
-      "map_labelling",
-      "diagram_labelling",
-      "form_completion",
-    ]) {
+    for (const type of LISTENING_QUESTION_TYPES) {
       const n = coverage.listeningPlayableTargetedByType[type] ?? 0;
       expect(n, `playable targeted sets for ${type}`).toBeGreaterThanOrEqual(2);
     }
     const total = Object.values(coverage.listeningPlayableTargetedByType).reduce((a, b) => a + b, 0);
-    expect(total).toBeGreaterThanOrEqual(14);
+    expect(total).toBeGreaterThanOrEqual(26);
   });
 });
 

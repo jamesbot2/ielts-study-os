@@ -758,6 +758,478 @@
           ]
         }
       ]
+    },
+    {
+      "setId": "listening-targeted-note-completion-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Note completion — Urban wildlife lecture",
+          "lines": [
+            {
+              "speaker": "Lecturer",
+              "voice": "en_US-lessac-medium",
+              "text": "Right, this week we're looking at why some animals do unexpectedly well in cities. I'll start with the red fox, which is now more common in many urban areas than in the surrounding countryside."
+            },
+            {
+              "speaker": "Lecturer",
+              "voice": "en_US-lessac-medium",
+              "text": "The first reason is food. Foxes are opportunistic feeders, and cities provide a reliable supply all year round — from rubbish bins, to be honest, but also deliberately, because some residents leave out scraps for them."
+            },
+            {
+              "speaker": "Lecturer",
+              "voice": "en_US-lessac-medium",
+              "text": "The second factor is shelter. Gardens, sheds and the space under railway lines all give foxes safe places to rest during the day, and importantly, a place to raise their cubs in spring."
+            },
+            {
+              "speaker": "Lecturer",
+              "voice": "en_US-lessac-medium",
+              "text": "A third point, which surprises many people, is that the city is often safer than the countryside. Urban foxes face far fewer large predators, and road accidents, although they happen, kill far fewer foxes than hunting does in rural areas."
+            },
+            {
+              "speaker": "Lecturer",
+              "voice": "en_US-lessac-medium",
+              "text": "Now, there are of course problems. Foxes do sometimes damage gardens, and they can carry a skin disease called mange, which makes their fur fall out. The standard advice from wildlife groups is simple: don't feed them, and secure your bins with a lid."
+            },
+            {
+              "speaker": "Lecturer",
+              "voice": "en_US-lessac-medium",
+              "text": "So to summarise — three reasons for urban success: a reliable food supply, plenty of sheltered places, and a relative absence of predators. Next week we'll do the same analysis for hedgehogs."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-note-completion-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Note completion — Volunteer orientation",
+          "lines": [
+            {
+              "speaker": "Coordinator",
+              "voice": "en_US-ryan-high",
+              "text": "Welcome to the food bank, and thanks for volunteering. Let me run through the basics so you know what to expect on your first shift."
+            },
+            {
+              "speaker": "Coordinator",
+              "voice": "en_US-ryan-high",
+              "text": "Shifts start at nine in the morning, but please arrive fifteen minutes early so we can brief you. The morning shift finishes at twelve thirty, and the afternoon shift runs from one until four."
+            },
+            {
+              "speaker": "Coordinator",
+              "voice": "en_US-ryan-high",
+              "text": "Your main task will be sorting donations. We separate tins, packets and fresh produce, and we check every date label — anything past its date goes to the compost collection rather than the shelves."
+            },
+            {
+              "speaker": "Coordinator",
+              "voice": "en_US-ryan-high",
+              "text": "We also pack emergency parcels for families. Each parcel should contain enough for three days, and we always include rice, pasta, tinned vegetables and tea."
+            },
+            {
+              "speaker": "Coordinator",
+              "voice": "en_US-ryan-high",
+              "text": "For health and safety, please wear closed shoes, and if you're lifting heavy boxes, always bend your knees — we'd rather you ask for help than hurt your back."
+            },
+            {
+              "speaker": "Coordinator",
+              "voice": "en_US-ryan-high",
+              "text": "Finally, if you can't make a shift, phone the office at least twenty-four hours before, so we can find a replacement. That's really important, because the service depends on people turning up."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-table-completion-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Table completion — Language courses",
+          "lines": [
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Thanks for waiting. You asked about our language courses, so here's what's available this term."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "The French class is for complete beginners — it's an introductory course — and it meets on Wednesday evenings. The fee is eighty-five pounds, which includes the course book."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Spanish is elementary level, running on Thursday. Oh, sorry, let me correct that — it's on Tuesday, not Thursday. That one is seventy pounds."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Mandarin is also elementary, on Tuesday afternoons. That's slightly more expensive because of the small class size — one hundred and ten pounds."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Italian is an intermediate course, meeting on Thursday evenings. The fee is ninety-five pounds."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "And finally German, elementary level, on Wednesday mornings. That's our cheapest option at sixty pounds."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-table-completion-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Table completion — Library events",
+          "lines": [
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-ryan-high",
+              "text": "Here's what's on at the library this Saturday. The author talk is in the main hall at six in the evening — that's the biggest event of the day."
+            },
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-ryan-high",
+              "text": "For younger visitors, children's story time is in the children's corner at half past ten in the morning. No need to book, just turn up."
+            },
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-ryan-high",
+              "text": "Our computer help session runs in room two. It starts at two o'clock, and we'd prefer you to book a slot because it's popular."
+            },
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-ryan-high",
+              "text": "The book club meets in room three at four thirty, and this month they're discussing a travel memoir."
+            },
+            {
+              "speaker": "Librarian",
+              "voice": "en_US-ryan-high",
+              "text": "And to finish the day, we're screening a film in the main hall at seven. Entry is free with a library card."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-flow-chart-completion-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Flow-chart completion — Renewing membership",
+          "lines": [
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "If your membership has lapsed, renewing it online only takes a few minutes. I'll talk you through the steps in order."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "First, log in to your account. You'll need your membership number, which is printed on the back of your old card, just above the barcode."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Once you're in, check that your personal details are still correct — especially your address, because that's where we post the new card."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Next, pay the renewal fee. The standard fee is fifteen pounds, though students and over-sixties pay ten."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "After you've paid, we'll process your card. It normally arrives within five working days, but during busy periods it can take up to ten."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "And that's it — once your card arrives, just bring it to the desk to activate it on your first visit."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-flow-chart-completion-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Flow-chart completion — Restaurant reservation",
+          "lines": [
+            {
+              "speaker": "Manager",
+              "voice": "en_US-ryan-high",
+              "text": "The college restaurant now takes bookings online, and the process is straightforward. Let me go through it stage by stage."
+            },
+            {
+              "speaker": "Manager",
+              "voice": "en_US-ryan-high",
+              "text": "First, choose your date and tell us how many guests are in your party. We can take bookings for up to twelve people."
+            },
+            {
+              "speaker": "Manager",
+              "voice": "en_US-ryan-high",
+              "text": "Next, decide where you'd like to sit. We have the main dining room, or the garden terrace in summer — the terrace is lovely but it does close if it rains."
+            },
+            {
+              "speaker": "Manager",
+              "voice": "en_US-ryan-high",
+              "text": "Once you've chosen, we ask for a deposit of five pounds per person. That comes off your final bill, so it's not an extra charge."
+            },
+            {
+              "speaker": "Manager",
+              "voice": "en_US-ryan-high",
+              "text": "Finally, we'll send you a confirmation by email, normally within the hour. Please check it carefully, and ring us if any detail is wrong."
+            },
+            {
+              "speaker": "Manager",
+              "voice": "en_US-ryan-high",
+              "text": "And one tip — if you're booking for a Friday evening, do it at least a week ahead, because that's our busiest time."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-summary-completion-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Summary completion — Community garden project",
+          "lines": [
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "The Greenfield community garden began three years ago, when a group of residents transformed a disused car park into a shared growing space. The project was initially funded by a small council grant, and it now has more than forty regular members."
+            },
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "The garden is organised around raised beds, which make planting easier for older members and for people with limited mobility. Most plots grow vegetables, though a few are kept for flowers to attract pollinating insects."
+            },
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "Water comes from two large tanks that collect rainwater from the roof of the nearby community centre. This has reduced the garden's mains water use by around two-thirds, which keeps the running costs low."
+            },
+            {
+              "speaker": "Presenter",
+              "voice": "en_US-lessac-medium",
+              "text": "The organisers say the biggest surprise has been the social impact. A survey of members found that most joined to grow food, but the friendships formed there are now the main reason people stay."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-summary-completion-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Summary completion — History of the postcard",
+          "lines": [
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "The picture postcard seems completely ordinary today, but it caused a small revolution when it first appeared. The first illustrated postcards were printed in Austria in 1869, and within a few years millions were being sent across Europe every year."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "At first, postcards were plain on one side and decorated on the other, because postal rules allowed only the address to be written beside the stamp. It was not until 1902, in Britain, that the divided back was introduced, letting senders write a message and the address on the same side."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "The change made postcards enormously popular. By the eve of the First World War, the British public alone was sending around nine hundred million postcards a year, and collecting them became a fashionable hobby."
+            },
+            {
+              "speaker": "Guide",
+              "voice": "en_US-ryan-high",
+              "text": "Sales then fell for decades, overtaken first by the telephone and later by the camera. Yet postcards never disappeared, and today they are bought mainly by tourists as souvenirs rather than for sending messages."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-sentence-completion-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Sentence completion — City cycling scheme",
+          "lines": [
+            {
+              "speaker": "Officer",
+              "voice": "en_US-lessac-medium",
+              "text": "The city's bike share scheme has been running for two years now, and it's been more successful than anyone expected. We originally planned forty docking stations, but demand was so strong that we now operate sixty-two."
+            },
+            {
+              "speaker": "Officer",
+              "voice": "en_US-lessac-medium",
+              "text": "The bikes are available from six in the morning until midnight, seven days a week. Riders pay one pound for every thirty minutes, with the first fifteen minutes free."
+            },
+            {
+              "speaker": "Officer",
+              "voice": "en_US-lessac-medium",
+              "text": "We carried out a survey last spring, and the results showed that two-thirds of trips replaced journeys that would otherwise have been made by car or taxi. That's the figure we're most proud of."
+            },
+            {
+              "speaker": "Officer",
+              "voice": "en_US-lessac-medium",
+              "text": "There have been problems, of course. The main complaint is that stations in the city centre are often empty by mid-morning, so we're adding a redistribution van to move bikes out from the suburbs each day."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-sentence-completion-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Sentence completion — Museum audio guide",
+          "lines": [
+            {
+              "speaker": "Curator",
+              "voice": "en_US-ryan-high",
+              "text": "Welcome to the maritime gallery. This room tells the story of the town's fishing fleet, which at its peak in 1910 numbered over two hundred boats, all launched from the harbour you can see from the window."
+            },
+            {
+              "speaker": "Curator",
+              "voice": "en_US-ryan-high",
+              "text": "The fleet grew so quickly because the railway arrived here in 1885, which meant fresh fish could reach London markets in a single day. Before that, the catch had to be salted or smoked, which made it much less valuable."
+            },
+            {
+              "speaker": "Curator",
+              "voice": "en_US-ryan-high",
+              "text": "The industry declined after the Second World War, partly because the larger trawlers could not enter the shallow harbour. The last commercial boat was retired in 1978, and the harbour is now used mainly by pleasure craft."
+            },
+            {
+              "speaker": "Curator",
+              "voice": "en_US-ryan-high",
+              "text": "The model in the centre of the room shows the Mary Ann, the oldest surviving example of the town's famous clinker-built boats, in which the planks overlap like the tiles on a roof."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-short-answer-01",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Short answers — Estate agent viewing",
+          "lines": [
+            {
+              "speaker": "Agent",
+              "voice": "en_US-lessac-medium",
+              "text": "Right, welcome to number fourteen Ash Grove. I'll take you through the house, and just ask if anything's unclear."
+            },
+            {
+              "speaker": "Buyer",
+              "voice": "en_US-ryan-high",
+              "text": "Thanks. First question — when was the property built?"
+            },
+            {
+              "speaker": "Agent",
+              "voice": "en_US-lessac-medium",
+              "text": "It was built in 1998, and it's been with the same owner since new. The boiler was replaced just two years ago, so that's one thing you won't need to worry about."
+            },
+            {
+              "speaker": "Buyer",
+              "voice": "en_US-ryan-high",
+              "text": "Good. And how much is the council tax?"
+            },
+            {
+              "speaker": "Agent",
+              "voice": "en_US-lessac-medium",
+              "text": "It's band D, which currently works out at one hundred and sixty-eight pounds a month."
+            },
+            {
+              "speaker": "Buyer",
+              "voice": "en_US-ryan-high",
+              "text": "What about the schools? We have two children."
+            },
+            {
+              "speaker": "Agent",
+              "voice": "en_US-lessac-medium",
+              "text": "The local primary is a ten-minute walk, and the secondary school runs a bus service from the end of the road. Both are rated good by the inspectors."
+            },
+            {
+              "speaker": "Buyer",
+              "voice": "en_US-ryan-high",
+              "text": "And one more — has the roof ever leaked?"
+            },
+            {
+              "speaker": "Agent",
+              "voice": "en_US-lessac-medium",
+              "text": "Not in the time the current owner has lived here, no. There was some work on the chimney in 2015, but that was precautionary."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "setId": "listening-targeted-short-answer-02",
+      "parts": [
+        {
+          "part": 1,
+          "title": "Short answers — Tourist information",
+          "lines": [
+            {
+              "speaker": "Visitor",
+              "voice": "en_US-ryan-high",
+              "text": "Hello — we've just arrived and we're only here for the day. What would you recommend we see first?"
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "Welcome! I'd start with the old town, it's a five-minute walk from here. The cathedral there dates from the twelfth century, and entry is free before noon."
+            },
+            {
+              "speaker": "Visitor",
+              "voice": "en_US-ryan-high",
+              "text": "And the castle? I've heard it's worth a visit."
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "It is, but it's closed on Tuesdays, so check before you go. The entrance fee is nine pounds for adults, and children under twelve go free."
+            },
+            {
+              "speaker": "Visitor",
+              "voice": "en_US-ryan-high",
+              "text": "What about the boat trip on the river?"
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "The boats leave from the pier every hour on the hour. The trip takes fifty minutes, and the last one leaves at five. If it rains, the upper deck is covered, so it's fine either way."
+            },
+            {
+              "speaker": "Visitor",
+              "voice": "en_US-ryan-high",
+              "text": "Lovely. And one last thing — is there anywhere good to eat near the station?"
+            },
+            {
+              "speaker": "Adviser",
+              "voice": "en_US-lessac-medium",
+              "text": "The station café is actually excellent, and it's open until nine, which is later than most places in town."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
