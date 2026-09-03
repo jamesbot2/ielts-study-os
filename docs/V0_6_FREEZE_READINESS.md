@@ -3,9 +3,12 @@
 Evidence-based audit of the V0.6.x foundation against the freeze criteria.
 This document records readiness; it does NOT freeze the foundation.
 
-- **Candidate SHA:** f27e143 (final commit of this audit)
+- **Audited code candidate:** f27e143b6d6effb94aa89a2d1a6e93c81ed81cc6
+  (app code; the audit also produced docs-only commits on the pre-freeze
+  branch — `beca359` is the current pre-freeze branch HEAD)
 - **Version:** 0.6.4 (freeze bump 0.6.4 → 0.6.5 remains a separate operation)
 - **Date:** 2026-09-03
+- **Final release SHA:** recorded in the release/tag metadata after the freeze commit
 - **FOUNDATION FROZEN:** NO
 
 ---
@@ -166,12 +169,15 @@ No `|| true`, no unconditional `continue-on-error` on release-critical gates.
 ## Production
 
 - GitHub origin: pushed with every audit commit.
-- GitLab mirror: **BLOCKED — credentials unavailable** in this environment
-  (token intentionally never stored in `.git/config`).
-- Canonical Vercel `https://ielts-study-os.vercel.app`: currently returns
-  **`DEPLOYMENT_NOT_FOUND` (404)** — the canonical deployment is not serving
-  any build. Restoring production requires the GitLab mirror path (blocked)
-  or re-linking Vercel (not attempted in this audit).
+- GitLab mirror: **current** — `beca359` pushed via the established
+  authenticated mirror path (`ejimm363/ielts-study-os`, main → main).
+- Canonical Vercel `https://ielts-study-os.vercel.app`: **CURRENT** — serves
+  the final candidate's app content (verified by unique post-Round-4 content
+  markers: the Round 5 grammar lesson `gram-articles-countability` and the
+  fixed `acad-t1-mixed-3` prompt wording) and passed the production smoke
+  (all representative routes, grammar session, reading, listening audio
+  readyState=4, writing editor + draft persistence, speaking, mock, coach
+  graceful degradation, settings; 0 non-benign console errors).
 - AI/RAG production deployment: **NOT DEPLOYED** (no credentials/infrastructure;
   optional for the static core, which degrades honestly when unconfigured).
 
@@ -182,7 +188,7 @@ No `|| true`, no unconditional `continue-on-error` on release-critical gates.
 | P0 | None found in code correctness | — |
 | P1 | `acad-t1-mixed-3` year mismatch | FIXED this audit |
 | P1 | Human Listening QA sign-off missing | PENDING (blocker for freeze) |
-| P1 | Canonical production unavailable (`DEPLOYMENT_NOT_FOUND`); mirror credentials unavailable | BLOCKED (blocker for freeze) |
+| P1 | Canonical production unavailable | CLOSED — production is current and smoke-passed |
 | P1 | PostgreSQL integration previously unproven | PASS: real PG17+pgvector locally (6/6) and GitHub Actions integration job (6/6) |
 | P2 | 33 pre-existing lint warnings (style/naming; none correctness-related) | DEFERRED |
 | P2 | Reranker, token-level streaming, V0.7 architecture items | DEFERRED |
@@ -193,8 +199,7 @@ No `|| true`, no unconditional `continue-on-error` on release-critical gates.
 
 Blockers:
 1. Human Listening QA — PENDING (26-set checklist above; no human sign-off).
-2. Canonical production not deployed — `ielts-study-os.vercel.app` returns
-   DEPLOYMENT_NOT_FOUND; GitLab mirror credentials unavailable, so the
-   canonical deploy path cannot be exercised in this environment.
+   Automated checks (tts:check, asset existence, browser load, production
+   audio) all pass, but they do not replace human listening sign-off.
 
 FOUNDATION FROZEN: NO. Version remains 0.6.4.
