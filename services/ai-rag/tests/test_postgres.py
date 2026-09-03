@@ -108,8 +108,11 @@ def test_full_filter_matrix_live(repo):
         )
 
         def chunk(cid, sid, skill, test_type, qtypes, language="en"):
+            # Every chunk shares the token "study" so the lexical query matches
+            # all rows regardless of topic; the filter is then the only
+            # variable under test (websearch_to_tsquery ANDs multi-word queries).
             return KnowledgeChunk(
-                id=cid, source_id=sid, heading=cid, content=f"{skill} {test_type} {qtypes[0]}",
+                id=cid, source_id=sid, heading=cid, content=f"{skill} {test_type} {qtypes[0]} study notes",
                 language=language, skill=skill, test_type=test_type, topics=[skill],
                 question_types=qtypes, chunk_index=0, content_hash=f"{cid}-h",
                 embedding=[0.13] * dim, embedding_fingerprint="fp1",
@@ -125,20 +128,20 @@ def test_full_filter_matrix_live(repo):
 
         cases = [
             (SearchFilters(skill="reading"), {f"{prefix}-c1", f"{prefix}-c2", f"{prefix}-c5"}),
-            (SearchFilters(test_type="academic"), {f"{prefix}-c1", f"{prefix}-c3"}),
+            (SearchFilters(test_type="academic"), {f"{prefix}-c1", f"{prefix}-c3", f"{prefix}-c5"}),
             (SearchFilters(source_type="original"), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
             (SearchFilters(official=True), {f"{prefix}-c1", f"{prefix}-c2"}),
             (SearchFilters(official=False), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
             (SearchFilters(question_type="matching_headings"), {f"{prefix}-c1"}),
             (SearchFilters(language="en"), {f"{prefix}-c1", f"{prefix}-c2", f"{prefix}-c3", f"{prefix}-c4"}),
             (SearchFilters(language="zh"), {f"{prefix}-c5"}),
-            (SearchFilters(skill="reading", test_type="academic"), {f"{prefix}-c1"}),
+            (SearchFilters(skill="reading", test_type="academic"), {f"{prefix}-c1", f"{prefix}-c5"}),
             (SearchFilters(source_type="original", official=False), {f"{prefix}-c3", f"{prefix}-c4", f"{prefix}-c5"}),
             (SearchFilters(language="en", question_type="multiple_choice"), {f"{prefix}-c2"}),
         ]
         for flt, expected in cases:
             v = {r.chunk_id for r in repo.search_vector([0.13] * dim, flt, 10)}
-            l = {r.chunk_id for r in repo.search_lexical("reading writing headings", flt, 10)}
+            l = {r.chunk_id for r in repo.search_lexical("study", flt, 10)}
             assert v == expected, f"vector {flt}: {v} != {expected}"
             assert l == expected, f"lexical {flt}: {l} != {expected}"
     finally:
@@ -148,37 +151,51 @@ def test_full_filter_matrix_live(repo):
 @pytest.mark.skipif(not URL, reason="POSTGRES_TEST_URL not set")
 def test_filter_contract_live(repo):
     prefix = _unique("f")
-    # Seed a corpus with unique IDs to avoid cross-test data dependency.
-    dim = DIM
-    src = KnowledgeSource(
-        id=f"{prefix}-src", title="Filter Source", provider="T", url=None, source_type="original",
-        official=False, license="CC0", redistribution_policy="original_full", language="en",
-        skill="reading", test_type="academic", topics=[], last_verified="2026-09-01",
-    )
-    repo.upsert_source(src)
-    repo.upsert_chunks(
-        [
-            KnowledgeChunk(
-                id=f"{prefix}-mh", source_id=f"{prefix}-src", heading="Matching Headings",
-                content="Matching Headings asks you to match paragraphs to headings.",
-                language="en", skill="reading", test_type="academic", topics=[],
-                question_types=["matching_headings"], chunk_index=0, content_hash=f"{prefix}-mh-hash",
-                embedding=[0.11] * dim, embedding_fingerprint="fp1",
-            ),
-            KnowledgeChunk(
-                id=f"{prefix}-mc", source_id=f"{prefix}-src", heading="Multiple Choice",
-                content="Multiple Choice questions have several options.",
-                language="en", skill="reading", test_type="academic", topics=[],
-                question_types=["multiple_choice"], chunk_index=0, content_hash=f"{prefix}-mc-hash",
-                embedding=[0.12] * dim, embedding_fingerprint="fp1",
-            ),
-        ]
-    )
 
-    v = repo.search_vector([0.11] * dim, SearchFilters(question_type="matching_headings"), 10)
-    assert {r.chunk_id for r in v} == {f"{prefix}-mh"}
-    l = repo.search_lexical("Matching Headings", SearchFilters(question_type="matching_headings"), 10)
-    assert {r.chunk_id for r in l} == {f"{prefix}-mh"}
+    def cleanup():
+        from app.storage.models import KnowledgeChunkRow, KnowledgeSourceRow
+
+        with repo._session_factory() as session:
+            for row in session.query(KnowledgeChunkRow).filter(KnowledgeChunkRow.source_id.like(f"{prefix}-%")).all():
+                session.delete(row)
+            for row in session.query(KnowledgeSourceRow).filter(KnowledgeSourceRow.id.like(f"{prefix}-%")).all():
+                session.delete(row)
+            session.commit()
+
+    try:
+        # Seed a corpus with unique IDs to avoid cross-test data dependency.
+        dim = DIM
+        src = KnowledgeSource(
+            id=f"{prefix}-src", title="Filter Source", provider="T", url=None, source_type="original",
+            official=False, license="CC0", redistribution_policy="original_full", language="en",
+            skill="reading", test_type="academic", topics=[], last_verified="2026-09-01",
+        )
+        repo.upsert_source(src)
+        repo.upsert_chunks(
+            [
+                KnowledgeChunk(
+                    id=f"{prefix}-mh", source_id=f"{prefix}-src", heading="Matching Headings",
+                    content="Matching Headings asks you to match paragraphs to headings.",
+                    language="en", skill="reading", test_type="academic", topics=[],
+                    question_types=["matching_headings"], chunk_index=0, content_hash=f"{prefix}-mh-hash",
+                    embedding=[0.11] * dim, embedding_fingerprint="fp1",
+                ),
+                KnowledgeChunk(
+                    id=f"{prefix}-mc", source_id=f"{prefix}-src", heading="Multiple Choice",
+                    content="Multiple Choice questions have several options.",
+                    language="en", skill="reading", test_type="academic", topics=[],
+                    question_types=["multiple_choice"], chunk_index=0, content_hash=f"{prefix}-mc-hash",
+                    embedding=[0.12] * dim, embedding_fingerprint="fp1",
+                ),
+            ]
+        )
+
+        v = repo.search_vector([0.11] * dim, SearchFilters(question_type="matching_headings"), 10)
+        assert {r.chunk_id for r in v} == {f"{prefix}-mh"}
+        l = repo.search_lexical("Matching Headings", SearchFilters(question_type="matching_headings"), 10)
+        assert {r.chunk_id for r in l} == {f"{prefix}-mh"}
+    finally:
+        cleanup()
 
 
 @pytest.mark.skipif(not URL, reason="POSTGRES_TEST_URL not set")
