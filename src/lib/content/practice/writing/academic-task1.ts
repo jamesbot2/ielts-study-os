@@ -123,7 +123,7 @@ export const academicTask1Prompts: WritingPrompt[] = [
     { visualType: "mixed (line + table)", visualDescription: "Arrivals (millions): 2010 12, 2014 18, 2018 24, 2020 9. Spending per visitor ($): 2010 720, 2014 810, 2018 940, 2020 1050." },
     "mixed"),
   academicTask1("acad-t1-mixed-3", "Crop production and farmland (mixed)",
-    `The bar chart below shows wheat production in a region, and the pie chart shows the use of its farmland, in 2020. ${V}`,
+    `The bar chart below shows wheat production in a region in 2015 and 2020, while the pie chart shows the use of its farmland in 2020. ${V}`,
     { visualType: "mixed (bar + pie)", visualDescription: "Wheat production (thousand tonnes): 2015 320, 2020 390. Farmland use: wheat 45%, vegetables 20%, livestock 18%, fruit 10%, other 7% (sums to 100%)." },
     "mixed"),
   academicTask1("acad-t1-mixed-4", "Student numbers by subject (mixed)",

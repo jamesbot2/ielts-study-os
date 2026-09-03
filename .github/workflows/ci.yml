@@ -19,6 +19,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: npm run content:coverage
+      - run: npm run tts:check
       - run: npm run build
       - name: Verify static output
         run: |

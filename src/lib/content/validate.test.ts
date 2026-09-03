@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { validateAllContent, validateSets, getPracticeSetIssues, questionTypeCoverage, isStructurallyValidTargetedSet, isPublishedTargetedSet, validateWritingPrompts, validateGrammarExercises, validateGrammarExerciseList } from "./validate";
 import { effectiveQuestionCount } from "./practice-validation";
 import { writingPrompts as allWritingPrompts } from "./practice/writing-prompts";
+import { speakingTopics } from "./practice/speaking-topics";
+import { scoredUnitCountForSet } from "../scoring/units";
 import { grammarExercises, type GrammarExercise } from "./practice/grammar-exercises";
 import { allLessons } from "./curriculum";
 import { READING_QUESTION_TYPES, LISTENING_QUESTION_TYPES } from "./question-types";
@@ -791,5 +793,39 @@ describe("Round 5-G connector fixes", () => {
     const e = getEx("g-coh-3");
     expect(e.sentence).toMatch(/explicitly expresses addition/i);
     expect(e.options[e.correct]).toBe("In addition");
+  });
+});
+
+// ---- Final V0.6 QA: acad-t1-mixed-3 year-consistency regression ----
+
+describe("Final QA content invariants", () => {
+  it("acad-t1-mixed-3 prompt matches its two-year bar data", () => {
+    const p = allWritingPrompts.find((x) => x.id === "acad-t1-mixed-3");
+    expect(p).toBeDefined();
+    expect(p!.prompt).toContain("in 2015 and 2020");
+    expect(p!.prompt).toContain("the use of its farmland in 2020");
+    expect(p!.visualDescription).toContain("2015 320");
+    expect(p!.visualDescription).toContain("2020 390");
+  });
+
+  it("full objective tests are exactly 40 scored units each", () => {
+    const acad = allPracticeSets.find((x) => (x as unknown as { meta: { id: string } }).meta.id === "academic-reading-1")!;
+    const gen = allPracticeSets.find((x) => (x as unknown as { meta: { id: string } }).meta.id === "general-reading-1")!;
+    const ls = allPracticeSets.find((x) => (x as unknown as { meta: { id: string } }).meta.id === "listening-1")!;
+    expect(scoredUnitCountForSet(acad)).toBe(40);
+    expect(scoredUnitCountForSet(gen)).toBe(40);
+    expect(scoredUnitCountForSet(ls)).toBe(40);
+  });
+
+  it("speaking thresholds are met from canonical content", () => {
+    let p1 = 0, p2 = 0, p3 = 0;
+    for (const t of speakingTopics) {
+      p1 += t.part1Questions.length;
+      p2 += t.part2CueCards.length;
+      p3 += t.part3Questions.length;
+    }
+    expect(p1).toBeGreaterThanOrEqual(120);
+    expect(p2).toBeGreaterThanOrEqual(60);
+    expect(p3).toBeGreaterThanOrEqual(90);
   });
 });
