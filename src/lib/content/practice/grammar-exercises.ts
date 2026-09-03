@@ -219,10 +219,10 @@ export const grammarExercises: GrammarExercise[] = [
   {
     id: "g-conj-1",
     topic: "Conjunctions",
-    sentence: "The project was difficult; ___, the team completed it on time.",
-    options: ["however", "therefore", "because"],
+    sentence: "Which conjunctive adverb explicitly expresses contrast? 'The project was difficult; ___, the team completed it on time.'",
+    options: ["however", "therefore", "for example"],
     correct: 0,
-    explanation: "'However' contrasts the difficulty with the successful completion.",
+    explanation: "'However' explicitly marks contrast between the project's difficulty and the successful on-time completion. 'Therefore' expresses result, while 'for example' introduces an example.",
     lessonId: "gram-cohesion-reference",
     kind: "gap_fill",
     difficulty: 2,
@@ -1043,8 +1043,8 @@ grammarExercises.push(
     "Identify the error: 'The policy was popular, it was expensive.'", ["comma splice", "fragment", "wrong tense"], 0,
     "Two independent clauses joined with only a comma is a comma splice; use a semicolon, a conjunction, or a full stop.", "comma splice"),
   E("g-clause-5", "gram-clauses", "Clauses and clause boundaries", "gap_fill", 2,
-    "___ the survey was short, the results were still reliable.", ["Although", "Because", "Since"], 0,
-    "'Although' expresses the contrast between a short survey and reliable results.", "concession"),
+    "Which connector explicitly expresses concession? '___ the survey was short, the results were still reliable.'", ["Although", "Because", "Since"], 0,
+    "'Although' marks the concessive contrast between the survey's short length and the reliability of the results. 'Because' and 'since' express cause instead.", "concession"),
   E("g-clause-6", "gram-clauses", "Clauses and clause boundaries", "sentence_choice", 3,
     "Choose the correctly joined pair.", ["The shop closed early; because of the storm.", "The shop closed early because of the storm.", "Because the shop closed early, and the storm."], 1,
     "A main clause plus 'because of + noun phrase' forms a grammatical sentence.", "cause clauses"),
@@ -1117,8 +1117,8 @@ grammarExercises.push(
     "Identify the error: 'Because of the train was late, we missed the start.'", ["because of + clause", "tense", "word order"], 0,
     "'Because of' takes a noun phrase; use 'because the train was late' or 'because of the late train'.", "adverbial clauses"),
   E("g-adv-8", "gram-adverbial-clauses", "Adverbial clauses", "gap_fill", 3,
-    "Demand held up ___ costs rose sharply.", ["even though", "so", "because"], 0,
-    "'Even though' introduces the unexpected contrast.", "adverbial clauses"),
+    "Which connector explicitly expresses concession? 'Demand held up ___ costs rose sharply.'", ["even though", "because", "so"], 0,
+    "'Even though' introduces concession: demand remained strong despite rising costs. 'Because' expresses cause, while 'so' does not fit the requested concessive relation.", "adverbial clauses"),
 
   // --- gram-participle-clauses (+8) ---
   E("g-part-1", "gram-participle-clauses", "Participle clauses", "gap_fill", 2,
@@ -1174,8 +1174,8 @@ grammarExercises.push(
     "The north region performed ___ better than the south.", ["far", "more", "much more"], 0,
     "'Far better' intensifies the comparative correctly (avoid 'more better').", "comparatives"),
   E("g-comp-7", "gram-comparisons-quantifiers", "Comparatives", "gap_fill", 3,
-    "Car use fell, ___ cycling increased significantly.", ["whereas", "so that", "in case"], 0,
-    "'Whereas' contrasts the two trends; 'so that' expresses purpose and 'in case' precaution, neither of which fits.", "comparatives"),
+    "Which connector explicitly contrasts the two trends? 'Car use fell, ___ cycling increased significantly.'", ["whereas", "because", "therefore"], 0,
+    "'Whereas' contrasts the fall in car use with the rise in cycling. 'Because' expresses cause and 'therefore' expresses result.", "comparatives"),
   E("g-comp-8", "gram-comparisons-quantifiers", "Comparatives", "gap_fill", 2,
     "Monthly rents in London and Bristol were £800 and £650 ______.", ["each", "respectively", "individually"], 1,
     "'Respectively' maps the figures to the two named cities in order: London → £800, Bristol → £650.", "comparatives"),
@@ -1196,8 +1196,8 @@ grammarExercises.push(
 
   // --- gram-cohesion-reference (+1) ---
   E("g-coh-3", "gram-cohesion-reference", "Cohesion", "gap_fill", 2,
-    "Rents have risen sharply. ___, transport costs have also increased.", ["In addition", "As a result", "In contrast"], 0,
-    "'In addition' adds a second similar trend; 'As a result' implies cause and 'In contrast' a difference, which the 'also' rules out.", "cohesion / linking devices"),
+    "Which connector explicitly expresses addition? 'Rents have risen sharply. ___, transport costs have also increased.'", ["In addition", "As a result", "In contrast"], 0,
+    "'In addition' adds a second similar trend. 'As a result' expresses a cause-effect relation and 'In contrast' a difference, so neither matches the requested function of addition.", "cohesion / linking devices"),
 
   // --- gram-parallelism (+4) ---
   E("g-par-5", "gram-parallelism", "Parallelism", "sentence_choice", 2,

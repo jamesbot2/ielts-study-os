@@ -732,17 +732,15 @@ describe("Round 5-F final corrections", () => {
       "whereas", "but", "although", "because", "due to",
     ]);
     const FUNCTION_WORDS = /cause|contrast|concession|result|addition|example|explicitly|hedged|appropriately/i;
-    // Connector answers where the remaining options are ungrammatical in the
-    // slot (multi-word fillers, ungrammatical forms) — no prompt needed.
+    // Connector answers may be exempt from an explicit function prompt ONLY
+    // when every alternative is ungrammatical in the exact slot (structural
+    // exclusion), never because the context "suggests" the intended relation.
+    // Round 5-G: g-adv-8, g-clause-5, g-comp-7, g-conj-1 and g-coh-3 were
+    // given explicit function prompts and removed from this list.
     const CONTEXT_BLOCKED = new Set([
-      "g-adv-8",  // even though / so / because: 'so' ungrammatical in this slot
-      "g-clause-5", // Although: 'still' forces contrast
-      "g-clause-7", // once: during / because of ungrammatical
-      "g-comp-7",   // whereas: so that / in case ungrammatical
-      "g-t1-4",     // whereas: while it / despite ungrammatical
-      "g-coh-3",    // In addition: 'also' forces addition
-      "g-conj-1",   // however: therefore semantically backwards
-      "g-t2-3",     // due to: because/since + noun phrase ungrammatical
+      "g-clause-7", // once: 'during' and 'because of' cannot take a clause
+      "g-t1-4",     // whereas: 'while it' and 'despite' + clause ungrammatical
+      "g-t2-3",     // due to: 'because'/'since' + noun phrase ungrammatical
     ]);
     for (const e of grammarExercises) {
       if (e.kind !== "gap_fill") continue;
@@ -751,5 +749,47 @@ describe("Round 5-F final corrections", () => {
       if (CONTEXT_BLOCKED.has(e.id)) continue;
       expect(`${e.id}: ${e.sentence}`, "bare connector gap-fill").toMatch(FUNCTION_WORDS);
     }
+  });
+});
+
+// ---- Round 5-G: connector exemption / semantic uniqueness closure ----
+
+describe("Round 5-G connector fixes", () => {
+  it("g-adv-8 explicitly asks for concession", () => {
+    const e = getEx("g-adv-8");
+    expect(e.sentence).toMatch(/explicitly expresses concession/i);
+    expect(e.options).toEqual(["even though", "because", "so"]);
+    expect(e.options[e.correct]).toBe("even though");
+    expect(e.explanation).not.toMatch(/because.*ungrammatical/i);
+  });
+
+  it("g-conj-1 explicitly asks for contrast", () => {
+    const e = getEx("g-conj-1");
+    expect(e.sentence).toMatch(/conjunctive adverb explicitly expresses contrast/i);
+    expect(e.options).toEqual(["however", "therefore", "for example"]);
+    expect(e.options[e.correct]).toBe("however");
+    expect(e.explanation).toMatch(/therefore.*result/i);
+  });
+
+  it("g-comp-7 explicitly asks to contrast the two trends", () => {
+    const e = getEx("g-comp-7");
+    expect(e.sentence).toMatch(/explicitly contrasts the two trends/i);
+    expect(e.options).toEqual(["whereas", "because", "therefore"]);
+    expect(e.options[e.correct]).toBe("whereas");
+    expect(e.explanation).not.toMatch(/because.*ungrammatical/i);
+  });
+
+  it("g-clause-5 explicitly asks for concession", () => {
+    const e = getEx("g-clause-5");
+    expect(e.sentence).toMatch(/explicitly expresses concession/i);
+    expect(e.options).toEqual(["Although", "Because", "Since"]);
+    expect(e.options[e.correct]).toBe("Although");
+    expect(e.explanation).toMatch(/express cause instead/i);
+  });
+
+  it("g-coh-3 explicitly asks for addition", () => {
+    const e = getEx("g-coh-3");
+    expect(e.sentence).toMatch(/explicitly expresses addition/i);
+    expect(e.options[e.correct]).toBe("In addition");
   });
 });
