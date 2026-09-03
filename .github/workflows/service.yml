@@ -58,4 +58,11 @@ jobs:
       - name: Run PostgreSQL integration tests
         env:
           POSTGRES_TEST_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ielts_rag_test
-        run: pytest -q -m postgres
+        run: |
+          pytest -q -m postgres 2>&1 | tee /tmp/pytest-out.txt
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            echo "::error::PostgreSQL integration tests failed:"
+            tail -c 3000 /tmp/pytest-out.txt | while IFS= read -r line; do echo "::error::${line}"; done
+            exit "$status"
+          fi
