@@ -3,7 +3,7 @@
 Evidence-based audit of the V0.6.x foundation against the freeze criteria.
 This document records readiness; it does NOT freeze the foundation.
 
-- **Candidate SHA:** (updated after final commit of this audit)
+- **Candidate SHA:** f27e143 (final commit of this audit)
 - **Version:** 0.6.4 (freeze bump 0.6.4 → 0.6.5 remains a separate operation)
 - **Date:** 2026-09-03
 - **FOUNDATION FROZEN:** NO
@@ -84,13 +84,21 @@ test.
 
 ## PostgreSQL integration
 
-Local environment has no Docker/PostgreSQL, so live integration could not be
-verified before this audit. This audit adds a **real PostgreSQL + pgvector
-integration job to GitHub Actions** (`services/ai-rag/.github` workflow:
-`pgvector/pgvector:pg16` service, `POSTGRES_TEST_URL`, `pytest -m postgres`).
-Status of that job on the final candidate SHA is recorded in the CI section.
+This audit installed PostgreSQL 17 + pgvector locally (test-only, not
+production) and ran the integration suite: **6/6 passed twice on fresh
+databases** (connectivity + extension, dimension rejection, full six-filter
+matrix on both vector and lexical search, filter contract, metadata
+update/re-embed, RRF hybrid search). Two test defects were found and fixed:
+the lexical test query used `websearch_to_tsquery` AND-semantics that no chunk
+could satisfy, and two filter expectations contradicted the canonical
+"both"/"all" wildcard semantics shared by the in-memory and PostgreSQL
+repositories.
 
-In-memory repository tests remain 43 passed / 6 (Postgres-only) skipped.
+A permanent **GitHub Actions job** (`Service Quality` → `PostgreSQL +
+pgvector integration`, `pgvector/pgvector:pg16` service, `POSTGRES_TEST_URL`,
+`pytest -m postgres`) now runs this suite on every push: **PASS on f27e143**.
+
+In-memory repository tests: 43 passed / 6 (Postgres-only) skipped.
 Skipped tests are **not** counted as PASS.
 
 ## Listening audio
@@ -175,7 +183,7 @@ No `|| true`, no unconditional `continue-on-error` on release-critical gates.
 | P1 | `acad-t1-mixed-3` year mismatch | FIXED this audit |
 | P1 | Human Listening QA sign-off missing | PENDING (blocker for freeze) |
 | P1 | Canonical production unavailable (`DEPLOYMENT_NOT_FOUND`); mirror credentials unavailable | BLOCKED (blocker for freeze) |
-| P1 | PostgreSQL integration previously unproven | CI integration job added; see exact-SHA CI result |
+| P1 | PostgreSQL integration previously unproven | PASS: real PG17+pgvector locally (6/6) and GitHub Actions integration job (6/6) |
 | P2 | 33 pre-existing lint warnings (style/naming; none correctness-related) | DEFERRED |
 | P2 | Reranker, token-level streaming, V0.7 architecture items | DEFERRED |
 
@@ -188,8 +196,5 @@ Blockers:
 2. Canonical production not deployed — `ielts-study-os.vercel.app` returns
    DEPLOYMENT_NOT_FOUND; GitLab mirror credentials unavailable, so the
    canonical deploy path cannot be exercised in this environment.
-3. PostgreSQL integration — verified only via the new GitHub Actions
-   integration job on the exact final SHA (see CI section; if that job is red
-   it remains a P1).
 
 FOUNDATION FROZEN: NO. Version remains 0.6.4.
