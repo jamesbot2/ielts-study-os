@@ -695,3 +695,61 @@ describe("Round 5-E known-five regressions", () => {
     }
   });
 });
+
+// ---- Round 5-F: final 3-item discourse-function closure ----
+
+describe("Round 5-F final corrections", () => {
+  it("g-t2-6 explicitly tests hedging and distinguishes necessity from hedging", () => {
+    const e = getEx("g-t2-6");
+    expect(e.sentence).toMatch(/appropriately hedged/i);
+    expect(e.options).toEqual(["could", "must", "cannot"]);
+    expect(e.options[e.correct]).toBe("could");
+    expect(e.explanation).toMatch(/necessity/i);
+    expect(e.explanation).not.toMatch(/must.*(grammatically wrong|incorrect|ungrammatical)/i);
+    expect(e.explanation).not.toMatch(/must always expresses certainty/i);
+  });
+
+  it("g-adv-1 explicitly asks for cause", () => {
+    const e = getEx("g-adv-1");
+    expect(e.sentence).toMatch(/explicitly expresses cause/i);
+    expect(e.options[e.correct]).toBe("Because");
+  });
+
+  it("g-adv-2 explicitly asks for contrast", () => {
+    const e = getEx("g-adv-2");
+    expect(e.sentence).toMatch(/explicitly expresses contrast/i);
+    expect(e.options[e.correct]).toBe("Although");
+  });
+
+  it("no remaining bare discourse-relation gap-fill lacks an explicit function prompt", () => {
+    // Every gap_fill whose answer is a discourse connector must either state
+    // the intended relation (cause/contrast/concession/result) in the prompt
+    // or block alternatives with ungrammatical options.
+    const CONNECTOR_ANSWERS = new Set([
+      "Because", "Although", "Even though", "Whereas", "While", "But", "And",
+      "Since", "So", "Therefore", "However", "Consequently", "Moreover",
+      "In addition", "As a result", "For example", "In contrast", "even though",
+      "whereas", "but", "although", "because", "due to",
+    ]);
+    const FUNCTION_WORDS = /cause|contrast|concession|result|addition|example|explicitly|hedged|appropriately/i;
+    // Connector answers where the remaining options are ungrammatical in the
+    // slot (multi-word fillers, ungrammatical forms) — no prompt needed.
+    const CONTEXT_BLOCKED = new Set([
+      "g-adv-8",  // even though / so / because: 'so' ungrammatical in this slot
+      "g-clause-5", // Although: 'still' forces contrast
+      "g-clause-7", // once: during / because of ungrammatical
+      "g-comp-7",   // whereas: so that / in case ungrammatical
+      "g-t1-4",     // whereas: while it / despite ungrammatical
+      "g-coh-3",    // In addition: 'also' forces addition
+      "g-conj-1",   // however: therefore semantically backwards
+      "g-t2-3",     // due to: because/since + noun phrase ungrammatical
+    ]);
+    for (const e of grammarExercises) {
+      if (e.kind !== "gap_fill") continue;
+      const answer = e.options[e.correct];
+      if (!CONNECTOR_ANSWERS.has(answer)) continue;
+      if (CONTEXT_BLOCKED.has(e.id)) continue;
+      expect(`${e.id}: ${e.sentence}`, "bare connector gap-fill").toMatch(FUNCTION_WORDS);
+    }
+  });
+});
