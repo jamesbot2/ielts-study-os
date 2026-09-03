@@ -645,3 +645,53 @@ describe("Round 5-D focused-scan regressions", () => {
     }
   });
 });
+
+// ---- Round 5-E: final grammar ambiguity micro-closure ----
+
+describe("Round 5-E known-five regressions", () => {
+  it("g-mod-6: explicit uncertainty wording forces 'might'", () => {
+    const e = getEx("g-mod-6");
+    expect(e.sentence).toContain("not yet enough evidence to know for certain");
+    expect(e.options).toEqual(["might", "must", "can't"]);
+    expect(e.options[e.correct]).toBe("might");
+    expect(e.explanation).toMatch(/rules out the certainty/i);
+  });
+
+  it("g-sent-7: prompt explicitly asks for contrast", () => {
+    const e = getEx("g-sent-7");
+    expect(e.sentence).toMatch(/explicitly expresses contrast/i);
+    expect(e.options).toEqual(["but", "so", "because"]);
+    expect(e.options[e.correct]).toBe("but");
+    expect(e.options).not.toContain("and");
+  });
+
+  it("g-t2-1: prompt explicitly asks for concession", () => {
+    const e = getEx("g-t2-1");
+    expect(e.sentence).toMatch(/explicitly introduces concession/i);
+    expect(e.options).toEqual(["Although", "Therefore", "For example"]);
+    expect(e.options[e.correct]).toBe("Although");
+    expect(e.sentence).toContain("feeling isolated");
+  });
+
+  it("g-nounclause-3: context forces 'that' without the false 'clear whether' claim", () => {
+    const e = getEx("g-nounclause-3");
+    expect(e.sentence).toContain("support the claim");
+    expect(e.options[e.correct]).toBe("that");
+    expect(e.explanation).not.toMatch(/clear whether.*not standard/i);
+    expect(e.explanation).not.toMatch(/clear (whether|if)/i);
+    expect(e.explanation).toMatch(/claim that/i);
+  });
+
+  it("g-nounclause-7: binary alternatives force 'whether'", () => {
+    const e = getEx("g-nounclause-7");
+    expect(e.sentence).toContain("accepted or rejected");
+    expect(e.options).toEqual(["whether", "that", "because"]);
+    expect(e.options[e.correct]).toBe("whether");
+  });
+
+  it("no grammar explanation contains the false 'clear whether is not standard' claim", () => {
+    for (const e of grammarExercises) {
+      expect(`${e.id}: ${e.explanation}`).not.toMatch(/clear whether[^']*not standard/i);
+    }
+  });
+});

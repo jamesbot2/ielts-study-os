@@ -1023,8 +1023,8 @@ grammarExercises.push(
     "Identify the problem: 'Cycling is healthy it also saves money.'", ["missing verb", "two clauses joined without a connector", "wrong article"], 1,
     "Two independent clauses are joined with no connector — this is a run-on sentence.", "run-on sentences"),
   E("g-sent-7", "gram-sentences", "Sentence structure", "gap_fill", 2,
-    "Public transport reduces congestion, ___ many commuters still prefer driving.", ["and", "but", "so"], 1,
-    "'But' signals the contrast between the benefit and the continuing behaviour.", "conjunctions"),
+    "Which connector explicitly expresses contrast? 'Public transport reduces congestion, ___ many commuters still prefer driving.'", ["but", "so", "because"], 0,
+    "'But' explicitly marks the contrast between the benefit of public transport and commuters' continued preference for driving.", "conjunctions"),
   E("g-sent-8", "gram-sentences", "Sentence structure", "sentence_choice", 3,
     "Which sentence shows controlled variety?", ["The survey shows a rise. The survey shows a fall in another group. The survey shows an overall change.", "While one group rose, another fell, yet the overall trend remained positive.", "Rise and fall and overall change in the survey."], 1,
     "One controlled complex sentence expresses the same ideas more efficiently and naturally.", "sentence variety"),
@@ -1082,8 +1082,8 @@ grammarExercises.push(
 
   // --- gram-noun-clauses (+6) ---
   E("g-nounclause-3", "gram-noun-clauses", "Noun clauses", "gap_fill", 2,
-    "It is clear ___ demand has fallen for the third year.", ["that", "whether", "if"], 0,
-    "'It is clear that…' is the fixed pattern for a settled fact; 'clear whether/if' is not standard.", "noun clauses"),
+    "The figures support the claim ___ demand has fallen for the third consecutive year.", ["that", "whether", "if"], 0,
+    "'The claim that…' is the standard pattern for stating the content of a claim; 'whether/if' cannot follow the noun 'claim'.", "noun clauses"),
   E("g-nounclause-4", "gram-noun-clauses", "Noun clauses", "gap_fill", 2,
     "___ the scheme will be extended is still uncertain.", ["Whether", "That", "Because"], 0,
     "'Whether' introduces a yes/no idea as the subject of the sentence.", "noun clauses"),
@@ -1094,8 +1094,8 @@ grammarExercises.push(
     "Which uses exactly one connector with 'the question is'?", ["The question is that whether prices will fall.", "The question is whether prices will fall.", "The question is if that prices will fall."], 1,
     "Use a single connector: 'whether', not 'that whether'.", "noun clauses"),
   E("g-nounclause-7", "gram-noun-clauses", "Noun clauses", "gap_fill", 3,
-    "The committee has not yet decided ___ the proposal will be accepted.", ["whether", "that", "because"], 0,
-    "'Decide whether' introduces an unresolved yes/no question; 'that' would state a settled fact.", "noun clauses"),
+    "The committee is still considering both outcomes and has not yet decided ___ the proposal will be accepted or rejected.", ["whether", "that", "because"], 0,
+    "'Whether' introduces an unresolved choice between acceptance and rejection. 'That' would present acceptance as the content of a decision rather than an open alternative.", "noun clauses"),
   E("g-nounclause-8", "gram-noun-clauses", "Noun clauses", "sentence_choice", 2,
     "Which uses a noun clause as subject?", ["What the study reveals is significant.", "The study reveals a significant trend.", "The study is significant."], 0,
     "'What the study reveals' is a noun clause acting as the subject.", "noun clauses"),
@@ -1301,8 +1301,8 @@ grammarExercises.push(
 
   // --- gram-task2-grammar (+12) ---
   E("g-t2-1", "gram-task2-grammar", "Task 2 argument grammar", "gap_fill", 2,
-    "___ online learning is flexible, it can isolate students.", ["Although", "Because", "Since"], 0,
-    "'Although' introduces a concession before the counter-argument.", "concession"),
+    "Which connector explicitly introduces concession? '___ online learning is flexible, it can also leave some students feeling isolated.'", ["Although", "Therefore", "For example"], 0,
+    "'Although' introduces a concessive contrast: flexibility is a benefit, while isolation is a disadvantage.", "concession"),
   E("g-t2-2", "gram-task2-grammar", "Task 2 argument grammar", "gap_fill", 2,
     "Higher fuel prices may ___ to a fall in car use.", ["lead", "cause", "result"], 0,
     "'Lead to + noun phrase' expresses a consequence.", "cause/effect"),
@@ -1316,8 +1316,8 @@ grammarExercises.push(
     "Choose the most appropriately hedged claim.", ["This proves that all advertising is harmful.", "This may result in higher costs for consumers.", "This absolutely must cause disaster."], 1,
     "'May result in' limits the claim to possibility.", "hedging"),
   E("g-t2-6", "gram-task2-grammar", "Task 2 argument grammar", "gap_fill", 2,
-    "It ___ be argued that advertising influences children unfairly, though the evidence is mixed.", ["could", "must", "can't"], 0,
-    "'Could be argued' is the standard hedge; 'though the evidence is mixed' rules out 'must' and 'can't'.", "hedging"),
+    "It ___ be argued that advertising influences children unfairly; this is one possible view, not a proven fact.", ["could", "must", "can't"], 0,
+    "'Could be argued' presents the view as possible; 'one possible view, not a proven fact' rules out the certainty of 'must' and the impossibility of 'can't'.", "hedging"),
   E("g-t2-7", "gram-task2-grammar", "Task 2 argument grammar", "sentence_choice", 2,
     "Choose the parallel thesis statement.", ["This essay will discuss causes, effects and suggest solutions.", "This essay will discuss causes, effects and solutions.", "This essay will discuss causes, effects and to suggest solutions."], 1,
     "All three items are noun phrases, keeping the list parallel.", "parallelism"),
@@ -1402,8 +1402,8 @@ grammarExercises.push(
     "Students ___ submit the form by Friday; it is compulsory.", ["may", "must", "might"], 1,
     "'Must' expresses obligation; the sentence says it is compulsory.", "modals"),
   E("g-mod-6", "gram-passive-modals", "Modals", "gap_fill", 3,
-    "The results ___ be affected by the small sample size, but further analysis is needed.", ["might", "must", "can't"], 0,
-    "'Might' hedges the possibility; 'but further analysis is needed' rules out the certainty of 'must' and 'can't'.", "modals"),
+    "The results ___ be affected by the small sample size, although there is not yet enough evidence to know for certain.", ["might", "must", "can't"], 0,
+    "'Might' expresses possibility. The phrase 'not yet enough evidence to know for certain' rules out the certainty of 'must' and 'can't'.", "modals"),
 );
 
 export function getGrammarExercises(): GrammarExercise[] {
