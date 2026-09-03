@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PracticeSet } from "@/types/ielts";
 import { useI18n } from "@/components/i18n-provider";
 import { submitPractice } from "@/lib/practice/submit";
@@ -49,11 +49,18 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
   const [band, setBand] = useState<number | null>(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedAt = useRef<number>(Date.now());
-
   const transcript = set.audio?.transcript ?? "";
-  const parts = set.audio?.parts?.filter((p) => p.src) ?? [];
+  // Referentially stable: filter() would otherwise create a NEW array on every
+  // render, which made the source-sync effect below (deps [partIndex, parts])
+  // re-run — and re-load the media element — on every unrelated re-render.
+  const parts = useMemo(() => set.audio?.parts?.filter((p) => p.src) ?? [], [set.audio?.parts]);
   const questions = set.questions;
   const groups = set.groups ?? [];
+  // The only thing that should drive a media reload: the actual source URL of
+  // the current part. Progress, answers, flags, and question navigation change
+  // this string never (or only when the part really changes), so they can never
+  // trigger audio.load().
+  const currentPartSrc = parts[playback.partIndex]?.src ?? "";
 
   // Detect an in-progress attempt and offer resume.
   useEffect(() => {
@@ -164,15 +171,22 @@ export function ListeningRunner({ set }: { set: PracticeSet }) {
     setPlayback((p) => (now - p.updatedAt >= 1000 ? playbackProgress(p, audio.currentTime, now) : p));
   }, [parts, playback.partIndex]);
 
-  // When the part changes, the audio element src changes; auto-play is handled
-  // by handleEnded / playAudio.
+  // Keep the media element pointed at the current part. This is the ONLY place
+  // that calls load(); it runs only when the actual source string changes, and
+  // it guards against no-op reloads so that ordinary React re-renders (progress
+  // updates, answers, flags, navigation) can never interrupt playback.
+  // `phase` is included because the <audio> element is only mounted once the
+  // attempt starts (phase transitions intro/resume -> running), and the effect
+  // must apply the initial src when that element appears.
   useEffect(() => {
     const audio = audioRef.current;
-    if (audio && parts[playback.partIndex]) {
-      audio.src = parts[playback.partIndex].src ?? "";
+    if (!audio || !currentPartSrc) return;
+    const resolved = new URL(currentPartSrc, window.location.href).href;
+    if (audio.src !== resolved) {
+      audio.src = currentPartSrc;
       audio.load();
     }
-  }, [playback.partIndex, parts]);
+  }, [currentPartSrc, phase]);
 
   useEffect(() => {
     return () => {

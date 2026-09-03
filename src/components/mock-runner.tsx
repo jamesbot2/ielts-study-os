@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PracticeSet, WritingPrompt, Question, ListeningVisual } from "@/types/ielts";
 import { startMock, finishMock, saveMockState, type MockSectionResult, type MockCompleteInput } from "@/lib/practice/mock";
 import { QuestionPanel } from "@/components/reading-runner";
@@ -78,6 +78,14 @@ export function MockRunner({
   ];
 
   const currentSection = sections[sectionIndex];
+  // Referentially stable across renders: filter() would create a NEW array on
+  // every render, and the QuestionSection audio effect depends on audioParts —
+  // an unstable reference would re-run (and re-seek/reload) on every render of
+  // the mock runner (timer ticks, answers, flags, …).
+  const listeningAudioParts = useMemo(
+    () => listeningSet?.audio?.parts?.filter((p) => p.src) ?? [],
+    [listeningSet?.audio?.parts],
+  );
 
   const currentQuestions = (): Question[] => {
     if (!currentSection) return [];
@@ -414,7 +422,7 @@ export function MockRunner({
           onAnswer={setAnswer}
           onToggleFlag={toggleFlag}
           listening={currentSection?.key === "listening"}
-          audioParts={currentSection?.key === "listening" ? listeningSet?.audio?.parts?.filter((p) => p.src) ?? [] : []}
+          audioParts={currentSection?.key === "listening" ? listeningAudioParts : []}
           playbackState={listening}
           initialQuestion={currentQuestion[currentSection?.key ?? ""] ?? 0}
           onListeningStateChange={onListeningStateChange}
@@ -491,21 +499,28 @@ function QuestionSection({
   const q = questions[current];
   const partIndex = playbackState.partIndex;
   const finished = playbackState.finished;
+  // The only thing that should drive a media change: the actual source URL of
+  // the current part. Progress/answers/flags/timer renders never change it, so
+  // this effect cannot re-run (or re-seek/reload) on unrelated renders.
+  const currentPartSrc = audioParts[partIndex]?.src ?? "";
 
   // Keep the audio element pointing at the correct part and resume offset.
+  // load() runs only when the source string genuinely changes; the resume seek
+  // is applied once, only while the element is still at its initial position,
+  // so an in-flight playback is never yanked backwards by stale state.
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !listening || audioParts.length === 0) return;
-    const src = audioParts[partIndex]?.src ?? "";
-    if (audio.src !== new URL(src, window.location.href).href) {
-      audio.src = src;
+    if (!audio || !listening || !currentPartSrc) return;
+    const resolved = new URL(currentPartSrc, window.location.href).href;
+    if (audio.src !== resolved) {
+      audio.src = currentPartSrc;
       audio.load();
     }
-    if (playbackState.currentTime > 0 && !finished) {
+    if (playbackState.currentTime > 0 && !finished && audio.currentTime === 0) {
       audio.currentTime = playbackState.currentTime;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [partIndex, listening, audioParts]);
+  }, [currentPartSrc, listening, finished]);
 
   const playAudio = () => {
     if (finished || audioParts.length === 0) return;
