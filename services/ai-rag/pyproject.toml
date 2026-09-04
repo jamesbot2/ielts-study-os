@@ -30,6 +30,11 @@ dev = [
     "ruff>=0.6",
 ]
 
+# Vercel Python runtime (FastAPI preset): point the platform at the ASGI app.
+# app/main.py defines the module-level `app = create_app()` instance.
+[tool.vercel]
+entrypoint = "app.main:app"
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
