@@ -49,6 +49,11 @@ def _sanitized_error(e: Exception) -> str:
         return "embedding dimension mismatch"
     if "connection" in low or "resolve" in low:
         return "database/network unavailable"
+    # httpx HTTPStatusError: include ONLY the status code (never the body).
+    response = getattr(e, "response", None)
+    code = getattr(response, "status_code", None)
+    if code is not None:
+        return f"provider http {code}"
     # Keep the type name only; drop the message body to avoid leaking details.
     return type(e).__name__
 
