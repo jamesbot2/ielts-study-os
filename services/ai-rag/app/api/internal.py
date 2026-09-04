@@ -165,14 +165,18 @@ def _schema_embedding_type(db_configured: bool) -> str | None:
         with repo._engine.connect() as conn:
             row = conn.execute(
                 text(
-                    "SELECT udt_name, format_type(a.atttypid, a.atttypmod) "
-                    "FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid "
-                    "WHERE c.relname='knowledge_chunks' AND a.attname='embedding'"
+                    "SELECT a.attname, format_type(a.atttypid, a.atttypmod) "
+                    "FROM pg_attribute a "
+                    "WHERE a.attrelid = 'knowledge_chunks'::regclass "
+                    "AND a.attnum > 0 AND NOT a.attisdropped "
+                    "ORDER BY a.attnum"
                 )
-            ).fetchone()
-        return str(row[1]) if row else "column missing"
-    except Exception:  # noqa: BLE001
-        return "unavailable"
+            ).fetchall()
+        cols = {r[0]: str(r[1]) for r in row}
+        return cols.get("embedding", "column missing")
+    except Exception as e:  # noqa: BLE001
+        return f"unavailable ({type(e).__name__})"
+
 
 
 @router.post("/api/internal/rag-admin/smoke")
