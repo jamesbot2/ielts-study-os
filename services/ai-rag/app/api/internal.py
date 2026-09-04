@@ -284,3 +284,39 @@ async def rag_admin_ingest(x_ingest_token: str | None = Header(default=None)) ->
             chain.append({"type": type(cur).__name__, "msg": _sanitized_error(cur)})
             cur = cur.__cause__ if cur.__cause__ is not None else cur.__context__
         return {"ok": False, "error": _sanitized_error(e), "chain": chain}
+
+
+@router.post("/api/internal/rag-admin/fix-schema")
+async def rag_admin_fix_schema(x_ingest_token: str | None = Header(default=None)) -> dict:
+    """TEMPORARY: align knowledge_chunks.embedding to the configured dimension.
+
+    Only runs when the chunk table is EMPTY (no production knowledge yet) and
+    only alters the RAG vector column — never unrelated tables/data.
+    """
+    _check_token(x_ingest_token)
+    from sqlalchemy import text
+
+    from ..config import settings
+    from ..storage.repository import PostgresKnowledgeRepository
+
+    repo = PostgresKnowledgeRepository(settings.database_url)
+    repo._lazy_init()
+    try:
+        with repo._engine.begin() as conn:
+            count = conn.execute(text("SELECT count(*) FROM knowledge_chunks")).scalar()
+            if count and int(count) > 0:
+                return {"ok": False, "error": f"refusing: knowledge_chunks has {count} rows"}
+            # Capture current type then alter to configured dimension.
+            cur = conn.execute(
+                text(
+                    "SELECT format_type(a.atttypid, a.atttypmod) FROM pg_attribute a "
+                    "WHERE a.attrelid='knowledge_chunks'::regclass AND a.attname='embedding'"
+                )
+            ).scalar()
+            new_type = f"vector({settings.embedding_dimension})"
+            if cur == new_type:
+                return {"ok": True, "changed": False, "before": cur, "after": cur}
+            conn.execute(text(f"ALTER TABLE knowledge_chunks ALTER COLUMN embedding TYPE {new_type}"))
+            return {"ok": True, "changed": True, "before": cur, "after": new_type}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": _sanitized_error(e)}
