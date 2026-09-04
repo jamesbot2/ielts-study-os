@@ -7,7 +7,6 @@ directly. NEVER returns/logs secrets. This module is deleted after ingestion.
 
 from __future__ import annotations
 
-import asyncio
 import hmac
 import os
 from pathlib import Path
@@ -154,13 +153,10 @@ async def rag_admin_smoke(x_ingest_token: str | None = Header(default=None)) -> 
     emb = _build_embeddings()
     text = "IELTS Academic Reading lasts 60 minutes with 40 questions."
 
-    async def _run():
-        passage = await emb.embed_texts([text], task=settings.embedding_passage_task or None)
-        query = await emb.embed_query(text)
-        return passage[0], query
-
     try:
-        pvec, qvec = asyncio.run(_run())
+        passage = await emb.embed_texts([text], task=settings.embedding_passage_task or None)
+        qvec = await emb.embed_query(text)
+        pvec = passage[0]
     except Exception as e:  # noqa: BLE001
         return {"ok": False, "error": _sanitized_error(e)}
 
@@ -205,15 +201,22 @@ async def rag_admin_ingest(x_ingest_token: str | None = Header(default=None)) ->
         fingerprint = f"{settings.embedding_model}:{settings.embedding_dimension}:v1{task_suffix}"
         run_id = repo.start_ingestion_run(fingerprint)
 
-        async def _run():
-            return await ingest_manifest(repo, manifest_data, emb, docs, fingerprint)
-
         try:
-            result = asyncio.run(_run())
+            result = await ingest_manifest(repo, manifest_data, emb, docs, fingerprint)
         except Exception as e:
-            repo.fail_ingestion_run(run_id, _sanitized_error(e))
+            try:
+                repo.fail_ingestion_run(run_id, _sanitized_error(e))
+            except Exception as inner:  # noqa: BLE001
+                import sys
+
+                print(f"ingestion run bookkeeping failed: {type(inner).__name__}", file=sys.stderr)
             raise
-        repo.finish_ingestion_run(run_id, result)
+        try:
+            repo.finish_ingestion_run(run_id, result)
+        except Exception as inner:  # noqa: BLE001
+            import sys
+
+            print(f"ingestion run finish failed: {type(inner).__name__}", file=sys.stderr)
         return {
             "ok": True,
             "run_id": run_id,
