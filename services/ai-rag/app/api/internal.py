@@ -146,7 +146,33 @@ async def rag_admin_status(x_ingest_token: str | None = Header(default=None)) ->
         "database_reachable": db_reachable,
         "pgvector_available": pgvector,
         "knowledge_chunk_count": chunks,
+        "schema_embedding_type": _schema_embedding_type(db_configured),
     }
+
+
+def _schema_embedding_type(db_configured: bool) -> str | None:
+    """Report the pgvector column type of knowledge_chunks.embedding."""
+    if not db_configured:
+        return None
+    try:
+        from sqlalchemy import text
+
+        from ..config import settings
+        from ..storage.repository import PostgresKnowledgeRepository
+
+        repo = PostgresKnowledgeRepository(settings.database_url)
+        repo._lazy_init()
+        with repo._engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    "SELECT udt_name, format_type(a.atttypid, a.atttypmod) "
+                    "FROM pg_attribute a JOIN pg_class c ON c.oid=a.attrelid "
+                    "WHERE c.relname='knowledge_chunks' AND a.attname='embedding'"
+                )
+            ).fetchone()
+        return str(row[1]) if row else "column missing"
+    except Exception:  # noqa: BLE001
+        return "unavailable"
 
 
 @router.post("/api/internal/rag-admin/smoke")
