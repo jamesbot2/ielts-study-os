@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "@/components/i18n-provider";
 import { useStudyProfile } from "@/components/study-profile-provider";
-import { useAi } from "@/components/ai-provider";
+import { useAi, type ProxyHealthResult } from "@/components/ai-provider";
+import {
+  CANONICAL_AI_BACKEND,
+  isCanonicalFrontend as isCanonicalFrontendHost,
+} from "@/lib/ai/backend-health";
 import { ProviderManager } from "@/components/provider-manager";
 import { LlmProviderManager } from "@/components/llm-provider-manager";
 import { getSettings, saveSettings } from "@/lib/storage/repository";
@@ -12,13 +16,13 @@ import { exportAll, importBackup, resetAllData, type ImportMode } from "@/lib/st
 import { Spinner } from "@/components/ui";
 
 export function SettingsModule() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { profile, updateProfile, loading: profileLoading } = useStudyProfile();
   const { settings: aiSettings, saveAi, available: aiAvailable, testProxy } = useAi();
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [aiUrl, setAiUrl] = useState("");
-  const [testResult, setTestResult] = useState<string | null>(null);
-  const [verified, setVerified] = useState(false);
+  const [healthResult, setHealthResult] = useState<ProxyHealthResult | null>(null);
+  const [testing, setTesting] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [importMode, setImportMode] = useState<ImportMode>("merge");
@@ -33,10 +37,17 @@ export function SettingsModule() {
   }, []);
 
   // Hydrate the AI URL from the AiProvider once settings load, without
-  // overwriting any unsaved user edits made before hydration.
+  // overwriting any unsaved user edits made before hydration. On the canonical
+  // production frontend, prefill the production AI/RAG backend URL so users
+  // don't have to know it — it remains an editable, explicitly saved value.
   useEffect(() => {
     if (aiSettings && !aiUrlEditedRef.current) {
-      setAiUrl(aiSettings.ai.proxyUrl ?? "");
+      const saved = aiSettings.ai.proxyUrl ?? "";
+      if (saved) {
+        setAiUrl(saved);
+      } else if (typeof window !== "undefined" && isCanonicalFrontendHost(window.location.hostname)) {
+        setAiUrl(CANONICAL_AI_BACKEND);
+      }
     }
   }, [aiSettings]);
 
@@ -132,33 +143,74 @@ export function SettingsModule() {
         <p className="mt-3 text-xs text-muted">{t("settings.saved")}</p>
       </section>
 
-      {/* AI (future remote proxy; no secrets in the browser) */}
+      {/* AI Service: points at the IELTS Study OS AI/RAG backend (not an LLM). */}
       <section className="card card-pad mb-4">
         <h2 className="mb-1 text-base font-semibold">{t("settings.ai")}</h2>
         <p className="mb-3 text-xs text-muted">
-          AI is optional. Point this app at a trusted remote proxy that holds its own
-          API key. The browser never stores a secret key.
+          {locale === "zh"
+            ? "这是 IELTS Study OS 的 AI/RAG 后端地址。连接测试只检查后端本身（/health），不需要也不使用任何 LLM 密钥。下方可单独配置 LLM Provider。"
+            : "This is the IELTS Study OS AI/RAG backend address. The connection test checks the backend itself (/health) — it needs no LLM key. LLM credentials are configured separately below."}
         </p>
         <label className="label">
-          Remote AI proxy URL
+          {locale === "zh" ? "AI 后端地址（AI Service URL）" : "AI Service URL"}
           <input
             className="input mt-1"
             value={aiUrl}
-            placeholder="https://your-proxy.example.com"
+            placeholder="https://ielts-study-os-ai-rag.vercel.app"
             onChange={(e) => { aiUrlEditedRef.current = true; setAiUrl(e.target.value); }}
             autoComplete="off"
+            spellCheck={false}
           />
         </label>
+        <p className="mt-1 text-xs text-muted">
+          {locale === "zh"
+            ? "LLM Provider 的 API 密钥是会话级（仅内存），不会保存在这里或浏览器存储中。"
+            : "LLM provider API keys are session-only (in-memory) and are managed below — never here."}
+        </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button className="btn-primary" onClick={async () => { await saveAi({ proxyUrl: aiUrl }); flashSaved(); }}>{t("common.save")}</button>
-          <button className="btn-secondary" onClick={async () => { setTestResult("Testing…"); setVerified(false); const r = await testProxy(aiUrl); setVerified(r.ok); setTestResult(r.message); }}>{t("settings.testConnection")}</button>
+          <button
+            className="btn-secondary"
+            disabled={testing}
+            onClick={async () => {
+              setTesting(true);
+              setHealthResult(null);
+              try {
+                const r = await testProxy(aiUrl);
+                setHealthResult(r);
+              } finally {
+                setTesting(false);
+              }
+            }}
+          >
+            {testing ? "…" : t("settings.testConnection")}
+          </button>
           {aiAvailable
-            ? (verified
-              ? <span className="text-xs text-green-600">● connected &amp; verified</span>
-              : <span className="text-xs text-amber-600">● configured (not verified)</span>)
-            : <span className="text-xs text-muted">● AI unavailable</span>}
+            ? (healthResult?.ok
+              ? <span className="text-xs text-green-600">● {locale === "zh" ? "已连接并验证" : "connected &amp; verified"}</span>
+              : <span className="text-xs text-amber-600">● {locale === "zh" ? "已配置（未验证）" : "configured (not verified)"}</span>)
+            : <span className="text-xs text-muted">● {locale === "zh" ? "AI 未连接" : "AI unavailable"}</span>}
         </div>
-        {testResult && <p className="mt-2 text-sm text-muted">{testResult}</p>}
+        {healthResult && (
+          <div className="mt-2 rounded-md border border-border p-2 text-xs">
+            <p className={healthResult.ok ? "text-green-700" : "text-red-600"}>{healthResult.message}</p>
+            {healthResult.ok && healthResult.service && (
+              <p className="mt-1 text-muted">
+                {locale === "zh" ? "服务" : "Service"}: {healthResult.service}
+                {healthResult.ragStatus ? ` · RAG: ${healthResult.ragStatus}` : ""}
+                {healthResult.retrievalMode ? ` · ${healthResult.retrievalMode}` : ""}
+              </p>
+            )}
+            {healthResult.ok && (
+              <p className="text-muted">
+                DB: {healthResult.databaseReachable === undefined ? "n/a" : healthResult.databaseReachable ? "reachable" : "down"}
+                {healthResult.pgvectorAvailable !== undefined ? ` · pgvector: ${healthResult.pgvectorAvailable ? "yes" : "no"}` : ""}
+                {healthResult.embeddingsConfigured !== undefined ? ` · embeddings: ${healthResult.embeddingsConfigured ? "configured" : "missing"}` : ""}
+                {healthResult.knowledgeChunkCount !== undefined ? ` · chunks: ${healthResult.knowledgeChunkCount}` : ""}
+              </p>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Runtime LLM providers (CC Switch-style BYOK) */}

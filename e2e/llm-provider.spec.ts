@@ -12,7 +12,7 @@ const AGENT_URL = "**/api/coach/agent";
 
 async function configureProxy(page: Page) {
   await page.goto("/settings/");
-  const input = page.getByLabel("Remote AI proxy URL");
+  const input = page.getByLabel(/AI Service URL|Remote AI proxy URL/);
   await input.fill(BACKEND);
   await page.getByRole("button", { name: /Save/ }).first().click();
   await page.waitForTimeout(250);

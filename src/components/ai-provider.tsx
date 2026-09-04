@@ -16,14 +16,17 @@ import {
   subscribeAiClient,
 } from "@/lib/ai/client";
 import { getSettings, saveSettings } from "@/lib/storage/repository";
+import { checkBackendHealth, type BackendHealthResult } from "@/lib/ai/backend-health";
 import type { UserSettings } from "@/lib/storage/types";
 
 interface AiContextValue {
   settings: UserSettings | null;
   available: boolean;
   saveAi: (patch: Partial<UserSettings["ai"]>) => Promise<void>;
-  testProxy: (url: string) => Promise<{ ok: boolean; message: string }>;
+  testProxy: (url: string) => Promise<ProxyHealthResult>;
 }
+
+export type ProxyHealthResult = BackendHealthResult;
 
 const AiContext = createContext<AiContextValue | null>(null);
 
@@ -55,21 +58,7 @@ export function AiProvider({ children }: { children: ReactNode }) {
     applyConfig(next);
   };
 
-  const testProxy = async (url: string) => {
-    const trimmed = url.trim();
-    if (!trimmed) return { ok: false, message: "No URL provided" };
-    try {
-      const res = await fetch(`${trimmed.replace(/\/$/, "")}/api/coach`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: "ping" }] }),
-        signal: AbortSignal.timeout(15000),
-      });
-      return { ok: res.ok, message: res.ok ? "OK — proxy responded" : `HTTP ${res.status}` };
-    } catch (e) {
-      return { ok: false, message: (e as Error).message };
-    }
-  };
+  const testProxy = async (url: string): Promise<ProxyHealthResult> => checkBackendHealth(url);
 
   const value = useMemo(
     () => ({ settings, available, saveAi, testProxy }),
