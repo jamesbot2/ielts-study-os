@@ -87,6 +87,20 @@ def _find_knowledge_dir() -> str | None:
     return None
 
 
+def _runtime_paths() -> list[str]:
+    """Sanitized sample of what the runtime filesystem exposes (for diagnosis)."""
+    import os
+
+    out = []
+    for root in (os.getcwd(), str(Path(__file__).resolve().parents[2])):
+        try:
+            entries = sorted(os.listdir(root))[:30]
+            out.append({"root": root, "entries": entries})
+        except OSError:
+            out.append({"root": root, "entries": ["<unreadable>"]})
+    return out
+
+
 @router.get("/api/internal/rag-admin/status")
 async def rag_admin_status(x_ingest_token: str | None = Header(default=None)) -> dict:
     _check_token(x_ingest_token)
@@ -113,6 +127,7 @@ async def rag_admin_status(x_ingest_token: str | None = Header(default=None)) ->
                 "error": _sanitized_error(e),
             }
     return {
+        "runtime_paths": _runtime_paths(),
         "knowledge_dir": kdir,
         "knowledge_files": {
             "sources_yml": bool(kdir and (Path(kdir) / "sources.yml").is_file()),
