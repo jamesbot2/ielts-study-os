@@ -177,8 +177,18 @@ def main() -> None:
     embeddings: EmbeddingProvider
     fingerprint: str
     if settings.embedding_base_url and settings.embedding_model:
-        embeddings = OpenAICompatibleEmbeddings(settings.embedding_base_url, settings.embedding_api_key, settings.embedding_model, settings.embedding_dimension)
-        fingerprint = f"{settings.embedding_model}:{settings.embedding_dimension}:v1"
+        embeddings = OpenAICompatibleEmbeddings(
+            settings.embedding_base_url,
+            settings.embedding_api_key,
+            settings.embedding_model,
+            settings.embedding_dimension,
+            passage_task=settings.embedding_passage_task,
+            query_task=settings.embedding_query_task,
+        )
+        task_suffix = ""
+        if settings.embedding_passage_task:
+            task_suffix = f":{settings.embedding_passage_task}"
+        fingerprint = f"{settings.embedding_model}:{settings.embedding_dimension}:v1{task_suffix}"
     else:
         from ..main import _ZeroEmbeddings
 

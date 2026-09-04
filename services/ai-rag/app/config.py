@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     embedding_api_key: str | None = None
     embedding_model: str | None = None
     embedding_dimension: int = 1536
+    # Optional task-specific adapters for providers that support them
+    # (e.g. Jina Embeddings v5: "retrieval.passage" / "retrieval.query").
+    # When set, indexing uses passage_task and query search uses query_task.
+    embedding_passage_task: str | None = None
+    embedding_query_task: str | None = None
 
     allowed_origins: list[str] = ["http://localhost:3000", "http://127.0.0.1:4173"]
 
