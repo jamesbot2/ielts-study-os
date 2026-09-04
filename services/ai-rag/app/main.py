@@ -17,7 +17,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .agent.runtime import AgentRuntime
-from .api import coach, health, rag, writing
+from .api import coach, health, providers, rag, writing
 from .config import settings
 from .embeddings.openai_compatible import OpenAICompatibleEmbeddings
 from .llm.base import EmbeddingProvider, LlmProvider
@@ -138,6 +138,7 @@ def create_app(repository: object | None = None, llm: LlmProvider | None = None,
     app.include_router(rag.router)
     app.include_router(coach.router)
     app.include_router(writing.router)
+    app.include_router(providers.router)
     return app
 
 

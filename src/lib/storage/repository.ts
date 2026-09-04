@@ -57,6 +57,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
     enableCritic: false,
     proxyUrl: "",
     configured: false,
+    llmProviders: [],
+    activeProviderId: null,
   },
   speech: {
     sttProvider: "",
@@ -72,7 +74,18 @@ export const DEFAULT_SETTINGS: UserSettings = {
 export async function getSettings(): Promise<UserSettings> {
   const row = await db().settings.get("app");
   if (!row) return { ...DEFAULT_SETTINGS };
-  return { ...DEFAULT_SETTINGS, ...row, ai: { ...DEFAULT_SETTINGS.ai, ...row.ai }, speech: { ...DEFAULT_SETTINGS.speech, ...row.speech } };
+  const savedAi = row.ai ?? {};
+  return {
+    ...DEFAULT_SETTINGS,
+    ...row,
+    ai: {
+      ...DEFAULT_SETTINGS.ai,
+      ...savedAi,
+      llmProviders: Array.isArray(savedAi.llmProviders) ? savedAi.llmProviders : [],
+      activeProviderId: savedAi.activeProviderId ?? null,
+    },
+    speech: { ...DEFAULT_SETTINGS.speech, ...(row.speech ?? {}) },
+  };
 }
 
 export async function saveSettings(patch: Partial<UserSettings>): Promise<UserSettings> {

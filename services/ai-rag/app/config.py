@@ -26,5 +26,12 @@ class Settings(BaseSettings):
     max_top_k: int = 20
     max_tool_iterations: int = 8
 
+    # BYOK runtime LLM provider guards (user-supplied from the browser)
+    max_provider_url_length: int = 500
+    max_provider_name_length: int = 120
+    max_provider_model_length: int = 200
+    max_provider_api_key_length: int = 500
+    enforce_https_providers: bool = True
+
 
 settings = Settings()

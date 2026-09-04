@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from ..evaluation import EvaluationServiceError, evaluate_speaking, evaluate_writing
+from ..llm.provider import resolve_llm
 
 router = APIRouter()
 
@@ -21,6 +22,9 @@ class WritingRequest(BaseModel):
     answer: str = ""
     wordCount: int = 0
     timeUsedSeconds: int | None = None
+    # Optional per-request BYOK provider (baseUrl/model/apiKey). Absent →
+    # server-managed LLM_BASE_URL fallback when configured.
+    provider: dict[str, Any] | None = None
 
 
 class SpeakingRequest(BaseModel):
@@ -29,15 +33,17 @@ class SpeakingRequest(BaseModel):
     transcript: str = ""
     metrics: dict[str, Any] | None = None
     audioMetrics: dict[str, Any] | None = None
+    provider: dict[str, Any] | None = None
 
 
 @router.post("/api/writing/evaluate")
 async def writing_evaluate(body: WritingRequest, request: Request) -> dict:
     rag = request.app.state.rag
-    if rag.llm is None:
-        raise HTTPException(status_code=503, detail="LLM not configured")
+    llm, error = resolve_llm(body.provider, rag.llm)
+    if llm is None:
+        raise HTTPException(status_code=503, detail=error or "LLM not configured")
     try:
-        evaluation = await evaluate_writing(rag.llm, body)
+        evaluation = await evaluate_writing(llm, body)
     except EvaluationServiceError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message) from e
     return {"evaluation": evaluation.model_dump()}
@@ -46,10 +52,11 @@ async def writing_evaluate(body: WritingRequest, request: Request) -> dict:
 @router.post("/api/speaking/evaluate")
 async def speaking_evaluate(body: SpeakingRequest, request: Request) -> dict:
     rag = request.app.state.rag
-    if rag.llm is None:
-        raise HTTPException(status_code=503, detail="LLM not configured")
+    llm, error = resolve_llm(body.provider, rag.llm)
+    if llm is None:
+        raise HTTPException(status_code=503, detail=error or "LLM not configured")
     try:
-        evaluation = await evaluate_speaking(rag.llm, body)
+        evaluation = await evaluate_speaking(llm, body)
     except EvaluationServiceError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message) from e
     return {"evaluation": evaluation.model_dump()}

@@ -12,11 +12,20 @@ from .base import LlmProvider
 
 
 class OpenAICompatibleLlm(LlmProvider):
-    def __init__(self, base_url: str, api_key: str | None, model: str, timeout: float = 60.0) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        api_key: str | None,
+        model: str,
+        timeout: float = 60.0,
+        transport: httpx.AsyncBaseTransport | None = None,
+    ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.model = model
         self.timeout = timeout
+        # Injectable transport for offline tests (never used in production).
+        self._transport = transport
 
     def _headers(self) -> dict[str, str]:
         h = {"Content-Type": "application/json"}
@@ -26,7 +35,7 @@ class OpenAICompatibleLlm(LlmProvider):
 
     async def chat(self, messages: list[dict[str, str]], **kwargs: Any) -> str:
         payload = {"model": self.model, "messages": messages, **kwargs}
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
+        async with httpx.AsyncClient(timeout=self.timeout, transport=self._transport) as client:
             res = await client.post(f"{self.base_url}/chat/completions", headers=self._headers(), json=payload)
             res.raise_for_status()
             data = res.json()
@@ -34,23 +43,29 @@ class OpenAICompatibleLlm(LlmProvider):
 
     async def stream(self, messages: list[dict[str, str]], **kwargs: Any) -> AsyncIterator[str]:
         payload = {"model": self.model, "messages": messages, "stream": True, **kwargs}
-        async with httpx.AsyncClient(timeout=self.timeout) as client, client.stream(
+        async with httpx.AsyncClient(timeout=self.timeout, transport=self._transport) as client, client.stream(
             "POST", f"{self.base_url}/chat/completions", headers=self._headers(), json=payload
         ) as res:
             res.raise_for_status()
             async for line in res.aiter_lines():
+                line = line.strip()
                 if not line.startswith("data:"):
+                    # Ignore keep-alive comments, blank lines and any other
+                    # non-event line — never crash the stream.
                     continue
-                    data = line[5:].strip()
-                    if data == "[DONE]":
-                        break
-                    try:
-                        chunk = json.loads(data)
-                        delta = chunk["choices"][0].get("delta", {}).get("content")
-                        if delta:
-                            yield delta
-                    except (json.JSONDecodeError, KeyError, IndexError):
-                        continue
+                data = line[5:].strip()
+                if data == "[DONE]":
+                    break
+                if not data:
+                    continue
+                try:
+                    chunk = json.loads(data)
+                    delta = chunk["choices"][0].get("delta", {}).get("content")
+                    if delta:
+                        yield delta
+                except (json.JSONDecodeError, KeyError, IndexError, TypeError):
+                    # Malformed or irrelevant chunk: skip it, keep streaming.
+                    continue
 
     async def structured(self, messages: list[dict[str, str]], schema: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
         raw = await self.chat(messages, **kwargs)

@@ -45,12 +45,36 @@ export async function collectAllData(): Promise<BackupFile> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data[table] = await (db as any)[table].toArray();
   }
+  // Privacy guarantee: LLM provider API keys must never leave the device.
+  // Keys are session-only by design (never in IndexedDB), but we defensively
+  // strip any key-shaped fields from exported AI settings too.
+  data.settings = (data.settings ?? []).map((row) => sanitizeSettingsRow(row));
   return {
     format: BACKUP_FORMAT,
     version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
     data,
   };
+}
+
+/** Remove any secret-shaped field from an exported settings row (recursive). */
+function sanitizeSettingsRow(row: unknown): unknown {
+  return stripSecretFields(row);
+}
+
+const SECRET_FIELD_RE = /api_?key|secret|token/i;
+
+function stripSecretFields(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((v) => stripSecretFields(v));
+  }
+  if (!value || typeof value !== "object") return value;
+  const out: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
+    if (SECRET_FIELD_RE.test(key)) continue;
+    out[key] = stripSecretFields(val);
+  }
+  return out;
 }
 
 export function downloadBackup(data: BackupFile): void {

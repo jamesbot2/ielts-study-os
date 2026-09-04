@@ -258,6 +258,22 @@ export interface ImportedMaterial {
   createdAt: string;
 }
 
+// Provider preset kind used to prefill convenience defaults. Provider-neutral
+// logic never branches on these beyond filling defaults at creation time.
+export type LlmProviderPreset = "openai" | "deepseek" | "openrouter" | "custom";
+
+// Non-secret LLM provider metadata. Persisted locally (IndexedDB) and included
+// in backups. API keys are NEVER part of this shape — they live session-only
+// in memory (see src/lib/ai/provider-session.ts).
+export interface LlmProviderProfile {
+  id: string;
+  displayName: string;
+  preset: LlmProviderPreset;
+  baseUrl: string;
+  model: string;
+  createdAt: string;
+}
+
 export interface AiConfig {
   provider: string;
   baseUrl: string;
@@ -268,6 +284,9 @@ export interface AiConfig {
   // For static mode: a public remote proxy URL (NOT a secret key).
   proxyUrl: string;
   configured: boolean;
+  // CC Switch-style runtime LLM providers (metadata only — no secrets).
+  llmProviders: LlmProviderProfile[];
+  activeProviderId: string | null;
 }
 
 export interface SpeechConfig {

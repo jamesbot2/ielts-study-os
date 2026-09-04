@@ -91,6 +91,25 @@ export class RemoteAiProxyClient implements AiClient {
     if (!baseUrl) throw new Error("Remote AI proxy URL is empty");
   }
 
+  /**
+   * Attach the active runtime provider (BYOK) to a request payload. The active
+   * provider metadata + session-only key travel with THIS request only; the
+   * backend validates and uses it per request and never persists it.
+   */
+  private async withProvider<T extends object>(body: T): Promise<T & { provider?: unknown }> {
+    const { getActiveProviderRequest } = await import("@/lib/ai/active-provider");
+    const provider = await getActiveProviderRequest();
+    if (!provider) return body;
+    // Never send an empty apiKey field; omit when the user has not entered one
+    // this session (the backend then uses its server fallback when configured).
+    return {
+      ...body,
+      provider: provider.apiKey
+        ? { baseUrl: provider.baseUrl, model: provider.model, apiKey: provider.apiKey, name: provider.name }
+        : { baseUrl: provider.baseUrl, model: provider.model, name: provider.name },
+    };
+  }
+
   private async post<T>(path: string, body: unknown): Promise<T> {
     const res = await fetch(`${this.baseUrl.replace(/\/$/, "")}${path}`, {
       method: "POST",
@@ -105,12 +124,12 @@ export class RemoteAiProxyClient implements AiClient {
   }
 
   async evaluateWriting(input: WritingEvalInput): Promise<WritingEvaluation> {
-    const data = await this.post<{ evaluation: WritingEvaluation }>("/api/writing/evaluate", input);
+    const data = await this.post<{ evaluation: WritingEvaluation }>("/api/writing/evaluate", await this.withProvider(input));
     return data.evaluation;
   }
 
   async evaluateSpeaking(input: SpeakingEvalInput): Promise<SpeakingEvaluation> {
-    const data = await this.post<{ evaluation: SpeakingEvaluation }>("/api/speaking/evaluate", input);
+    const data = await this.post<{ evaluation: SpeakingEvaluation }>("/api/speaking/evaluate", await this.withProvider(input));
     return data.evaluation;
   }
 
@@ -119,10 +138,11 @@ export class RemoteAiProxyClient implements AiClient {
     onDelta: (delta: string) => void,
     signal?: AbortSignal,
   ): Promise<string> {
+    const payload = await this.withProvider<{ messages: ChatMessage[] }>({ messages });
     const res = await fetch(`${this.baseUrl.replace(/\/$/, "")}/api/coach`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify(payload),
       signal,
     });
     if (!res.ok || !res.body) {
@@ -147,10 +167,11 @@ export class RemoteAiProxyClient implements AiClient {
     onEvent: (event: CoachStreamEvent) => void,
     signal?: AbortSignal,
   ): Promise<{ text: string; citations: CitationRef[]; actions: ActionProposal[] }> {
+    const payload = await this.withProvider(request);
     const res = await fetch(`${this.baseUrl.replace(/\/$/, "")}/api/coach/agent`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(request),
+      body: JSON.stringify(payload),
       signal,
     });
     if (!res.ok || !res.body) {

@@ -42,8 +42,9 @@ class AgentRuntime:
         self.retrieval = retrieval
         self.max_steps = settings.max_tool_iterations
 
-    async def run(
+    async def run_with_llm(
         self,
+        llm: LlmProvider,
         message: str,
         snapshot: dict[str, Any],
         locale: str = "en",
@@ -59,7 +60,7 @@ class AgentRuntime:
         transcript.append({"role": "user", "content": json.dumps({"message": message, "learnerContext": snapshot}, ensure_ascii=False)})
 
         for _ in range(self.max_steps):
-            step = await self.llm.structured(transcript, AGENT_STEP_SCHEMA, temperature=0.2)
+            step = await llm.structured(transcript, AGENT_STEP_SCHEMA, temperature=0.2)
             tool_name = step.get("tool")
             if tool_name:
                 if tool_name not in tools.TOOLS:
@@ -107,19 +108,29 @@ class AgentRuntime:
             tool_steps=tool_steps,
         )
 
-    def run_sync(self, message: str, snapshot: dict[str, Any], locale: str = "en", history: list[dict[str, str]] | None = None) -> AgentResult:
-        import asyncio
-
-        return asyncio.run(self.run(message, snapshot, locale, history))
-
-    async def stream(
+    async def run(
         self,
         message: str,
         snapshot: dict[str, Any],
         locale: str = "en",
         history: list[dict[str, str]] | None = None,
+    ) -> AgentResult:
+        return await self.run_with_llm(self.llm, message, snapshot, locale, history)
+
+    def run_sync(self, message: str, snapshot: dict[str, Any], locale: str = "en", history: list[dict[str, str]] | None = None) -> AgentResult:
+        import asyncio
+
+        return asyncio.run(self.run(message, snapshot, locale, history))
+
+    async def stream_with_llm(
+        self,
+        llm: LlmProvider,
+        message: str,
+        snapshot: dict[str, Any],
+        locale: str = "en",
+        history: list[dict[str, str]] | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
-        result = await self.run(message, snapshot, locale, history)
+        result = await self.run_with_llm(llm, message, snapshot, locale, history)
         for tool in result.tool_steps:
             yield {"type": "tool_status", "name": tool, "status": "done"}
         # Stream text in small pieces (deterministic for tests, chunked in production).
@@ -130,6 +141,16 @@ class AgentRuntime:
         for a in result.actions:
             yield {"type": "action_proposal", "action": a}
         yield {"type": "done"}
+
+    async def stream(
+        self,
+        message: str,
+        snapshot: dict[str, Any],
+        locale: str = "en",
+        history: list[dict[str, str]] | None = None,
+    ) -> AsyncIterator[dict[str, Any]]:
+        async for event in self.stream_with_llm(self.llm, message, snapshot, locale, history):
+            yield event
 
 
 def _to_retrieved(results: list[dict[str, Any]]) -> list:

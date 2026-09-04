@@ -5,6 +5,7 @@ import { useI18n } from "@/components/i18n-provider";
 import { useStudyProfile } from "@/components/study-profile-provider";
 import { useAi } from "@/components/ai-provider";
 import { ProviderManager } from "@/components/provider-manager";
+import { LlmProviderManager } from "@/components/llm-provider-manager";
 import { getSettings, saveSettings } from "@/lib/storage/repository";
 import type { UserSettings } from "@/lib/storage/types";
 import { exportAll, importBackup, resetAllData, type ImportMode } from "@/lib/storage/export";
@@ -159,6 +160,9 @@ export function SettingsModule() {
         </div>
         {testResult && <p className="mt-2 text-sm text-muted">{testResult}</p>}
       </section>
+
+      {/* Runtime LLM providers (CC Switch-style BYOK) */}
+      <LlmProviderManager />
 
       {/* Speech (future remote services) */}
       <section className="card card-pad mb-4">
