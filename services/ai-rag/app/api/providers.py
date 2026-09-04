@@ -103,7 +103,9 @@ async def fetch_models(body: ModelsRequest) -> dict:
     if cfg.apiKey:
         headers["Authorization"] = f"Bearer {cfg.apiKey}"
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        from ..llm.safe_http import build_provider_client
+
+        async with build_provider_client(timeout=15.0) as client:
             res = await client.get(f"{cfg.baseUrl}/models", headers=headers)
             if res.status_code in (401, 403):
                 return {"ok": False, "message": "Authentication failed", "models": []}

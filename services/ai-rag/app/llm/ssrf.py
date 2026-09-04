@@ -108,6 +108,47 @@ def _literal_ip_is_private(host: str) -> bool:
     return _is_private_ip(ip)
 
 
+def resolve_public_addresses(host: str, port: int, *, resolver=None) -> list[str]:
+    """Resolve ``host`` and return ONLY public addresses (as strings).
+
+    Every resolved address must be global-public; if ANY resolved address is
+    private/reserved the whole resolution is rejected (raises SSRFError). This
+    is the single resolution used both for pre-flight validation and for the
+    actual connection (see safe_http.PinnedNetworkBackend), so the address
+    actually connected to is always one of the validated public addresses.
+
+    ``resolver`` is an optional ``(host, port) -> list[str]`` override used by
+    tests (never in production).
+    """
+    if resolver is not None:
+        addresses = list(resolver(host, port))
+    else:
+        try:
+            infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+        except socket.gaierror as e:
+            raise SSRFError(f"Base URL host could not be resolved: {e}") from e
+        addresses = [info[4][0] for info in infos]
+
+    if not addresses:
+        raise SSRFError("Base URL host did not resolve to any address")
+
+    seen: set[str] = set()
+    public: list[str] = []
+    for addr in addresses:
+        bare = addr.split("%")[0]
+        if bare in seen:
+            continue
+        seen.add(bare)
+        try:
+            ip = ipaddress.ip_address(bare)
+        except ValueError:
+            continue
+        if _is_private_ip(ip):
+            raise SSRFError("Base URL must not point to a private or local address")
+        public.append(bare)
+    return public
+
+
 def validate_provider_url(url: str, *, require_https: bool | None = None, resolver=None) -> str:
     """Validate a provider Base URL for SSRF safety.
 
@@ -155,32 +196,13 @@ def validate_provider_url(url: str, *, require_https: bool | None = None, resolv
     if _literal_ip_is_private(host):
         raise SSRFError("Base URL must not point to a private or local address")
 
-    # Resolve the host and reject if ANY resolved address is private
-    # (DNS-rebinding defence). Tests may inject a resolver.
-    if resolver is not None:
-        addresses = resolver(host, port)
-    else:
-        try:
-            infos = socket.getaddrinfo(host, port or (443 if scheme == "https" else 80), proto=socket.IPPROTO_TCP)
-        except socket.gaierror as e:
-            raise SSRFError(f"Base URL host could not be resolved: {e}") from e
-        addresses = [info[4][0] for info in infos]
-
-    if not addresses:
-        raise SSRFError("Base URL host did not resolve to any address")
-
-    seen: set[str] = set()
-    for addr in addresses:
-        bare = addr.split("%")[0]
-        if bare in seen:
-            continue
-        seen.add(bare)
-        try:
-            ip = ipaddress.ip_address(bare)
-        except ValueError:
-            continue
-        if _is_private_ip(ip):
-            raise SSRFError("Base URL must not point to a private or local address")
+    # Resolve and require every address to be public. NOTE: this pre-flight is a
+    # fast, friendly check; the CONNECTION itself re-resolves through
+    # resolve_public_addresses inside PinnedNetworkBackend, which pins the
+    # actual socket to a validated public address (closing the validate→connect
+    # TOCTOU window).
+    port = port or (443 if scheme == "https" else 80)
+    resolve_public_addresses(host, port, resolver=resolver)
 
     return url
 

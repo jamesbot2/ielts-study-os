@@ -1,4 +1,9 @@
-"""HTTP adapter for any OpenAI-compatible chat/embedding endpoint."""
+"""HTTP adapter for any OpenAI-compatible chat/embedding endpoint.
+
+All runtime (user-controlled BYOK) provider calls go through the pinned,
+DNS-rebinding-safe transport in ``safe_http``. ``transport=`` is accepted for
+offline tests only and is never used in production code paths.
+"""
 
 from __future__ import annotations
 
@@ -9,6 +14,7 @@ from typing import Any
 import httpx
 
 from .base import LlmProvider
+from .safe_http import build_provider_client
 
 
 class OpenAICompatibleLlm(LlmProvider):
@@ -24,8 +30,14 @@ class OpenAICompatibleLlm(LlmProvider):
         self.api_key = api_key
         self.model = model
         self.timeout = timeout
-        # Injectable transport for offline tests (never used in production).
+        # Test-only transport override (MockTransport). Production always uses
+        # the pinned safe transport (build_provider_client).
         self._transport = transport
+
+    def _new_client(self) -> httpx.AsyncClient:
+        if self._transport is not None:
+            return httpx.AsyncClient(transport=self._transport, timeout=self.timeout, follow_redirects=False)
+        return build_provider_client(timeout=self.timeout)
 
     def _headers(self) -> dict[str, str]:
         h = {"Content-Type": "application/json"}
@@ -35,7 +47,7 @@ class OpenAICompatibleLlm(LlmProvider):
 
     async def chat(self, messages: list[dict[str, str]], **kwargs: Any) -> str:
         payload = {"model": self.model, "messages": messages, **kwargs}
-        async with httpx.AsyncClient(timeout=self.timeout, transport=self._transport) as client:
+        async with self._new_client() as client:
             res = await client.post(f"{self.base_url}/chat/completions", headers=self._headers(), json=payload)
             res.raise_for_status()
             data = res.json()
@@ -43,7 +55,7 @@ class OpenAICompatibleLlm(LlmProvider):
 
     async def stream(self, messages: list[dict[str, str]], **kwargs: Any) -> AsyncIterator[str]:
         payload = {"model": self.model, "messages": messages, "stream": True, **kwargs}
-        async with httpx.AsyncClient(timeout=self.timeout, transport=self._transport) as client, client.stream(
+        async with self._new_client() as client, client.stream(
             "POST", f"{self.base_url}/chat/completions", headers=self._headers(), json=payload
         ) as res:
             res.raise_for_status()
