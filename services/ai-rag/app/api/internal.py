@@ -247,4 +247,10 @@ async def rag_admin_ingest(x_ingest_token: str | None = Header(default=None)) ->
             cur = cur.__cause__ if cur.__cause__ is not None else cur.__context__
         if status is not None:
             return {"ok": False, "error": f"provider http {status}"}
-        return {"ok": False, "error": _sanitized_error(e)}
+        # Diagnostic (temporary): chain of exception type names + sanitized msgs.
+        chain = []
+        cur: BaseException | None = e
+        while cur is not None and len(chain) < 6:
+            chain.append({"type": type(cur).__name__, "msg": _sanitized_error(cur)})
+            cur = cur.__cause__ if cur.__cause__ is not None else cur.__context__
+        return {"ok": False, "error": _sanitized_error(e), "chain": chain}
