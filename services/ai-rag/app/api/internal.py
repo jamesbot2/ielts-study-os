@@ -234,4 +234,17 @@ async def rag_admin_ingest(x_ingest_token: str | None = Header(default=None)) ->
             "error": None,
         }
     except Exception as e:  # noqa: BLE001
+        # Walk the exception chain looking for an httpx HTTPStatusError so we
+        # can surface the real provider status code without leaking bodies.
+        status = None
+        cur: BaseException | None = e
+        while cur is not None:
+            resp = getattr(cur, "response", None)
+            code = getattr(resp, "status_code", None)
+            if code is not None:
+                status = code
+                break
+            cur = cur.__cause__ if cur.__cause__ is not None else cur.__context__
+        if status is not None:
+            return {"ok": False, "error": f"provider http {status}"}
         return {"ok": False, "error": _sanitized_error(e)}
