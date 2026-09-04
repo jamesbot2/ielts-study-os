@@ -1,0 +1,5163 @@
+{
+  "format": "ielts-study-os-knowledge-v1",
+  "generatedAt": "2026-09-02T13:32:18.279Z",
+  "sources": [
+    {
+      "id": "ielts-org",
+      "provider": "IELTS (jointly owned by British Council, IDP, Cambridge)",
+      "title": "IELTS.org — official site",
+      "url": "https://ielts.org",
+      "official": true,
+      "type": "official",
+      "lastVerified": "2026-08-31",
+      "notes": "Canonical source for test format, scoring, delivery and policy."
+    },
+    {
+      "id": "ielts-org-test-format",
+      "provider": "IELTS",
+      "title": "Test format",
+      "url": "https://ielts.org/take-a-test/test-format",
+      "official": true,
+      "type": "official",
+      "lastVerified": "2026-08-31",
+      "notes": "Structure, timings and question counts for all four skills."
+    },
+    {
+      "id": "ielts-org-sample-questions",
+      "provider": "IELTS",
+      "title": "Sample test questions",
+      "url": "https://ielts.org/take-a-test/preparation-resources/sample-test-questions",
+      "official": true,
+      "type": "official",
+      "lastVerified": "2026-08-31",
+      "notes": "Official sample tasks for Listening, Reading, Writing and Speaking."
+    },
+    {
+      "id": "ielts-org-scoring",
+      "provider": "IELTS",
+      "title": "IELTS scoring in detail",
+      "url": "https://ielts.org/organisations/ielts-for-organisations/ielts-scoring-in-detail",
+      "official": true,
+      "type": "official",
+      "lastVerified": "2026-08-31",
+      "notes": "Band scale, band descriptors, and score calculation guidance."
+    },
+    {
+      "id": "ielts-org-band-descriptors",
+      "provider": "IELTS",
+      "title": "Writing & Speaking band descriptors",
+      "url": "https://ielts.org/organisations/ielts-for-organisations/ielts-scoring-in-detail",
+      "official": true,
+      "type": "official",
+      "lastVerified": "2026-08-31",
+      "notes": "Public band descriptors for Writing (Task 1/2) and Speaking."
+    },
+    {
+      "id": "ielts-org-one-skill-retake",
+      "provider": "IELTS",
+      "title": "One Skill Retake",
+      "url": "https://ielts.org/take-a-test/one-skill-retake",
+      "official": true,
+      "type": "official",
+      "lastVerified": "2026-08-31",
+      "notes": "Official explanation of One Skill Retake and availability."
+    },
+    {
+      "id": "bc-take-ielts",
+      "provider": "British Council",
+      "title": "Take IELTS (British Council)",
+      "url": "https://takeielts.britishcouncil.org",
+      "official": true,
+      "type": "official-test-admin",
+      "lastVerified": "2026-08-31",
+      "notes": "British Council preparation hub."
+    },
+    {
+      "id": "bc-free-practice",
+      "provider": "British Council",
+      "title": "Free IELTS practice tests",
+      "url": "https://takeielts.britishcouncil.org/take-ielts/prepare/free-ielts-english-practice-tests",
+      "official": true,
+      "type": "official-test-admin",
+      "lastVerified": "2026-08-31",
+      "notes": "Free official-style practice materials across all four skills."
+    },
+    {
+      "id": "bc-computer-familiarisation",
+      "provider": "British Council",
+      "title": "IELTS on computer familiarisation",
+      "url": "https://takeielts.britishcouncil.org/take-ielts/prepare/free-ielts-practice-tests/computer",
+      "official": true,
+      "type": "official-test-admin",
+      "lastVerified": "2026-08-31",
+      "notes": "Practice the computer-delivered interface."
+    },
+    {
+      "id": "idp-prepare",
+      "provider": "IDP IELTS",
+      "title": "IDP Prepare",
+      "url": "https://ielts.idp.com/prepare",
+      "official": true,
+      "type": "official-test-admin",
+      "lastVerified": "2026-08-31",
+      "notes": "IDP preparation hub and familiarisation tests."
+    },
+    {
+      "id": "idp-familiarisation",
+      "provider": "IDP IELTS",
+      "title": "IELTS on computer familiarisation tests",
+      "url": "https://ielts.idp.com/prepare/article-ielts-on-computer-familiarisation-tests",
+      "official": true,
+      "type": "official-test-admin",
+      "lastVerified": "2026-08-31",
+      "notes": "Computer-delivered familiarisation practice."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "fund-what-is-ielts",
+      "title": {
+        "en": "What is IELTS?",
+        "zh": "什么是雅思？"
+      },
+      "summary": {
+        "en": "The International English Language Testing System, trusted by universities, employers and governments worldwide.",
+        "zh": "国际英语语言测试系统，受到全球大学、雇主和政府信赖。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Overview",
+            "zh": "概述"
+          },
+          "paragraphs": [
+            {
+              "en": "IELTS (International English Language Testing System) is one of the world's most widely used English language tests. It measures listening, reading, writing and speaking for people who want to study, work or migrate to an English-speaking environment.",
+              "zh": "雅思（国际英语语言测试系统）是全球使用最广泛的英语语言测试之一。它衡量听力、阅读、写作和口语，面向希望到英语环境学习、工作或移民的人群。"
+            },
+            {
+              "en": "IELTS is jointly owned by the British Council, IDP IELTS, and Cambridge University Press & Assessment. It has set the standard for English testing since 1980.",
+              "zh": "雅思由英国文化协会、IDP 雅思和剑桥大学考试委员会共同拥有。自 1980 年以来一直是英语测试的标杆。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Who uses IELTS",
+            "zh": "谁使用雅思"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Universities and colleges for admission (especially Academic IELTS)",
+              "zh": "大学和学院招生（尤其是学术类雅思）"
+            },
+            {
+              "en": "Professional registration bodies (medicine, nursing, engineering, law)",
+              "zh": "专业注册机构（医学、护理、工程、法律）"
+            },
+            {
+              "en": "Immigration authorities (General Training IELTS)",
+              "zh": "移民部门（培训类雅思）"
+            },
+            {
+              "en": "Employers assessing workplace English",
+              "zh": "评估职场英语的雇主"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-academic-vs-general",
+      "title": {
+        "en": "Academic vs General Training",
+        "zh": "学术类 vs 培训类"
+      },
+      "summary": {
+        "en": "Two versions share Listening and Speaking but differ in Reading and Writing.",
+        "zh": "两种版本共享听力和口语，但阅读和写作不同。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The two versions",
+            "zh": "两种版本"
+          },
+          "paragraphs": [
+            {
+              "en": "IELTS Academic is for people applying for higher education or professional registration. IELTS General Training is for those migrating to an English-speaking country or applying for secondary education, training programmes or work experience.",
+              "zh": "学术类雅思面向申请高等教育或专业注册的人。培训类雅思面向移民到英语国家，或申请中学教育、培训项目或工作经验的人。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Key differences",
+            "zh": "主要区别"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Component",
+                "zh": "部分"
+              },
+              {
+                "en": "Academic",
+                "zh": "学术类"
+              },
+              {
+                "en": "General Training",
+                "zh": "培训类"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "Listening",
+                  "zh": "听力"
+                },
+                {
+                  "en": "Same test",
+                  "zh": "相同"
+                },
+                {
+                  "en": "Same test",
+                  "zh": "相同"
+                }
+              ],
+              [
+                {
+                  "en": "Reading",
+                  "zh": "阅读"
+                },
+                {
+                  "en": "3 long academic texts",
+                  "zh": "3 篇长篇学术文章"
+                },
+                {
+                  "en": "Survival, workplace and general-interest texts",
+                  "zh": "生存、职场和综合类文章"
+                }
+              ],
+              [
+                {
+                  "en": "Writing Task 1",
+                  "zh": "写作 Task 1"
+                },
+                {
+                  "en": "Describe data: graph, chart, map, process",
+                  "zh": "描述数据：图表、地图、流程图"
+                },
+                {
+                  "en": "Write a letter (formal/semi-formal/informal)",
+                  "zh": "写信（正式/半正式/非正式）"
+                }
+              ],
+              [
+                {
+                  "en": "Writing Task 2",
+                  "zh": "写作 Task 2"
+                },
+                {
+                  "en": "Essay (same style)",
+                  "zh": "议论文（相同形式）"
+                },
+                {
+                  "en": "Essay (same style)",
+                  "zh": "议论文（相同形式）"
+                }
+              ],
+              [
+                {
+                  "en": "Speaking",
+                  "zh": "口语"
+                },
+                {
+                  "en": "Same test",
+                  "zh": "相同"
+                },
+                {
+                  "en": "Same test",
+                  "zh": "相同"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-test-structure",
+      "title": {
+        "en": "Test structure and timings",
+        "zh": "考试结构与时间"
+      },
+      "summary": {
+        "en": "Four sections, around 2 hours 40 minutes total (plus Speaking).",
+        "zh": "四个部分，总计约 2 小时 40 分钟（另加口语）。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Component order and timing",
+            "zh": "各部分顺序与时间"
+          },
+          "paragraphs": [
+            {
+              "en": "In computer-delivered IELTS, Listening, Reading and Writing are taken on a computer in one sitting. The Speaking test is usually taken face-to-face or via video call, and may be on the same day or a different day.",
+              "zh": "在机考雅思中，听力、阅读和写作在电脑上一次完成。口语通常面对面或通过视频进行，可能在同一天或不同日期。"
+            }
+          ],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Component",
+                "zh": "部分"
+              },
+              {
+                "en": "Time",
+                "zh": "时间"
+              },
+              {
+                "en": "Questions/Tasks",
+                "zh": "题目/任务"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "Listening",
+                  "zh": "听力"
+                },
+                {
+                  "en": "30 min + check time",
+                  "zh": "30 分钟 + 检查时间"
+                },
+                {
+                  "en": "40 questions",
+                  "zh": "40 题"
+                }
+              ],
+              [
+                {
+                  "en": "Reading",
+                  "zh": "阅读"
+                },
+                {
+                  "en": "60 minutes",
+                  "zh": "60 分钟"
+                },
+                {
+                  "en": "40 questions",
+                  "zh": "40 题"
+                }
+              ],
+              [
+                {
+                  "en": "Writing",
+                  "zh": "写作"
+                },
+                {
+                  "en": "60 minutes",
+                  "zh": "60 分钟"
+                },
+                {
+                  "en": "Task 1 + Task 2",
+                  "zh": "Task 1 + Task 2"
+                }
+              ],
+              [
+                {
+                  "en": "Speaking",
+                  "zh": "口语"
+                },
+                {
+                  "en": "11–14 minutes",
+                  "zh": "11–14 分钟"
+                },
+                {
+                  "en": "Parts 1, 2, 3",
+                  "zh": "Part 1、2、3"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-scoring",
+      "title": {
+        "en": "Scoring and band scores",
+        "zh": "评分与分数"
+      },
+      "summary": {
+        "en": "Scores run from 0 to 9 in whole and half bands; overall is the rounded average.",
+        "zh": "分数从 0 到 9，包括整数和半分；总分是四舍五入的平均分。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 6,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The 0–9 scale",
+            "zh": "0–9 分制"
+          },
+          "paragraphs": [
+            {
+              "en": "Each of the four skills receives a band score from 0 to 9, in whole or half bands. The Overall Band Score is the average of the four scores, rounded to the nearest half band.",
+              "zh": "四项技能各获得 0–9 分，可为整数或半分。总分是四项平均后四舍五入到最近的半分。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Rounding rule",
+            "zh": "四舍五入规则"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "If the average ends in .25, it rounds UP to the next half band.",
+              "zh": "如果平均分小数部分为 .25，向上取整到下一个半分。"
+            },
+            {
+              "en": "If the average ends in .75, it rounds UP to the next whole band.",
+              "zh": "如果平均分小数部分为 .75，向上取整到下一个整数分。"
+            },
+            {
+              "en": "Example: 6 + 6.5 + 6 + 6 = 24.5 → 6.125 → Overall 6.0",
+              "zh": "例如：6 + 6.5 + 6 + 6 = 24.5 → 6.125 → 总分 6.0"
+            },
+            {
+              "en": "Example: 7 + 6.5 + 6.5 + 6 = 26 → 6.5 → Overall 6.5",
+              "zh": "例如：7 + 6.5 + 6.5 + 6 = 26 → 6.5 → 总分 6.5"
+            },
+            {
+              "en": "Example: 8 + 8 + 7.5 + 7.5 = 31 → 7.75 → Overall 8.0",
+              "zh": "例如：8 + 8 + 7.5 + 7.5 = 31 → 7.75 → 总分 8.0"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "What band scores mean",
+            "zh": "分数含义"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Band",
+                "zh": "分数"
+              },
+              {
+                "en": "Level",
+                "zh": "等级"
+              },
+              {
+                "en": "Description",
+                "zh": "描述"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "9",
+                  "zh": "9"
+                },
+                {
+                  "en": "Expert user",
+                  "zh": "专家用户"
+                },
+                {
+                  "en": "Fully operational command",
+                  "zh": "完全熟练掌握"
+                }
+              ],
+              [
+                {
+                  "en": "8",
+                  "zh": "8"
+                },
+                {
+                  "en": "Very good user",
+                  "zh": "优秀用户"
+                },
+                {
+                  "en": "Occasional unsystematic inaccuracies",
+                  "zh": "偶尔出现非系统性错误"
+                }
+              ],
+              [
+                {
+                  "en": "7",
+                  "zh": "7"
+                },
+                {
+                  "en": "Good user",
+                  "zh": "良好用户"
+                },
+                {
+                  "en": "Operational command, occasional inaccuracies",
+                  "zh": "可操作运用，偶尔出错"
+                }
+              ],
+              [
+                {
+                  "en": "6",
+                  "zh": "6"
+                },
+                {
+                  "en": "Competent user",
+                  "zh": "合格用户"
+                },
+                {
+                  "en": "Generally effective command",
+                  "zh": "基本有效运用"
+                }
+              ],
+              [
+                {
+                  "en": "5",
+                  "zh": "5"
+                },
+                {
+                  "en": "Modest user",
+                  "zh": "中等用户"
+                },
+                {
+                  "en": "Partial command",
+                  "zh": "部分掌握"
+                }
+              ],
+              [
+                {
+                  "en": "4",
+                  "zh": "4"
+                },
+                {
+                  "en": "Limited user",
+                  "zh": "有限用户"
+                },
+                {
+                  "en": "Basic competence in familiar situations",
+                  "zh": "熟悉情境下的基本能力"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-listening-scoring",
+      "title": {
+        "en": "Listening scoring",
+        "zh": "听力评分"
+      },
+      "summary": {
+        "en": "40 questions; one mark each; raw score converts to a band.",
+        "zh": "40 题，每题 1 分；原始分换算为分数。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "How it works",
+            "zh": "如何评分"
+          },
+          "paragraphs": [
+            {
+              "en": "Listening has 40 questions, each worth one mark. The raw score (number correct) converts to a band score using a conversion table. Answers must be spelled correctly; word limits must be respected.",
+              "zh": "听力共 40 题，每题 1 分。原始分（答对题数）通过换算表转换为分数。答案拼写必须正确，且必须遵守字数限制。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Approximate conversion",
+            "zh": "近似换算"
+          },
+          "paragraphs": [
+            {
+              "en": "These thresholds are approximate: official IELTS states exact raw-score cut-offs may vary slightly between test versions.",
+              "zh": "这些阈值是近似值：雅思官方表示，不同考试版本的实际原始分阈值可能略有差异。"
+            }
+          ],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Raw score",
+                "zh": "原始分"
+              },
+              {
+                "en": "Band",
+                "zh": "分数"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "39–40",
+                  "zh": "39–40"
+                },
+                {
+                  "en": "9.0",
+                  "zh": "9.0"
+                }
+              ],
+              [
+                {
+                  "en": "37–38",
+                  "zh": "37–38"
+                },
+                {
+                  "en": "8.5",
+                  "zh": "8.5"
+                }
+              ],
+              [
+                {
+                  "en": "35–36",
+                  "zh": "35–36"
+                },
+                {
+                  "en": "8.0",
+                  "zh": "8.0"
+                }
+              ],
+              [
+                {
+                  "en": "32–34",
+                  "zh": "32–34"
+                },
+                {
+                  "en": "7.5",
+                  "zh": "7.5"
+                }
+              ],
+              [
+                {
+                  "en": "30–31",
+                  "zh": "30–31"
+                },
+                {
+                  "en": "7.0",
+                  "zh": "7.0"
+                }
+              ],
+              [
+                {
+                  "en": "26–29",
+                  "zh": "26–29"
+                },
+                {
+                  "en": "6.5",
+                  "zh": "6.5"
+                }
+              ],
+              [
+                {
+                  "en": "23–25",
+                  "zh": "23–25"
+                },
+                {
+                  "en": "6.0",
+                  "zh": "6.0"
+                }
+              ],
+              [
+                {
+                  "en": "18–22",
+                  "zh": "18–22"
+                },
+                {
+                  "en": "5.5",
+                  "zh": "5.5"
+                }
+              ],
+              [
+                {
+                  "en": "16–17",
+                  "zh": "16–17"
+                },
+                {
+                  "en": "5.0",
+                  "zh": "5.0"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-reading-scoring",
+      "title": {
+        "en": "Reading scoring",
+        "zh": "阅读评分"
+      },
+      "summary": {
+        "en": "Academic and General Training use different conversion tables.",
+        "zh": "学术类和培训类使用不同的换算表。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Academic vs General Training",
+            "zh": "学术类 vs 培训类"
+          },
+          "paragraphs": [
+            {
+              "en": "Both have 40 questions worth one mark each, but the General Training conversion table is stricter: you generally need a higher raw score for the same band because the texts are considered less demanding.",
+              "zh": "两者都有 40 题、每题 1 分，但培训类的换算表更严格：通常需要更高的原始分才能达到同样的分数，因为文本难度被认为较低。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Approximate Academic conversion",
+            "zh": "学术类近似换算"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Raw score",
+                "zh": "原始分"
+              },
+              {
+                "en": "Band",
+                "zh": "分数"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "39–40",
+                  "zh": "39–40"
+                },
+                {
+                  "en": "9.0",
+                  "zh": "9.0"
+                }
+              ],
+              [
+                {
+                  "en": "37–38",
+                  "zh": "37–38"
+                },
+                {
+                  "en": "8.5",
+                  "zh": "8.5"
+                }
+              ],
+              [
+                {
+                  "en": "35–36",
+                  "zh": "35–36"
+                },
+                {
+                  "en": "8.0",
+                  "zh": "8.0"
+                }
+              ],
+              [
+                {
+                  "en": "33–34",
+                  "zh": "33–34"
+                },
+                {
+                  "en": "7.5",
+                  "zh": "7.5"
+                }
+              ],
+              [
+                {
+                  "en": "30–32",
+                  "zh": "30–32"
+                },
+                {
+                  "en": "7.0",
+                  "zh": "7.0"
+                }
+              ],
+              [
+                {
+                  "en": "27–29",
+                  "zh": "27–29"
+                },
+                {
+                  "en": "6.5",
+                  "zh": "6.5"
+                }
+              ],
+              [
+                {
+                  "en": "23–26",
+                  "zh": "23–26"
+                },
+                {
+                  "en": "6.0",
+                  "zh": "6.0"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Approximate General Training conversion",
+            "zh": "培训类近似换算"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Raw score",
+                "zh": "原始分"
+              },
+              {
+                "en": "Band",
+                "zh": "分数"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "40",
+                  "zh": "40"
+                },
+                {
+                  "en": "9.0",
+                  "zh": "9.0"
+                }
+              ],
+              [
+                {
+                  "en": "39",
+                  "zh": "39"
+                },
+                {
+                  "en": "8.5",
+                  "zh": "8.5"
+                }
+              ],
+              [
+                {
+                  "en": "38",
+                  "zh": "38"
+                },
+                {
+                  "en": "8.0",
+                  "zh": "8.0"
+                }
+              ],
+              [
+                {
+                  "en": "36–37",
+                  "zh": "36–37"
+                },
+                {
+                  "en": "7.5",
+                  "zh": "7.5"
+                }
+              ],
+              [
+                {
+                  "en": "34–35",
+                  "zh": "34–35"
+                },
+                {
+                  "en": "7.0",
+                  "zh": "7.0"
+                }
+              ],
+              [
+                {
+                  "en": "32–33",
+                  "zh": "32–33"
+                },
+                {
+                  "en": "6.5",
+                  "zh": "6.5"
+                }
+              ],
+              [
+                {
+                  "en": "30–31",
+                  "zh": "30–31"
+                },
+                {
+                  "en": "6.0",
+                  "zh": "6.0"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-writing-scoring",
+      "title": {
+        "en": "Writing scoring",
+        "zh": "写作评分"
+      },
+      "summary": {
+        "en": "Four criteria; Task 2 carries double the weight of Task 1.",
+        "zh": "四个标准；Task 2 权重是 Task 1 的两倍。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The four criteria",
+            "zh": "四个标准"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Task Achievement (Task 1) / Task Response (Task 2)",
+              "zh": "任务完成情况（Task 1）/ 任务回应情况（Task 2）"
+            },
+            {
+              "en": "Coherence and Cohesion",
+              "zh": "连贯与衔接"
+            },
+            {
+              "en": "Lexical Resource",
+              "zh": "词汇资源"
+            },
+            {
+              "en": "Grammatical Range and Accuracy",
+              "zh": "语法多样性与准确性"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Weighting",
+            "zh": "权重"
+          },
+          "paragraphs": [
+            {
+              "en": "Task 2 is worth twice as much as Task 1. The Writing band is calculated as (Task 1 + Task 2 × 2) ÷ 3, then rounded to the nearest half band.",
+              "zh": "Task 2 的分值是 Task 1 的两倍。写作分数按 (Task 1 + Task 2 × 2) ÷ 3 计算，再四舍五入到最近的半分。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-speaking-scoring",
+      "title": {
+        "en": "Speaking scoring",
+        "zh": "口语评分"
+      },
+      "summary": {
+        "en": "Four equally-weighted criteria assessed by a certified examiner.",
+        "zh": "由认证考官按四个等权标准评分。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The four criteria",
+            "zh": "四个标准"
+          },
+          "paragraphs": [
+            {
+              "en": "Each criterion is equally weighted; the Speaking band is the average of the four, rounded to the nearest half band.",
+              "zh": "每个标准权重相等；口语分数是四项平均后四舍五入到最近的半分。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "Fluency and Coherence",
+              "zh": "流利度与连贯性"
+            },
+            {
+              "en": "Lexical Resource",
+              "zh": "词汇资源"
+            },
+            {
+              "en": "Grammatical Range and Accuracy",
+              "zh": "语法多样性与准确性"
+            },
+            {
+              "en": "Pronunciation",
+              "zh": "发音"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-computer-delivery",
+      "title": {
+        "en": "Computer-delivered IELTS",
+        "zh": "机考雅思"
+      },
+      "summary": {
+        "en": "Computer-delivered is the primary format; know the interface before test day.",
+        "zh": "机考是主要形式；考试前先熟悉界面。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Current format",
+            "zh": "当前形式"
+          },
+          "paragraphs": [
+            {
+              "en": "Computer-delivered IELTS is now the primary delivery format. You take Listening, Reading and Writing on a computer. You can highlight text, make notes, and navigate questions on screen. The Listening recording plays once with a checking period at the end.",
+              "zh": "机考雅思现在是主要的考试形式。你在电脑上完成听力、阅读和写作。你可以高亮文本、做笔记并在屏幕上导航题目。听力录音只播放一次，最后有检查时间。"
+            },
+            {
+              "en": "In selected markets, a 'Writing on Paper' option may be available, where only the Writing component is completed on paper. Always confirm the exact format with your test centre.",
+              "zh": "在部分市场，可能提供「纸笔写作」选项，即仅写作部分在纸上完成。请务必向考试中心确认具体形式。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Interface concepts",
+            "zh": "界面概念"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Question navigator shows answered / unanswered / flagged states",
+              "zh": "题目导航显示已答/未答/已标记状态"
+            },
+            {
+              "en": "Text highlighting and notes are available in Reading",
+              "zh": "阅读中可高亮文本和做笔记"
+            },
+            {
+              "en": "Listening audio plays once; answers are typed on screen",
+              "zh": "听力音频只播放一次；答案在屏幕上输入"
+            },
+            {
+              "en": "Writing is typed; word count is displayed",
+              "zh": "写作需打字；显示字数"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-test-day",
+      "title": {
+        "en": "Test-day workflow",
+        "zh": "考试当天流程"
+      },
+      "summary": {
+        "en": "Registration, identity check, then Listening → Reading → Writing; Speaking separately.",
+        "zh": "注册、身份核验，然后听力 → 阅读 → 写作；口语另考。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "On the day",
+            "zh": "当天流程"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Arrive early with valid ID (usually the same passport/national ID used to register)",
+              "zh": "携带有效证件提前到场（通常与报名时相同）"
+            },
+            {
+              "en": "Electronic devices are stored before the test",
+              "zh": "电子设备在考前存放"
+            },
+            {
+              "en": "Listening, Reading and Writing run consecutively with no long breaks",
+              "zh": "听力、阅读、写作连续进行，无长休息"
+            },
+            {
+              "en": "Speaking is scheduled separately (same day or within a window)",
+              "zh": "口语单独安排（当天或一段时间内）"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-one-skill-retake",
+      "title": {
+        "en": "One Skill Retake & result validity",
+        "zh": "单科重考与成绩有效期"
+      },
+      "summary": {
+        "en": "One Skill Retake lets you retake one component; results are typically valid for two years.",
+        "zh": "单科重考允许你重考一个部分；成绩通常两年有效。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 2,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "One Skill Retake",
+            "zh": "单科重考"
+          },
+          "paragraphs": [
+            {
+              "en": "IELTS One Skill Retake allows you to retake a single component (Listening, Reading, Writing or Speaking) if you did not achieve your desired score the first time. Availability varies by test centre, so check with your provider.",
+              "zh": "雅思单科重考允许你在首次未达到目标分数时重考单个部分（听力、阅读、写作或口语）。是否提供因考点而异，请向考试机构确认。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Result validity",
+            "zh": "成绩有效期"
+          },
+          "paragraphs": [
+            {
+              "en": "IELTS results are generally valid for two years from the test date, but receiving organisations may set their own requirements — always confirm with the institution.",
+              "zh": "雅思成绩一般自考试日期起两年内有效，但接收机构可能有自己的要求——请务必与相关机构确认。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-target-scores",
+      "title": {
+        "en": "Target scores and requirements",
+        "zh": "目标分数与要求"
+      },
+      "summary": {
+        "en": "Typical university and immigration requirements, as general guidance.",
+        "zh": "典型的大学和移民要求，作为一般参考。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Common requirements (general guidance)",
+            "zh": "常见要求（一般参考）"
+          },
+          "paragraphs": [
+            {
+              "en": "These are rough ranges only. Always check the specific requirement of your university, employer or immigration programme, including any per-skill minimums.",
+              "zh": "这些仅为大致范围。请务必查询你申请的大学、雇主或移民项目的具体要求，包括单项最低分。"
+            }
+          ],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Purpose",
+                "zh": "用途"
+              },
+              {
+                "en": "Typical overall band",
+                "zh": "常见总分要求"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "Undergraduate study",
+                  "zh": "本科学习"
+                },
+                {
+                  "en": "6.0–6.5",
+                  "zh": "6.0–6.5"
+                }
+              ],
+              [
+                {
+                  "en": "Postgraduate study",
+                  "zh": "研究生学习"
+                },
+                {
+                  "en": "6.5–7.5",
+                  "zh": "6.5–7.5"
+                }
+              ],
+              [
+                {
+                  "en": "Professional registration",
+                  "zh": "专业注册"
+                },
+                {
+                  "en": "7.0–7.5 (often with per-skill minimums)",
+                  "zh": "7.0–7.5（常含单项最低分）"
+                }
+              ],
+              [
+                {
+                  "en": "Skilled migration (varies by country)",
+                  "zh": "技术移民（因国家而异）"
+                },
+                {
+                  "en": "6.0–8.0",
+                  "zh": "6.0–8.0"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "fund-misconceptions",
+      "title": {
+        "en": "Common misconceptions",
+        "zh": "常见误区"
+      },
+      "summary": {
+        "en": "Clear up the myths that waste study time.",
+        "zh": "澄清浪费学习时间的误区。"
+      },
+      "category": "fundamentals",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Myths vs reality",
+            "zh": "误区 vs 事实"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Myth: 'I must use a British accent.' Reality: IELTS accepts all standard English accents.",
+              "zh": "误区：必须用英式口音。事实：雅思接受所有标准英语口音。"
+            },
+            {
+              "en": "Myth: 'More words = higher writing score.' Reality: quality and task relevance matter more than length.",
+              "zh": "误区：字数越多写作分越高。事实：质量与切题比长度更重要。"
+            },
+            {
+              "en": "Myth: 'Memorised essays score well.' Reality: memorised/template-heavy responses are penalised.",
+              "zh": "误区：背诵范文能得高分。事实：背诵/模板化回答会被扣分。"
+            },
+            {
+              "en": "Myth: 'There is a pass/fail.' Reality: IELTS reports a band score; there is no pass or fail.",
+              "zh": "误区：雅思有及格线。事实：雅思报告分数，没有通过或不通过。"
+            },
+            {
+              "en": "Myth: 'I can pause the Listening audio.' Reality: the recording plays once.",
+              "zh": "误区：可以暂停听力音频。事实：录音只播放一次。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "list-structure",
+      "title": {
+        "en": "Listening structure",
+        "zh": "听力结构"
+      },
+      "summary": {
+        "en": "4 parts, 40 questions, one recording play, multiple accents.",
+        "zh": "4 个部分，40 题，录音只播放一次，多种口音。"
+      },
+      "category": "listening",
+      "testType": "both",
+      "skill": "listening",
+      "relatedQuestionTypes": [
+        "multiple_choice",
+        "matching",
+        "plan_labelling",
+        "map_labelling",
+        "diagram_labelling",
+        "form_completion",
+        "note_completion",
+        "table_completion",
+        "flow_chart_completion",
+        "summary_completion",
+        "sentence_completion",
+        "short_answer"
+      ],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The four parts",
+            "zh": "四个部分"
+          },
+          "paragraphs": [
+            {
+              "en": "The recording is played ONCE. Questions get progressively harder. You hear a range of English accents (British, Australian, North American, New Zealand).",
+              "zh": "录音只播放一次。题目难度逐渐增加。你会听到多种英语口音（英国、澳大利亚、北美、新西兰）。"
+            }
+          ],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Part",
+                "zh": "部分"
+              },
+              {
+                "en": "Context",
+                "zh": "场景"
+              },
+              {
+                "en": "Format",
+                "zh": "形式"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "Part 1",
+                  "zh": "Part 1"
+                },
+                {
+                  "en": "Everyday social (e.g. booking, enquiry)",
+                  "zh": "日常社交（如预订、咨询）"
+                },
+                {
+                  "en": "Conversation between two speakers",
+                  "zh": "两人对话"
+                }
+              ],
+              [
+                {
+                  "en": "Part 2",
+                  "zh": "Part 2"
+                },
+                {
+                  "en": "Everyday social (e.g. a talk, tour, announcement)",
+                  "zh": "日常社交（如演讲、导览、公告）"
+                },
+                {
+                  "en": "Monologue",
+                  "zh": "独白"
+                }
+              ],
+              [
+                {
+                  "en": "Part 3",
+                  "zh": "Part 3"
+                },
+                {
+                  "en": "Academic/training (e.g. discussion between students)",
+                  "zh": "学术/培训（如学生讨论）"
+                },
+                {
+                  "en": "Conversation between up to four speakers",
+                  "zh": "最多四人的对话"
+                }
+              ],
+              [
+                {
+                  "en": "Part 4",
+                  "zh": "Part 4"
+                },
+                {
+                  "en": "Academic (e.g. a lecture)",
+                  "zh": "学术（如讲座）"
+                },
+                {
+                  "en": "Monologue",
+                  "zh": "独白"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "list-question-types",
+      "title": {
+        "en": "Listening question types",
+        "zh": "听力题型"
+      },
+      "summary": {
+        "en": "Every major Listening question type, with how to approach it.",
+        "zh": "所有主要听力题型及应对方法。"
+      },
+      "category": "listening",
+      "testType": "both",
+      "skill": "listening",
+      "relatedQuestionTypes": [
+        "multiple_choice",
+        "multiple_answer",
+        "matching",
+        "plan_labelling",
+        "map_labelling",
+        "diagram_labelling",
+        "form_completion",
+        "note_completion",
+        "table_completion",
+        "flow_chart_completion",
+        "summary_completion",
+        "sentence_completion",
+        "short_answer"
+      ],
+      "estimatedMinutes": 6,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Completion questions",
+            "zh": "填空题"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Form / note / table / flow-chart / summary / sentence completion — write words from the audio.",
+              "zh": "表格/笔记/表格/流程图/摘要/句子填空——写下音频中的单词。"
+            },
+            {
+              "en": "Respect the word limit (e.g. 'NO MORE THAN TWO WORDS AND/OR A NUMBER').",
+              "zh": "遵守字数限制（如「不超过两个单词和/或一个数字」）。"
+            },
+            {
+              "en": "Spelling must be correct; singular/plural must match.",
+              "zh": "拼写必须正确；单复数必须匹配。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Choice and matching questions",
+            "zh": "选择题与配对题"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Multiple choice — read the stem, listen for paraphrase, not exact words.",
+              "zh": "单选题——读题干，听同义替换而非原词。"
+            },
+            {
+              "en": "Multiple-answer — select more than one option as instructed.",
+              "zh": "多选题——按指示选择多个选项。"
+            },
+            {
+              "en": "Matching — match items (e.g. speakers to statements) using distractors.",
+              "zh": "配对题——利用干扰项将项目（如说话者与陈述）配对。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Diagram / map / plan labelling",
+            "zh": "图表/地图/平面图标示"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Use compass points and landmarks: 'next to', 'opposite', 'on the left of'.",
+              "zh": "使用方位和地标：「在…旁边」「在…对面」「在…左边」。"
+            },
+            {
+              "en": "Follow the speaker's route in order; answers usually come in sequence.",
+              "zh": "按顺序跟随说话者的路线；答案通常按顺序出现。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "list-strategies",
+      "title": {
+        "en": "Listening strategies",
+        "zh": "听力策略"
+      },
+      "summary": {
+        "en": "Prediction, paraphrase, distractors and how to recover after missing an answer.",
+        "zh": "预测、同义替换、干扰项以及漏听后如何补救。"
+      },
+      "category": "listening",
+      "testType": "both",
+      "skill": "listening",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 6,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Before and during",
+            "zh": "听前与听中"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Predict: read the question, identify the part of speech and likely answer type (number, name, place).",
+              "zh": "预测：读题，判断词性和可能的答案类型（数字、名字、地点）。"
+            },
+            {
+              "en": "Underline keywords, then listen for synonyms and paraphrase.",
+              "zh": "划出关键词，然后听同义词和同义替换。"
+            },
+            {
+              "en": "Watch for distractors: speakers often correct themselves ('…no wait, actually…').",
+              "zh": "注意干扰项：说话者常自我纠正（「…不，等等，其实是…」）。"
+            },
+            {
+              "en": "Signposting words ('however', 'so', 'the main point is') signal answers.",
+              "zh": "信号词（however、so、the main point is）提示答案。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "If you miss an answer",
+            "zh": "如果漏听了答案"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Never get stuck. Guess logically and move on — a missed answer must not cost the next one.",
+              "zh": "绝不停留。合理猜测后继续——漏掉一题不能连累下一题。"
+            },
+            {
+              "en": "Use the checking period at the end to revisit and complete answers.",
+              "zh": "利用最后的检查时间回顾并补全答案。"
+            },
+            {
+              "en": "Write an answer for every question; there is no penalty for wrong answers.",
+              "zh": "每题都写答案；答错不扣分。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Numbers, dates, spelling",
+            "zh": "数字、日期、拼写"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Numbers: distinguish 15 vs 50 ('fifteen' vs 'fifty').",
+              "zh": "数字：区分 15 和 50。"
+            },
+            {
+              "en": "Dates: know formats (12th March / March 12).",
+              "zh": "日期：熟悉格式（12th March / March 12）。"
+            },
+            {
+              "en": "Names: speakers spell them out — transcribe each letter accurately.",
+              "zh": "名字：说话者会拼读——准确记录每个字母。"
+            },
+            {
+              "en": "Plural/singular: final -s matters.",
+              "zh": "单复数：词尾 -s 很重要。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "list-checking",
+      "title": {
+        "en": "Checking your answers",
+        "zh": "检查答案"
+      },
+      "summary": {
+        "en": "Use the final checking period and the on-screen navigator wisely.",
+        "zh": "合理利用最后检查时间和屏幕导航。"
+      },
+      "category": "listening",
+      "testType": "both",
+      "skill": "listening",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The checking period",
+            "zh": "检查时间"
+          },
+          "paragraphs": [
+            {
+              "en": "In computer-delivered Listening, after the recording ends you get a short period to check and transfer answers. On a computer, answers are typed as you go, so use this time to check spelling, word limits and any questions you skipped.",
+              "zh": "在机考听力中，录音结束后会有短暂时间检查和提交答案。电脑上答案随听随打，因此利用这段时间检查拼写、字数限制和跳过的题目。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Common checking points",
+            "zh": "常见检查点"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Spelling (especially names and numbers)",
+              "zh": "拼写（尤其是名字和数字）"
+            },
+            {
+              "en": "Word-limit compliance",
+              "zh": "字数限制合规"
+            },
+            {
+              "en": "Singular/plural agreement",
+              "zh": "单复数一致"
+            },
+            {
+              "en": "Unanswered questions — fill them all in",
+              "zh": "未答题目——全部填上"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "read-structure-academic",
+      "title": {
+        "en": "Academic Reading structure",
+        "zh": "学术类阅读结构"
+      },
+      "summary": {
+        "en": "3 long passages, 40 questions, 60 minutes, increasing difficulty.",
+        "zh": "3 篇长文章，40 题，60 分钟，难度递增。"
+      },
+      "category": "reading",
+      "testType": "academic",
+      "skill": "reading",
+      "relatedQuestionTypes": [
+        "multiple_choice",
+        "true_false_not_given",
+        "yes_no_not_given",
+        "matching_information",
+        "matching_headings",
+        "matching_features",
+        "matching_sentence_endings",
+        "sentence_completion",
+        "summary_completion",
+        "note_completion",
+        "table_completion",
+        "flow_chart_completion",
+        "diagram_labelling",
+        "short_answer"
+      ],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "What to expect",
+            "zh": "考试内容"
+          },
+          "paragraphs": [
+            {
+              "en": "You have 60 minutes to answer 40 questions. There is no separate time to transfer answers in computer-delivered Reading — manage your time so you finish all questions within the hour.",
+              "zh": "你有 60 分钟回答 40 题。机考阅读没有单独誊写时间——请安排好时间，在一小时内完成所有题目。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "Three passages taken from books, journals, magazines and newspapers.",
+              "zh": "三篇选自书籍、期刊、杂志和报纸的文章。"
+            },
+            {
+              "en": "Texts are academic but written for a non-specialist audience.",
+              "zh": "文章具有学术性，但面向非专业读者。"
+            },
+            {
+              "en": "At least one passage contains a detailed logical argument.",
+              "zh": "至少一篇文章包含详细的逻辑论证。"
+            },
+            {
+              "en": "Cognitive difficulty generally increases from Passage 1 to Passage 3.",
+              "zh": "认知难度通常从第一篇到第三篇递增。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "read-structure-general",
+      "title": {
+        "en": "General Training Reading structure",
+        "zh": "培训类阅读结构"
+      },
+      "summary": {
+        "en": "Three sections: social survival, workplace, and a longer general text.",
+        "zh": "三个部分：社会生存、职场和较长综合文本。"
+      },
+      "category": "reading",
+      "testType": "general",
+      "skill": "reading",
+      "relatedQuestionTypes": [
+        "multiple_choice",
+        "true_false_not_given",
+        "matching_information",
+        "matching_headings",
+        "matching_features",
+        "matching_sentence_endings",
+        "sentence_completion",
+        "summary_completion",
+        "note_completion",
+        "table_completion",
+        "flow_chart_completion",
+        "diagram_labelling",
+        "short_answer"
+      ],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The three sections",
+            "zh": "三个部分"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Section",
+                "zh": "部分"
+              },
+              {
+                "en": "Content",
+                "zh": "内容"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "Section 1",
+                  "zh": "第一部分"
+                },
+                {
+                  "en": "2–3 short everyday/social 'survival' texts (notices, ads, timetables)",
+                  "zh": "2–3 篇短小的日常/社会「生存」文本（通知、广告、时刻表）"
+                }
+              ],
+              [
+                {
+                  "en": "Section 2",
+                  "zh": "第二部分"
+                },
+                {
+                  "en": "2 workplace-related texts (job descriptions, policies, training)",
+                  "zh": "2 篇职场相关文本（职位描述、政策、培训）"
+                }
+              ],
+              [
+                {
+                  "en": "Section 3",
+                  "zh": "第三部分"
+                },
+                {
+                  "en": "1 longer, more complex general-interest text",
+                  "zh": "1 篇较长、较复杂的综合类文本"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "read-question-types",
+      "title": {
+        "en": "Reading question types",
+        "zh": "阅读题型"
+      },
+      "summary": {
+        "en": "All major Reading question types with approaches.",
+        "zh": "所有主要阅读题型及应对方法。"
+      },
+      "category": "reading",
+      "testType": "both",
+      "skill": "reading",
+      "relatedQuestionTypes": [
+        "multiple_choice",
+        "true_false_not_given",
+        "yes_no_not_given",
+        "matching_information",
+        "matching_headings",
+        "matching_features",
+        "matching_sentence_endings",
+        "sentence_completion",
+        "summary_completion",
+        "note_completion",
+        "table_completion",
+        "flow_chart_completion",
+        "diagram_labelling",
+        "short_answer"
+      ],
+      "estimatedMinutes": 8,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "True / False / Not Given & Yes / No / Not Given",
+            "zh": "判断正误题"
+          },
+          "paragraphs": [
+            {
+              "en": "True/False/Not Given applies to facts in the passage. Yes/No/Not Given applies to the writer's views or claims. The key distinction is between 'False/No' (the passage contradicts the statement) and 'Not Given' (the passage does not say).",
+              "zh": "True/False/Not Given 适用于文章中的事实。Yes/No/Not Given 适用于作者的观点或主张。关键是区分「False/No」（文章与陈述矛盾）和「Not Given」（文章未提及）。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Matching questions",
+            "zh": "配对题"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Matching headings: identify the main idea of each paragraph.",
+              "zh": "标题配对：识别每段的主旨。"
+            },
+            {
+              "en": "Matching information: find WHERE specific information appears.",
+              "zh": "信息配对：找到特定信息出现的位置。"
+            },
+            {
+              "en": "Matching features: match people/theories to statements.",
+              "zh": "特征配对：将人物/理论与其陈述配对。"
+            },
+            {
+              "en": "Matching sentence endings: complete sentences using grammar + meaning.",
+              "zh": "句子结尾配对：结合语法和语义完成句子。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Completion and short-answer questions",
+            "zh": "填空题与简答题"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Answers usually come from the passage in order (within a section).",
+              "zh": "答案通常按顺序在文章中出现（在某一段内）。"
+            },
+            {
+              "en": "Respect word limits and copy spelling exactly from the passage.",
+              "zh": "遵守字数限制，拼写与原文完全一致。"
+            },
+            {
+              "en": "Check grammar of the gap: a verb, noun, adjective or number?",
+              "zh": "检查空格的语法：是动词、名词、形容词还是数字？"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "read-skills",
+      "title": {
+        "en": "Skimming and scanning",
+        "zh": "略读与扫读"
+      },
+      "summary": {
+        "en": "Two complementary reading speeds that together manage the 60-minute limit.",
+        "zh": "两种互补的阅读速度，共同应对 60 分钟的时间限制。"
+      },
+      "category": "reading",
+      "testType": "both",
+      "skill": "reading",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Skimming (overview)",
+            "zh": "略读（把握大意）"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Read the title, first sentence of each paragraph, and the conclusion.",
+              "zh": "读标题、每段首句和结论。"
+            },
+            {
+              "en": "Aim to understand the main idea and structure in 2–3 minutes.",
+              "zh": "目标是在 2–3 分钟内理解主旨和结构。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Scanning (locating)",
+            "zh": "扫读（定位）"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Search for specific information: names, numbers, dates, keywords.",
+              "zh": "寻找特定信息：名字、数字、日期、关键词。"
+            },
+            {
+              "en": "Let your eyes move quickly; do not read every word.",
+              "zh": "快速扫视，不要逐字阅读。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Keyword and paraphrase",
+            "zh": "关键词与同义替换"
+          },
+          "paragraphs": [
+            {
+              "en": "Questions rarely repeat passage wording. Identify the keyword in the question, then find its synonym or paraphrase in the passage.",
+              "zh": "题目很少重复原文措辞。找出题目中的关键词，然后在文章中找到其同义词或同义替换。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "read-time-management",
+      "title": {
+        "en": "Time management & answer-order patterns",
+        "zh": "时间管理与答案顺序"
+      },
+      "summary": {
+        "en": "About 20 minutes per passage; know which questions follow order and which do not.",
+        "zh": "每篇约 20 分钟；了解哪些题型按顺序、哪些不按顺序。"
+      },
+      "category": "reading",
+      "testType": "both",
+      "skill": "reading",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Time plan",
+            "zh": "时间规划"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Aim for ~20 minutes per passage/section (Academic) or a weighted split (General).",
+              "zh": "每篇/每部分约 20 分钟（学术类）或加权分配（培训类）。"
+            },
+            {
+              "en": "Do not spend more than 1 minute stuck on any single question.",
+              "zh": "任何单题停留不要超过 1 分钟。"
+            },
+            {
+              "en": "Leave 2–3 minutes at the end to check and fill gaps.",
+              "zh": "最后留 2–3 分钟检查并补空。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Order vs non-order question types",
+            "zh": "顺序题 vs 非顺序题"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Usually in order: completion, short-answer, True/False/Not Given (within a section), sentence completion.",
+              "zh": "通常按顺序：填空、简答、判断正误（段内）、句子填空。"
+            },
+            {
+              "en": "Usually NOT in order: matching headings, matching information, matching features.",
+              "zh": "通常不按顺序：标题配对、信息配对、特征配对。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "read-vocab-in-context",
+      "title": {
+        "en": "Vocabulary in context & avoiding over-reading",
+        "zh": "语境词汇与避免过度解读"
+      },
+      "summary": {
+        "en": "Guess meaning from context; do not infer more than the text supports.",
+        "zh": "根据语境猜词义；不要推断出文本不支持的内容。"
+      },
+      "category": "reading",
+      "testType": "both",
+      "skill": "reading",
+      "relatedQuestionTypes": [
+        "true_false_not_given",
+        "yes_no_not_given"
+      ],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Guessing meaning from context",
+            "zh": "根据语境猜词义"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Look for definitions, examples, contrast words ('but', 'however') and synonyms nearby.",
+              "zh": "寻找定义、例子、对比词（but、however）和附近的同义词。"
+            },
+            {
+              "en": "Use word parts (prefixes, roots, suffixes).",
+              "zh": "利用词根词缀。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Avoiding over-reading",
+            "zh": "避免过度解读"
+          },
+          "paragraphs": [
+            {
+              "en": "'Not Given' exists precisely because candidates over-infer. If the statement requires an assumption not stated in the text, it is Not Given — even if it feels true in real life.",
+              "zh": "「Not Given」的存在正是因为考生会过度推断。如果该陈述需要文本未说明的假设，那就是 Not Given——即使它在现实中感觉正确。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "write-criteria",
+      "title": {
+        "en": "Writing assessment criteria",
+        "zh": "写作评分标准"
+      },
+      "summary": {
+        "en": "Four official criteria; understand them before you write.",
+        "zh": "四个官方标准；写作前先理解它们。"
+      },
+      "category": "writing",
+      "testType": "both",
+      "skill": "writing",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The four criteria",
+            "zh": "四个标准"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Task Achievement (Task 1) / Task Response (Task 2): answer the question fully.",
+              "zh": "任务完成情况（Task 1）/ 任务回应情况（Task 2）：完整回答问题。"
+            },
+            {
+              "en": "Coherence and Cohesion: logical organisation, clear paragraphs, linking.",
+              "zh": "连贯与衔接：逻辑组织、清晰分段、连接。"
+            },
+            {
+              "en": "Lexical Resource: range and precision of vocabulary, collocations, spelling.",
+              "zh": "词汇资源：词汇的范围与准确、搭配、拼写。"
+            },
+            {
+              "en": "Grammatical Range and Accuracy: variety and correctness of structures.",
+              "zh": "语法多样性与准确性：结构的多样与正确。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Task 2 weighting",
+            "zh": "Task 2 权重"
+          },
+          "paragraphs": [
+            {
+              "en": "Task 2 is worth twice Task 1. Spend about 20 minutes on Task 1 and 40 minutes on Task 2.",
+              "zh": "Task 2 的分值是 Task 1 的两倍。Task 1 约用 20 分钟，Task 2 约用 40 分钟。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "write-academic-task1",
+      "title": {
+        "en": "Academic Task 1: describing data",
+        "zh": "学术类 Task 1：描述数据"
+      },
+      "summary": {
+        "en": "Summarise visual information: graphs, charts, tables, maps, processes.",
+        "zh": "概述视觉信息：图表、表格、地图、流程图。"
+      },
+      "category": "writing",
+      "testType": "academic",
+      "skill": "writing",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 8,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Task types",
+            "zh": "任务类型"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Line graphs — changes over time",
+              "zh": "折线图——随时间变化"
+            },
+            {
+              "en": "Bar charts, pie charts, tables — comparisons",
+              "zh": "柱状图、饼图、表格——比较"
+            },
+            {
+              "en": "Multiple/mixed charts — more than one visual",
+              "zh": "多图/混合图——多个视觉"
+            },
+            {
+              "en": "Process diagrams — sequence, passive voice",
+              "zh": "流程图——顺序、被动语态"
+            },
+            {
+              "en": "Maps/plans — change over time or location",
+              "zh": "地图/平面图——随时间或位置变化"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Structure",
+            "zh": "结构"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Introduction: paraphrase the task in one sentence.",
+              "zh": "引言：用一句话改写题目。"
+            },
+            {
+              "en": "Overview: the most important overall trend or comparison (this is essential for a high score).",
+              "zh": "概述：最重要的总体趋势或比较（这是拿高分的关键）。"
+            },
+            {
+              "en": "Body paragraphs: group and compare specific data; do not describe every number.",
+              "zh": "主体段：分组比较具体数据；不要描述每个数字。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Language",
+            "zh": "语言"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Trends: rise, increase, fall, decline, fluctuate, plateau, peak.",
+              "zh": "趋势：上升、增长、下降、减少、波动、持平、达到峰值。"
+            },
+            {
+              "en": "Approximations: about, around, just under, roughly.",
+              "zh": "近似：约、大约、略低于、大致。"
+            },
+            {
+              "en": "Do NOT give opinions or speculate about causes — describe data only.",
+              "zh": "不要发表观点或推测原因——只描述数据。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "write-general-task1",
+      "title": {
+        "en": "General Training Task 1: letters",
+        "zh": "培训类 Task 1：书信"
+      },
+      "summary": {
+        "en": "Formal, semi-formal and informal letters for different purposes.",
+        "zh": "不同用途的正式、半正式和非正式信件。"
+      },
+      "category": "writing",
+      "testType": "general",
+      "skill": "writing",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 6,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Letter types and purposes",
+            "zh": "信件类型与用途"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Formal: complaint, application, request for information (to an unknown person/organisation).",
+              "zh": "正式：投诉、申请、询问信息（写给陌生人或机构）。"
+            },
+            {
+              "en": "Semi-formal: to someone you know but not intimately (landlord, colleague).",
+              "zh": "半正式：写给认识但不亲密的人（房东、同事）。"
+            },
+            {
+              "en": "Informal: to a friend (thanking, inviting, apologising, explaining).",
+              "zh": "非正式：写给朋友（感谢、邀请、道歉、解释）。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Register and structure",
+            "zh": "语体与结构"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Salutation matches register: 'Dear Sir/Madam' → 'Dear Mr Smith' → 'Hi Tom'.",
+              "zh": "称呼与语体匹配：Dear Sir/Madam → Dear Mr Smith → Hi Tom。"
+            },
+            {
+              "en": "State the purpose clearly in the opening paragraph.",
+              "zh": "开头段明确说明写信目的。"
+            },
+            {
+              "en": "Cover EVERY bullet point in the prompt, each in its own paragraph.",
+              "zh": "覆盖题目中的每个要点，每个要点单独成段。"
+            },
+            {
+              "en": "Close appropriately: 'Yours faithfully' (unknown), 'Yours sincerely' (named), 'Best wishes' (friend).",
+              "zh": "结尾恰当：Yours faithfully（不知名）、Yours sincerely（具名）、Best wishes（朋友）。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "write-task2",
+      "title": {
+        "en": "Task 2: essay types",
+        "zh": "Task 2：作文类型"
+      },
+      "summary": {
+        "en": "Recognise the essay type and answer exactly what is asked.",
+        "zh": "识别作文类型，准确回答题目要求。"
+      },
+      "category": "writing",
+      "testType": "both",
+      "skill": "writing",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 6,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Common essay types",
+            "zh": "常见作文类型"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Agree/Disagree: 'To what extent do you agree or disagree?'",
+              "zh": "同意/不同意：To what extent do you agree or disagree?"
+            },
+            {
+              "en": "Discuss both views (+ your opinion): 'Discuss both views and give your own opinion.'",
+              "zh": "讨论双方观点（+你的观点）：Discuss both views and give your own opinion."
+            },
+            {
+              "en": "Advantages/Disadvantages: 'Do the advantages outweigh the disadvantages?'",
+              "zh": "利弊：Do the advantages outweigh the disadvantages?"
+            },
+            {
+              "en": "Problem/Solution & Causes/Solutions: 'What problems does this cause? What solutions…?'",
+              "zh": "问题/解决与原因/解决：What problems does this cause? What solutions…?"
+            },
+            {
+              "en": "Positive/Negative development: 'Is this a positive or negative development?'",
+              "zh": "积极/消极发展：Is this a positive or negative development?"
+            },
+            {
+              "en": "Two-part/direct questions: 'Why is this? What can be done…?'",
+              "zh": "两问/直接提问：Why is this? What can be done…?"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Essay structure",
+            "zh": "文章结构"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Introduction: paraphrase the topic + clear position (thesis).",
+              "zh": "引言：改写话题 + 明确立场（论点）。"
+            },
+            {
+              "en": "Body paragraphs: one main idea each, with topic sentence, explanation and example.",
+              "zh": "主体段：每段一个中心论点，含主题句、解释和例子。"
+            },
+            {
+              "en": "Conclusion: restate position and summarise, no new ideas.",
+              "zh": "结论：重申立场并总结，不引入新观点。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "write-language",
+      "title": {
+        "en": "Writing language & editing",
+        "zh": "写作语言与修改"
+      },
+      "summary": {
+        "en": "Lexical precision, grammar range, and how to edit efficiently.",
+        "zh": "词汇准确、语法多样以及高效修改。"
+      },
+      "category": "writing",
+      "testType": "both",
+      "skill": "writing",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Do and avoid",
+            "zh": "该做与避免"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Use precise vocabulary and natural collocations, not memorised chunks.",
+              "zh": "使用准确词汇和自然搭配，而非背诵的语块。"
+            },
+            {
+              "en": "Vary sentence length and use complex structures purposefully.",
+              "zh": "变化句子长度，有目的地使用复杂结构。"
+            },
+            {
+              "en": "Avoid memorised/template-heavy responses — examiners penalise them.",
+              "zh": "避免背诵/模板化的回答——考官会扣分。"
+            },
+            {
+              "en": "Meet the word minimum (Task 1: 150; Task 2: 250) but prioritise relevance.",
+              "zh": "达到最低字数（Task 1：150；Task 2：250），但优先保证切题。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Editing checklist",
+            "zh": "修改清单"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Did I answer every part of the prompt?",
+              "zh": "我回答了题目的每个部分吗？"
+            },
+            {
+              "en": "Is there a clear overview (Task 1) / thesis (Task 2)?",
+              "zh": "是否有清晰的概述（Task 1）/ 论点（Task 2）？"
+            },
+            {
+              "en": "Are paragraphs logically ordered and linked?",
+              "zh": "段落是否有逻辑顺序和连接？"
+            },
+            {
+              "en": "Any spelling, punctuation or agreement errors?",
+              "zh": "有无拼写、标点或主谓一致错误？"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "speak-structure",
+      "title": {
+        "en": "Speaking structure",
+        "zh": "口语结构"
+      },
+      "summary": {
+        "en": "Three parts, 11–14 minutes, four assessment criteria.",
+        "zh": "三个部分，11–14 分钟，四个评分标准。"
+      },
+      "category": "speaking",
+      "testType": "both",
+      "skill": "speaking",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The three parts",
+            "zh": "三个部分"
+          },
+          "paragraphs": [
+            {
+              "en": "The examiner assesses Fluency and Coherence, Lexical Resource, Grammatical Range and Accuracy, and Pronunciation — all equally weighted.",
+              "zh": "考官评估流利度与连贯性、词汇资源、语法多样性与准确性、发音——权重相等。"
+            }
+          ],
+          "bullets": [],
+          "table": {
+            "headers": [
+              {
+                "en": "Part",
+                "zh": "部分"
+              },
+              {
+                "en": "Time",
+                "zh": "时间"
+              },
+              {
+                "en": "Content",
+                "zh": "内容"
+              }
+            ],
+            "rows": [
+              [
+                {
+                  "en": "Part 1",
+                  "zh": "Part 1"
+                },
+                {
+                  "en": "4–5 min",
+                  "zh": "4–5 分钟"
+                },
+                {
+                  "en": "Familiar/personal topics (home, work, hobbies)",
+                  "zh": "熟悉/个人话题（家、工作、爱好）"
+                }
+              ],
+              [
+                {
+                  "en": "Part 2",
+                  "zh": "Part 2"
+                },
+                {
+                  "en": "3–4 min",
+                  "zh": "3–4 分钟"
+                },
+                {
+                  "en": "Cue card: 1 min prep, then 1–2 min long turn",
+                  "zh": "话题卡：1 分钟准备，然后 1–2 分钟独白"
+                }
+              ],
+              [
+                {
+                  "en": "Part 3",
+                  "zh": "Part 3"
+                },
+                {
+                  "en": "4–5 min",
+                  "zh": "4–5 分钟"
+                },
+                {
+                  "en": "Abstract discussion related to Part 2 theme",
+                  "zh": "与 Part 2 主题相关的抽象讨论"
+                }
+              ]
+            ]
+          },
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "speak-part1",
+      "title": {
+        "en": "Part 1 strategies",
+        "zh": "Part 1 策略"
+      },
+      "summary": {
+        "en": "Give natural, extended answers without rambling.",
+        "zh": "给出自然、扩展的回答而不啰嗦。"
+      },
+      "category": "speaking",
+      "testType": "both",
+      "skill": "speaking",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "How to answer",
+            "zh": "如何作答"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Answer directly, then add 1–2 sentences of detail (reason, example, contrast).",
+              "zh": "直接回答，然后补充 1–2 句细节（原因、例子、对比）。"
+            },
+            {
+              "en": "Do not give one-word answers; do not give a 1-minute speech either.",
+              "zh": "不要只回答一个词；也不要长篇大论。"
+            },
+            {
+              "en": "Use the present, past and future naturally ('I usually… but last year…').",
+              "zh": "自然使用现在、过去和将来时态。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "speak-part2",
+      "title": {
+        "en": "Part 2: the long turn",
+        "zh": "Part 2：长独白"
+      },
+      "summary": {
+        "en": "Use the 1-minute prep; structure your 1–2 minute talk.",
+        "zh": "利用 1 分钟准备时间；组织 1–2 分钟的讲述。"
+      },
+      "category": "speaking",
+      "testType": "both",
+      "skill": "speaking",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Preparation",
+            "zh": "准备"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Use the cue card bullets as your structure — cover every point.",
+              "zh": "以话题卡的要点为结构——覆盖每个要点。"
+            },
+            {
+              "en": "Jot down 3–4 keywords, not full sentences.",
+              "zh": "记下 3–4 个关键词，而非完整句子。"
+            },
+            {
+              "en": "Prepare a past-tense story or example to fill the middle.",
+              "zh": "准备一个过去时态的故事或例子来充实中间部分。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "During the talk",
+            "zh": "讲述时"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Introduce the topic, develop each bullet, and give a brief closing feeling.",
+              "zh": "引入话题，展开每个要点，最后简述感受。"
+            },
+            {
+              "en": "Keep talking for the full time; do not stop early.",
+              "zh": "尽量讲满时间；不要过早结束。"
+            },
+            {
+              "en": "If you forget a word, paraphrase — fluency matters more.",
+              "zh": "如果忘了某个词，就换个说法——流利度更重要。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "speak-part3",
+      "title": {
+        "en": "Part 3: abstract discussion",
+        "zh": "Part 3：抽象讨论"
+      },
+      "summary": {
+        "en": "Develop ideas with reasons, examples, comparisons and speculation.",
+        "zh": "用原因、例子、比较和推测来展开观点。"
+      },
+      "category": "speaking",
+      "testType": "both",
+      "skill": "speaking",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Idea development",
+            "zh": "观点展开"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Use a clear structure: opinion → reason → example → implication.",
+              "zh": "使用清晰结构：观点 → 原因 → 例子 → 影响。"
+            },
+            {
+              "en": "Compare past and present, or advantages and disadvantages.",
+              "zh": "比较过去与现在，或利弊。"
+            },
+            {
+              "en": "Speculate about the future ('In the future, … might …').",
+              "zh": "对未来进行推测。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Handling unfamiliar questions",
+            "zh": "应对陌生问题"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Buy time naturally: 'That's an interesting question…'",
+              "zh": "自然地争取时间：That's an interesting question…"
+            },
+            {
+              "en": "It is fine to say 'I'm not an expert, but in my view…'",
+              "zh": "可以说 I'm not an expert, but in my view…"
+            },
+            {
+              "en": "Stay on topic; give a general opinion and support it.",
+              "zh": "保持切题；给出总体观点并加以支持。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "speak-pronunciation",
+      "title": {
+        "en": "Pronunciation & fluency",
+        "zh": "发音与流利度"
+      },
+      "summary": {
+        "en": "Stress, rhythm, intonation and connected speech matter more than a 'perfect' accent.",
+        "zh": "重音、节奏、语调和连读比「完美」口音更重要。"
+      },
+      "category": "speaking",
+      "testType": "both",
+      "skill": "speaking",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Pronunciation features",
+            "zh": "发音特征"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Word stress: 'PHO-to-graph' vs 'pho-TOG-ra-phy'.",
+              "zh": "单词重音：PHO-to-graph vs pho-TOG-ra-phy。"
+            },
+            {
+              "en": "Sentence stress: emphasise content words.",
+              "zh": "句子重音：强调实词。"
+            },
+            {
+              "en": "Intonation: rising/falling patterns for meaning.",
+              "zh": "语调：升降调表达含义。"
+            },
+            {
+              "en": "Connected speech: 'gonna', 'wanna' are fine in speech; natural linking helps fluency.",
+              "zh": "连读：口语中 gonna、wanna 可以接受；自然连读有助于流利度。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Fluency features",
+            "zh": "流利度特征"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Use discourse markers: 'actually', 'on the whole', 'for instance'.",
+              "zh": "使用话语标记：actually、on the whole、for instance。"
+            },
+            {
+              "en": "Self-correction is normal and acceptable — but do not over-correct.",
+              "zh": "自我纠正是正常的、可接受的——但不要过度纠正。"
+            },
+            {
+              "en": "Reduce fillers ('um', 'uh') — pause silently instead.",
+              "zh": "减少填充词（um、uh）——宁可短暂停顿。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-sentences",
+      "title": {
+        "en": "Sentence structure",
+        "zh": "句子结构"
+      },
+      "summary": {
+        "en": "Simple, compound, complex and compound-complex sentences.",
+        "zh": "简单句、并列句、复合句和并列复合句。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Four sentence types",
+            "zh": "四种句型"
+          },
+          "paragraphs": [
+            {
+              "en": "IELTS rewards a RANGE of sentence types used accurately. Do not write only short simple sentences, and do not force long complex ones.",
+              "zh": "雅思奖励准确使用多种句型。不要只写短简单句，也不要硬凑长复合句。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "Simple: one independent clause. 'Public transport reduces congestion.'",
+              "zh": "简单句：一个独立分句。Public transport reduces congestion."
+            },
+            {
+              "en": "Compound: two independent clauses joined by a conjunction. '…and…', '…but…'.",
+              "zh": "并列句：由连词连接的两个独立分句。"
+            },
+            {
+              "en": "Complex: independent + dependent clause. 'Although cars are convenient, they cause pollution.'",
+              "zh": "复合句：独立分句 + 从属分句。"
+            },
+            {
+              "en": "Compound-complex: two independent clauses + at least one dependent clause.",
+              "zh": "并列复合句：两个独立分句 + 至少一个从属分句。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-clauses",
+      "title": {
+        "en": "Clauses",
+        "zh": "分句"
+      },
+      "summary": {
+        "en": "Relative, noun, adverbial and participle clauses.",
+        "zh": "定语从句、名词性从句、状语从句和分词结构。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Clause types",
+            "zh": "分句类型"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Relative clause: 'The policy, which was introduced last year, has reduced waste.'",
+              "zh": "定语从句：The policy, which was introduced last year, has reduced waste."
+            },
+            {
+              "en": "Noun clause: 'What the data shows is a clear decline.'",
+              "zh": "名词性从句：What the data shows is a clear decline."
+            },
+            {
+              "en": "Adverbial clause: 'Because demand rose, prices increased.'",
+              "zh": "状语从句：Because demand rose, prices increased."
+            },
+            {
+              "en": "Participle clause: 'Facing rising costs, many families cut spending.'",
+              "zh": "分词结构：Facing rising costs, many families cut spending."
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-agreement",
+      "title": {
+        "en": "Subject–verb agreement & articles",
+        "zh": "主谓一致与冠词"
+      },
+      "summary": {
+        "en": "Two of the most common IELTS grammar error sources.",
+        "zh": "雅思语法最常见的两类错误来源。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Subject–verb agreement",
+            "zh": "主谓一致"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Singular subject → singular verb; the number of… takes a singular verb.",
+              "zh": "单数主语接单数动词；the number of… 接单数动词。"
+            },
+            {
+              "en": "'A number of…' takes a plural verb.",
+              "zh": "a number of… 接复数动词。"
+            },
+            {
+              "en": "Collective nouns (team, government) can be singular or plural depending on meaning.",
+              "zh": "集合名词（team、government）视含义可单可复。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Articles and countable nouns",
+            "zh": "冠词与可数名词"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Use 'a/an' for singular countable nouns mentioned for the first time.",
+              "zh": "首次提到的单数可数名词用 a/an。"
+            },
+            {
+              "en": "Use 'the' for specific or previously mentioned items.",
+              "zh": "特指或已提及的事物用 the。"
+            },
+            {
+              "en": "Uncountable nouns (information, advice, research) take no plural and no 'a'.",
+              "zh": "不可数名词（information、advice、research）不加复数、不加 a。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-tenses-conditionals",
+      "title": {
+        "en": "Tenses & conditionals",
+        "zh": "时态与条件句"
+      },
+      "summary": {
+        "en": "Consistent tense control and the four conditional patterns.",
+        "zh": "一致的时态控制和四种条件句。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 5,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Tense consistency",
+            "zh": "时态一致"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Do not shift tense without reason within a paragraph.",
+              "zh": "段落内不要无故转换时态。"
+            },
+            {
+              "en": "Use present for general truths, past for completed events, present perfect for experience up to now.",
+              "zh": "一般真理用现在时，已发生事件用过去时，截至现在的经历用现在完成时。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Conditionals",
+            "zh": "条件句"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Zero: If + present, present (general truths).",
+              "zh": "零条件：If + 现在时，现在时（普遍真理）。"
+            },
+            {
+              "en": "First: If + present, will + verb (real future).",
+              "zh": "第一条件：If + 现在时，will + 动词（真实将来）。"
+            },
+            {
+              "en": "Second: If + past, would + verb (unreal present).",
+              "zh": "第二条件：If + 过去时，would + 动词（虚拟现在）。"
+            },
+            {
+              "en": "Third: If + past perfect, would have + past participle (unreal past).",
+              "zh": "第三条件：If + 过去完成时，would have + 过去分词（虚拟过去）。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-passive-modals",
+      "title": {
+        "en": "Passive voice & modals",
+        "zh": "被动语态与情态动词"
+      },
+      "summary": {
+        "en": "Passive is essential for processes; modals for hedging and speculation.",
+        "zh": "被动语态对流程图至关重要；情态动词用于委婉和推测。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Passive voice",
+            "zh": "被动语态"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Use passive when the agent is unknown or unimportant: 'The bottles are then sealed.'",
+              "zh": "当动作主体未知或不重要时用被动：The bottles are then sealed."
+            },
+            {
+              "en": "Essential for Task 1 process descriptions.",
+              "zh": "流程图描述中必不可少。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Modals & hedging",
+            "zh": "情态动词与委婉表达"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Hedge claims: 'This may result in…', 'It could be argued that…'.",
+              "zh": "委婉表达：This may result in…、It could be argued that…。"
+            },
+            {
+              "en": "Use 'should/must' for strong advice, 'might/could' for possibility.",
+              "zh": "强建议用 should/must，可能性用 might/could。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-punctuation",
+      "title": {
+        "en": "Punctuation & common errors",
+        "zh": "标点与常见错误"
+      },
+      "summary": {
+        "en": "Commas, semicolons, colons, apostrophes, fragments and run-ons.",
+        "zh": "逗号、分号、冒号、撇号、残句和连写句。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Punctuation",
+            "zh": "标点"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Comma: separate list items, set off non-defining clauses.",
+              "zh": "逗号：分隔列举项、隔开非限定性从句。"
+            },
+            {
+              "en": "Semicolon: join two closely related independent clauses.",
+              "zh": "分号：连接两个紧密相关的独立分句。"
+            },
+            {
+              "en": "Colon: introduce a list or explanation.",
+              "zh": "冒号：引出列举或解释。"
+            },
+            {
+              "en": "Apostrophe: possession (the city's) and contraction (it's = it is).",
+              "zh": "撇号：所有格（the city's）和缩写（it's = it is）。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Fragments and run-ons",
+            "zh": "残句与连写句"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Fragment: incomplete sentence ('Because the cost is high.'). Attach it to a main clause.",
+              "zh": "残句：不完整的句子（Because the cost is high.）。要接主句。"
+            },
+            {
+              "en": "Run-on: two independent clauses without proper punctuation or conjunction.",
+              "zh": "连写句：两个独立分句之间缺少标点或连词。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-academic-style",
+      "title": {
+        "en": "Formal academic style",
+        "zh": "正式学术风格"
+      },
+      "summary": {
+        "en": "Nominalisation, hedging and formal choices for Writing.",
+        "zh": "写作中的名词化、委婉表达和正式用词。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Formal style techniques",
+            "zh": "正式风格技巧"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Nominalisation: 'The government decided' → 'The government's decision'.",
+              "zh": "名词化：The government decided → The government's decision。"
+            },
+            {
+              "en": "Avoid contractions in Writing: use 'do not', not 'don't'.",
+              "zh": "写作中避免缩写：用 do not，不用 don't。"
+            },
+            {
+              "en": "Avoid overly personal phrases: replace 'I think' with hedged claims.",
+              "zh": "避免过于个人化的表达：用委婉陈述代替 I think。"
+            },
+            {
+              "en": "Choose precise verbs: 'increase dramatically' rather than 'go up a lot'.",
+              "zh": "选择准确动词：用 increase dramatically 而非 go up a lot。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-articles-countability",
+      "title": {
+        "en": "Articles, countability and quantifiers",
+        "zh": "冠词、可数与数量词"
+      },
+      "summary": {
+        "en": "A/an, the and zero article, plus how countability controls every determiner you choose.",
+        "zh": "a/an、the 与零冠词，以及可数性如何决定你对限定词的选择。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Countability comes first",
+            "zh": "先判断可数性"
+          },
+          "paragraphs": [
+            {
+              "en": "Before choosing an article, decide whether the noun is countable or uncountable. Advice, information, research, equipment, furniture and evidence are uncountable in English even when their Chinese translations feel countable.",
+              "zh": "选择冠词之前，先判断名词是否可数。advice、information、research、equipment、furniture、evidence 在英语中不可数，即使其中文翻译感觉可数。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Common transfer error",
+                "zh": "常见迁移错误"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ He gave me many advices. → ✓ He gave me a lot of advice.",
+                  "zh": "✗ He gave me many advices. → ✓ He gave me a lot of advice."
+                },
+                {
+                  "en": "✗ a useful information → ✓ useful information / a useful piece of information",
+                  "zh": "✗ a useful information → ✓ useful information / a useful piece of information"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "Choosing between a/an, the and zero article",
+            "zh": "a/an、the 与零冠词"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "First mention of something countable and not yet identified: a/an. 'A study found…'",
+              "zh": "首次提到且未具体化的可数名词用 a/an。"
+            },
+            {
+              "en": "Specific, shared or previously mentioned: the. 'The study found…'",
+              "zh": "具体的、双方已知或上文提到过的事物用 the。"
+            },
+            {
+              "en": "General plural or uncountable meaning: zero article. 'Research shows…'",
+              "zh": "泛指复数或不可数概念用零冠词。"
+            },
+            {
+              "en": "Unique things, superlatives and ordinal references: the. 'the only solution', 'the highest rate'.",
+              "zh": "独一无二的事物、最高级和序数前用 the。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Quantifier grammar",
+            "zh": "数量词语法"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "many / few + plural countable; much / little + uncountable.",
+              "zh": "many/few 接可数复数；much/little 接不可数。"
+            },
+            {
+              "en": "a number of + plural verb; the number of + singular verb.",
+              "zh": "a number of 接复数动词；the number of 接单数动词。"
+            },
+            {
+              "en": "Most / some / all work with both types when meaning allows.",
+              "zh": "most/some/all 在语义允许时两种名词都可用。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-relative-clauses",
+      "title": {
+        "en": "Relative clauses",
+        "zh": "关系从句"
+      },
+      "summary": {
+        "en": "Defining and non-defining relative clauses, relative pronouns, and when to use commas.",
+        "zh": "限定性与非限定性关系从句、关系代词以及逗号的使用。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Defining vs non-defining",
+            "zh": "限定性 vs 非限定性"
+          },
+          "paragraphs": [
+            {
+              "en": "A defining relative clause identifies which thing you mean and has no commas. A non-defining clause adds extra information and needs commas.",
+              "zh": "限定性关系从句指明“哪一个”，不加逗号；非限定性从句补充额外信息，必须加逗号。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "Defining: 'The policy that was introduced last year reduced fares.'",
+              "zh": "限定性：去年出台的那项政策降低了票价。"
+            },
+            {
+              "en": "Non-defining: 'The policy, which was introduced last year, reduced fares.'",
+              "zh": "非限定性：该项政策（去年出台）降低了票价。"
+            },
+            {
+              "en": "Do not use 'that' in non-defining clauses.",
+              "zh": "非限定性从句中不用 that。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Pronoun choice",
+            "zh": "代词选择"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "who for people; which for things; that for either in defining clauses.",
+              "zh": "who 指人；which 指物；that 在限定性从句中两者皆可。"
+            },
+            {
+              "en": "where for places, when for times, whose for possession.",
+              "zh": "where 指地点，when 指时间，whose 表所属。"
+            },
+            {
+              "en": "Omit the pronoun when it is the object of a defining clause: 'the book (that) I read'.",
+              "zh": "代词在限定性从句中作宾语时可省略：the book (that) I read。"
+            }
+          ],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Watch for",
+                "zh": "注意"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ The city which I grew up. → ✓ The city where I grew up.",
+                  "zh": "✗ The city which I grew up. → ✓ The city where I grew up."
+                },
+                {
+                  "en": "✗ My brother, that lives abroad, is a doctor. → ✓ …, who lives abroad, …",
+                  "zh": "非限定性从句用 who/which，不用 that。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "IELTS use",
+            "zh": "雅思应用"
+          },
+          "paragraphs": [
+            {
+              "en": "Relative clauses let you combine ideas without over-using 'and'. In Writing Task 1: 'The sector which grew fastest was renewables.' In Speaking: 'The place where I feel most relaxed is…'",
+              "zh": "关系从句能帮你合并信息，避免滥用 and。写作 Task 1：增长最快的行业是可再生能源。口语：我最放松的地方是……"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-noun-clauses",
+      "title": {
+        "en": "Noun clauses",
+        "zh": "名词性从句"
+      },
+      "summary": {
+        "en": "That, whether/if and wh- clauses acting as subjects, objects and complements.",
+        "zh": "that、whether/if 与 wh- 从句充当主语、宾语和补语。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Roles of a noun clause",
+            "zh": "名词性从句的作用"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Object: 'The report shows that demand fell.'",
+              "zh": "宾语：报告显示需求下降了。"
+            },
+            {
+              "en": "Subject: 'Whether prices will rise remains unclear.'",
+              "zh": "主语：价格是否会上升仍不清楚。"
+            },
+            {
+              "en": "Complement: 'The concern is that funding may end.'",
+              "zh": "补语：令人担忧的是资金可能会中断。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "That vs whether/if",
+            "zh": "that 与 whether/if"
+          },
+          "paragraphs": [
+            {
+              "en": "Use that for reported facts, whether/if for yes/no ideas. Do not double the connector: 'The question is whether…' not 'The question is that whether…'.",
+              "zh": "陈述事实用 that，是非概念用 whether/if。不要重复连词：The question is whether…，而非 that whether…。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Word order",
+            "zh": "语序"
+          },
+          "paragraphs": [
+            {
+              "en": "A noun clause keeps statement word order. 'I don't know where the station is', not 'where is the station'.",
+              "zh": "名词性从句保持陈述语序：I don't know where the station is，而不是 where is the station。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-adverbial-clauses",
+      "title": {
+        "en": "Adverbial clauses",
+        "zh": "状语从句"
+      },
+      "summary": {
+        "en": "Time, reason, contrast and condition clauses, and the classic although...but error.",
+        "zh": "时间、原因、让步与条件状语从句，以及 although...but 这一经典错误。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Types and connectors",
+            "zh": "类型与连接词"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Time: when, while, before, after, since, until, as soon as.",
+              "zh": "时间：when、while、before、after、since、until、as soon as。"
+            },
+            {
+              "en": "Reason: because, since, as.",
+              "zh": "原因：because、since、as。"
+            },
+            {
+              "en": "Contrast: although, though, even though, whereas, while.",
+              "zh": "让步/对比：although、though、even though、whereas、while。"
+            },
+            {
+              "en": "Condition: if, unless, provided that.",
+              "zh": "条件：if、unless、provided that。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "One clause, one connector",
+            "zh": "一句只用一个连接词"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Classic transfer error",
+                "zh": "经典迁移错误"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ Although it rained, but we still went out. → ✓ Although it rained, we still went out. / It rained, but we still went out.",
+                  "zh": "although 与 but 不能连用，二选一。"
+                },
+                {
+                  "en": "✗ Because traffic was heavy, so we were late. → ✓ Because traffic was heavy, we were late.",
+                  "zh": "because 与 so 同理。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "Position and punctuation",
+            "zh": "位置与标点"
+          },
+          "paragraphs": [
+            {
+              "en": "When the adverbial clause comes first, use a comma: 'Although costs rose, demand held.' When it comes second, no comma: 'Demand held although costs rose.'",
+              "zh": "状语从句在前时用逗号；在后时不用逗号。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-participle-clauses",
+      "title": {
+        "en": "Participle clauses",
+        "zh": "分词短语"
+      },
+      "summary": {
+        "en": "Using -ing and -ed clauses to compress ideas, with subject-match rules.",
+        "zh": "用 -ing 与 -ed 分词短语压缩信息，并遵守主语一致规则。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Active and passive meanings",
+            "zh": "主动与被动含义"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "-ing = active: 'Households using solar panels cut their bills.'",
+              "zh": "-ing 表主动：使用太阳能电池板的家庭降低了账单。"
+            },
+            {
+              "en": "-ed = passive: 'Built in 1902, the bridge is now a museum.'",
+              "zh": "-ed 表被动：建于 1902 年的这座桥如今是博物馆。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Subject match",
+            "zh": "主语一致"
+          },
+          "paragraphs": [],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Dangling participles",
+                "zh": "悬垂分词"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ Walking to school, the bus passed us. → ✓ While we were walking to school, the bus passed us.",
+                  "zh": "分词的主语必须与主句主语一致。"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "IELTS use",
+            "zh": "雅思应用"
+          },
+          "paragraphs": [
+            {
+              "en": "Participle clauses add variety to Task 1 overviews and Task 2 topic sentences: 'Faced with rising rents, many young people delay buying a home.'",
+              "zh": "分词短语可丰富 Task 1 概述与 Task 2 主题句的表达。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-gerunds-infinitives",
+      "title": {
+        "en": "Gerunds and infinitives",
+        "zh": "动名词与不定式"
+      },
+      "summary": {
+        "en": "Verb patterns: which verbs take -ing, which take to-infinitive, and how meaning changes.",
+        "zh": "动词搭配模式：哪些动词接 -ing，哪些接 to do，以及含义变化。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Pattern groups",
+            "zh": "搭配分组"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "+ -ing: enjoy, avoid, consider, suggest, finish, practise, mind.",
+              "zh": "接 -ing：enjoy、avoid、consider、suggest、finish、practise、mind。"
+            },
+            {
+              "en": "+ to-infinitive: decide, hope, plan, agree, refuse, manage, tend.",
+              "zh": "接 to do：decide、hope、plan、agree、refuse、manage、tend。"
+            },
+            {
+              "en": "Meaning change: remember to do (future task) vs remember doing (past event).",
+              "zh": "含义变化：remember to do（未来要做）vs remember doing（过去做过）。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Prepositions take -ing",
+            "zh": "介词后接 -ing"
+          },
+          "paragraphs": [
+            {
+              "en": "After prepositions use the -ing form: 'interested in studying', 'before applying', 'despite having'.",
+              "zh": "介词后用 -ing：interested in studying、before applying、despite having。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-comparisons-quantifiers",
+      "title": {
+        "en": "Comparatives, superlatives and quantifiers",
+        "zh": "比较级、最高级与数量表达"
+      },
+      "summary": {
+        "en": "Comparison structures for Task 1 data and Task 2 arguments, including common traps.",
+        "zh": "用于 Task 1 数据和 Task 2 论证的比较结构及其常见陷阱。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Core forms",
+            "zh": "基本形式"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Short adjectives: cheaper, the cheapest. Long adjectives: more expensive, the most expensive.",
+              "zh": "短形容词用 -er/-est；长形容词用 more/most。"
+            },
+            {
+              "en": "Irregular: good-better-best, bad-worse-worst, far-further-furthest.",
+              "zh": "不规则：good-better-best、bad-worse-worst、far-further-furthest。"
+            },
+            {
+              "en": "Avoid double marking: ✗ more cheaper.",
+              "zh": "避免双重标记：✗ more cheaper。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Task 1 comparison language",
+            "zh": "Task 1 比较表达"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "'twice as high as', 'three times more than', 'half as many as'",
+              "zh": "两倍于、三倍于、是……的一半。"
+            },
+            {
+              "en": "'the most popular option', 'the second largest category'",
+              "zh": "最受欢迎的选择、第二大类。"
+            },
+            {
+              "en": "'far / considerably / slightly higher'",
+              "zh": "远高于/明显高于/略高于。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-prepositions-collocations",
+      "title": {
+        "en": "Prepositions and grammatical collocations",
+        "zh": "介词与语法搭配"
+      },
+      "summary": {
+        "en": "High-frequency preposition patterns that IELTS writers and speakers get wrong.",
+        "zh": "雅思写作与口语中高频出错的介词搭配。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "High-value collocations",
+            "zh": "高频搭配"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "an increase/decrease in; a rise/fall in; a change in",
+              "zh": "in 表变化领域。"
+            },
+            {
+              "en": "concerned about; interested in; responsible for; dependent on; different from",
+              "zh": "常见形容词搭配。"
+            },
+            {
+              "en": "in the past, at present, by 2020, between 2000 and 2010, over the period",
+              "zh": "时间介词。"
+            },
+            {
+              "en": "reasons for; solutions to; effects on; access to; demand for",
+              "zh": "名词搭配。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Transfer traps",
+            "zh": "迁移陷阱"
+          },
+          "paragraphs": [
+            {
+              "en": "Preposition choice rarely translates directly. Learn collocations as whole phrases: 'discuss' takes no preposition (discuss the problem, not discuss about).",
+              "zh": "介词选择很少能直译，应整组记忆：discuss 后不接介词（discuss the problem，而非 discuss about）。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-cohesion-reference",
+      "title": {
+        "en": "Cohesion, linking and reference",
+        "zh": "衔接、连接与指代"
+      },
+      "summary": {
+        "en": "Conjunctions, linking adverbials and reference words that hold a text together.",
+        "zh": "使文章连贯的连词、连接副词与指代词。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Linking adverbials",
+            "zh": "连接副词"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Addition: moreover, furthermore, in addition.",
+              "zh": "递进：moreover、furthermore、in addition。"
+            },
+            {
+              "en": "Contrast: however, on the other hand, in contrast.",
+              "zh": "转折：however、on the other hand、in contrast。"
+            },
+            {
+              "en": "Result: therefore, as a result, consequently.",
+              "zh": "结果：therefore、as a result、consequently。"
+            },
+            {
+              "en": "These are adverbials, not conjunctions — they cannot join two clauses with only a comma.",
+              "zh": "它们是副词，不是连词，不能仅用逗号连接两个分句。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Reference words",
+            "zh": "指代词"
+          },
+          "paragraphs": [
+            {
+              "en": "Use this/these to point back to ideas: 'Rents have risen sharply. This has made city living harder for young people.' Avoid vague 'it' without a clear noun.",
+              "zh": "用 this/these 回指上文观点；避免没有明确先行词的 it。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Comma splice",
+                "zh": "逗号拼接"
+              },
+              "text": [],
+              "items": [
+                {
+                  "en": "✗ Rents rose, however, demand stayed. → ✓ Rents rose. However, demand stayed. / Rents rose; however, demand stayed.",
+                  "zh": "however 前需要句号或分号。"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gram-parallelism",
+      "title": {
+        "en": "Parallelism and coordination",
+        "zh": "平行结构与并列"
+      },
+      "summary": {
+        "en": "Keeping coordinated items in the same grammatical form for clarity and flow.",
+        "zh": "使并列成分保持相同语法形式，提升清晰度与流畅度。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 8,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The rule",
+            "zh": "规则"
+          },
+          "paragraphs": [
+            {
+              "en": "Items joined by and, or, but, both...and, either...or, not only...but also should share one grammatical form.",
+              "zh": "由 and/or/but 等连接的并列成分应保持同一语法形式。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "✓ The scheme reduced traffic, improved air quality and saved money.",
+              "zh": "三个过去式动词并列。"
+            },
+            {
+              "en": "✗ The scheme reduced traffic, improved air quality and it saved money.",
+              "zh": "第三个成分变成从句，破坏平行。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "IELTS use",
+            "zh": "雅思应用"
+          },
+          "paragraphs": [
+            {
+              "en": "Parallel lists appear in Task 2 thesis statements and Task 1 overviews. Consistent form signals control.",
+              "zh": "平行列表常见于 Task 2 论点句与 Task 1 概述；形式一致体现控制力。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-noun-phrases",
+      "title": {
+        "en": "Noun phrases and nominalisation",
+        "zh": "名词短语与名词化"
+      },
+      "summary": {
+        "en": "Building dense noun phrases and turning verbs into nouns for academic style.",
+        "zh": "构建紧凑名词短语，并把动词名词化以增强学术风格。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Building a noun phrase",
+            "zh": "构建名词短语"
+          },
+          "paragraphs": [
+            {
+              "en": "A noun phrase can include determiners, adjectives, participles and post-modification: 'the rapidly increasing cost of urban housing'.",
+              "zh": "名词短语可含限定词、形容词、分词与后置修饰：the rapidly increasing cost of urban housing。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Nominalisation",
+            "zh": "名词化"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "'The government decided to invest' → 'the government's decision to invest'",
+              "zh": "把动词 decide 变为名词 decision。"
+            },
+            {
+              "en": "'Prices increased rapidly' → 'a rapid increase in prices'",
+              "zh": "动词名词化后搭配介词 in。"
+            },
+            {
+              "en": "Use it selectively — too much nominalisation makes writing dense and lifeless.",
+              "zh": "适度使用；过度名词化会让文章沉闷。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-complex-control",
+      "title": {
+        "en": "Complex sentence control",
+        "zh": "复杂句控制"
+      },
+      "summary": {
+        "en": "Using a range of clause types accurately — complexity is only valuable with control.",
+        "zh": "准确使用多种从句——只有在控制得当时，复杂才是有价值的。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 9,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Range vs control",
+            "zh": "多样 vs 控制"
+          },
+          "paragraphs": [
+            {
+              "en": "Longer is not better. A short accurate sentence scores better than a long tangled one. Aim for variety: short sentences for key points, longer ones for explanation.",
+              "zh": "长不等于好。短而准确的句子比冗长绕弯的句子得分更高。关键句用短句，解释说明可用长句。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "Combine related ideas with relative, noun, adverbial or participle clauses — not by chaining 'and'.",
+              "zh": "用从句合并相关信息，而不是用 and 罗列。"
+            },
+            {
+              "en": "Re-read every long sentence and check: one main idea, one clear subject, one finite verb agreement.",
+              "zh": "重读每个长句：一个主旨、一个清晰主语、主谓一致。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-task1-grammar",
+      "title": {
+        "en": "Academic Task 1 grammar",
+        "zh": "学术类 Task 1 语法"
+      },
+      "summary": {
+        "en": "Tense, comparison and process/map language for describing data.",
+        "zh": "描述数据所需的时态、比较与流程/地图表达。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Tense by time period",
+            "zh": "按时段选时态"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Past periods: past simple. 'Sales rose between 2000 and 2010.'",
+              "zh": "过去时段用一般过去时。"
+            },
+            {
+              "en": "Up to the present: present perfect. 'Sales have risen since 2000.'",
+              "zh": "延续至今用现在完成时。"
+            },
+            {
+              "en": "Projections: is predicted to / is expected to + verb.",
+              "zh": "预测：is predicted to / is expected to。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Comparison structures",
+            "zh": "比较结构"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "whereas / while: 'Car use fell, whereas cycling rose.'",
+              "zh": "对比两组数据。"
+            },
+            {
+              "en": "respectively: 'Sales were 40 and 25 units respectively.'",
+              "zh": "分别对应。"
+            },
+            {
+              "en": "Increase/decrease as verbs and nouns with correct prepositions: 'an increase of 5%', 'rose by 5%'.",
+              "zh": "动词与名词搭配正确介词。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Process and map language",
+            "zh": "流程与地图表达"
+          },
+          "paragraphs": [
+            {
+              "en": "Processes use the present passive: 'The bottles are collected, sorted and crushed.' Maps use change language: 'The factory was converted into apartments.'",
+              "zh": "流程用一般现在时被动语态；地图用变化表达：工厂被改建为公寓。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-task2-grammar",
+      "title": {
+        "en": "Task 2 argument grammar",
+        "zh": "Task 2 论证语法"
+      },
+      "summary": {
+        "en": "Concession, cause/effect, conditionals and hedging for essay arguments.",
+        "zh": "议论文中的让步、因果、条件与委婉表达。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 10,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Concession",
+            "zh": "让步"
+          },
+          "paragraphs": [
+            {
+              "en": "Concede before you counter: 'Although online learning is flexible, it can isolate students.' The concession shows balance and control.",
+              "zh": "先让步再反驳：虽然在线学习灵活，但它可能让学生孤立。让步体现平衡与控制。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Cause and effect",
+            "zh": "因果"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "due to / owing to + noun phrase; because / since / as + clause.",
+              "zh": "due to/owing to 接名词短语；because/since/as 接从句。"
+            },
+            {
+              "en": "lead to / result in / contribute to + noun.",
+              "zh": "导致/促成。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Hedging and stance",
+            "zh": "委婉与立场"
+          },
+          "paragraphs": [
+            {
+              "en": "Avoid absolute claims. Prefer: 'This may result in…', 'The evidence suggests that…', 'It could be argued that…' rather than 'This proves…'.",
+              "zh": "避免绝对断言，使用 may、suggest、could be argued 等委婉表达。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "gram-letter-grammar",
+      "title": {
+        "en": "General Training letter grammar and register",
+        "zh": "培训类信件语法与语体"
+      },
+      "summary": {
+        "en": "How grammar choices signal formal, semi-formal and informal register.",
+        "zh": "语法选择如何体现正式、半正式与非正式语体。"
+      },
+      "category": "grammar",
+      "testType": "both",
+      "skill": "grammar",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 8,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Requests across registers",
+            "zh": "不同语体的请求"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Formal: 'I would be grateful if you could…'",
+              "zh": "正式：I would be grateful if you could…"
+            },
+            {
+              "en": "Semi-formal: 'Could you possibly…?'",
+              "zh": "半正式：Could you possibly…?"
+            },
+            {
+              "en": "Informal: 'Can you…?'",
+              "zh": "非正式：Can you…?"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        },
+        {
+          "heading": {
+            "en": "Consistency",
+            "zh": "一致性"
+          },
+          "paragraphs": [
+            {
+              "en": "Keep the register consistent: do not mix 'I am writing to inform you' with 'cheers, mate'. Modals (would/could/may) signal politeness; contractions are normal in informal letters but rare in formal ones.",
+              "zh": "保持语体一致，不要把正式开头与随意结尾混用。情态动词体现礼貌；缩写常见于非正式信件，正式信件中少见。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "strat-general",
+      "title": {
+        "en": "General study strategy",
+        "zh": "总体学习策略"
+      },
+      "summary": {
+        "en": "How to structure your IELTS preparation efficiently.",
+        "zh": "如何高效组织你的雅思备考。"
+      },
+      "category": "strategies",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 4,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Core principles",
+            "zh": "核心原则"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Diagnose first: find your current band and weakest skills before studying randomly.",
+              "zh": "先诊断：在盲目学习前弄清当前分数和最薄弱技能。"
+            },
+            {
+              "en": "Study skills in balance, but allocate extra time to weak areas.",
+              "zh": "均衡学习各项技能，但向薄弱环节多分配时间。"
+            },
+            {
+              "en": "Practise under timed, exam-like conditions regularly.",
+              "zh": "定期进行限时、模拟考试条件下的练习。"
+            },
+            {
+              "en": "Review mistakes systematically — one reviewed mistake is worth more than ten new questions.",
+              "zh": "系统复习错题——弄懂一道错题胜过做十道新题。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "strat-listening",
+      "title": {
+        "en": "Listening strategy summary",
+        "zh": "听力策略总结"
+      },
+      "summary": {
+        "en": "A one-page checklist for Listening.",
+        "zh": "听力一页清单。"
+      },
+      "category": "strategies",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Checklist",
+            "zh": "清单"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Predict answer type before each gap.",
+              "zh": "听前预测每空的答案类型。"
+            },
+            {
+              "en": "Listen for paraphrase, not exact words.",
+              "zh": "听同义替换而非原词。"
+            },
+            {
+              "en": "Track distractors and self-corrections.",
+              "zh": "跟踪干扰项和自我纠正。"
+            },
+            {
+              "en": "Never get stuck — move on and recover.",
+              "zh": "绝不停留——继续前进并补救。"
+            },
+            {
+              "en": "Check spelling, word limits and plurals at the end.",
+              "zh": "最后检查拼写、字数限制和复数。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "strat-reading",
+      "title": {
+        "en": "Reading strategy summary",
+        "zh": "阅读策略总结"
+      },
+      "summary": {
+        "en": "A one-page checklist for Reading.",
+        "zh": "阅读一页清单。"
+      },
+      "category": "strategies",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Checklist",
+            "zh": "清单"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Skim the passage (2–3 min), then read questions with keywords.",
+              "zh": "略读文章（2–3 分钟），然后带关键词读题。"
+            },
+            {
+              "en": "Scan for the keyword's paraphrase.",
+              "zh": "扫读关键词的同义替换。"
+            },
+            {
+              "en": "Use ~20 min per passage; never exceed 1 min on one question.",
+              "zh": "每篇约 20 分钟；单题不超过 1 分钟。"
+            },
+            {
+              "en": "False/No = contradiction; Not Given = not mentioned.",
+              "zh": "False/No = 矛盾；Not Given = 未提及。"
+            },
+            {
+              "en": "Copy answers exactly; respect word limits.",
+              "zh": "答案与原文完全一致；遵守字数限制。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "strat-writing",
+      "title": {
+        "en": "Writing strategy summary",
+        "zh": "写作策略总结"
+      },
+      "summary": {
+        "en": "Plan before you write; edit after you write.",
+        "zh": "写前规划；写后修改。"
+      },
+      "category": "strategies",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Process",
+            "zh": "流程"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Spend 2–3 minutes planning structure before writing.",
+              "zh": "动笔前花 2–3 分钟规划结构。"
+            },
+            {
+              "en": "Task 1: paraphrase + overview + grouped body paragraphs.",
+              "zh": "Task 1：改写 + 概述 + 分组主体段。"
+            },
+            {
+              "en": "Task 2: clear thesis, one idea per paragraph, supported examples.",
+              "zh": "Task 2：清晰论点、每段一个观点、举例支撑。"
+            },
+            {
+              "en": "Leave 3–5 minutes to edit grammar, spelling and cohesion.",
+              "zh": "留 3–5 分钟修改语法、拼写和衔接。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "strat-speaking",
+      "title": {
+        "en": "Speaking strategy summary",
+        "zh": "口语策略总结"
+      },
+      "summary": {
+        "en": "A one-page checklist for Speaking.",
+        "zh": "口语一页清单。"
+      },
+      "category": "strategies",
+      "testType": "both",
+      "skill": "all",
+      "relatedQuestionTypes": [],
+      "estimatedMinutes": 3,
+      "difficulty": null,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Checklist",
+            "zh": "清单"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Part 1: direct answer + 1–2 sentences of detail.",
+              "zh": "Part 1：直接回答 + 1–2 句细节。"
+            },
+            {
+              "en": "Part 2: use the cue card bullets as your structure; keep talking.",
+              "zh": "Part 2：以话题卡要点为结构；持续讲下去。"
+            },
+            {
+              "en": "Part 3: opinion → reason → example → implication.",
+              "zh": "Part 3：观点 → 原因 → 例子 → 影响。"
+            },
+            {
+              "en": "Paraphrase when you forget a word; do not stop.",
+              "zh": "忘记单词就换说法；不要停下。"
+            },
+            {
+              "en": "Use varied grammar and natural discourse markers.",
+              "zh": "使用多样的语法和自然的话语标记。"
+            }
+          ],
+          "table": null,
+          "callouts": []
+        }
+      ]
+    },
+    {
+      "id": "list-matching",
+      "title": {
+        "en": "Listening: matching questions",
+        "zh": "听力：配对题"
+      },
+      "summary": {
+        "en": "Match items to statements by tracking paraphrase and distractors.",
+        "zh": "通过追踪同义替换和干扰项来配对题目。"
+      },
+      "category": "listening",
+      "testType": "both",
+      "skill": "listening",
+      "relatedQuestionTypes": [
+        "matching"
+      ],
+      "estimatedMinutes": 8,
+      "difficulty": 2,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "What matching questions look like",
+            "zh": "配对题长什么样"
+          },
+          "paragraphs": [
+            {
+              "en": "You hear a conversation or talk and must match a list of items (e.g. speakers, places, courses) to a list of options (e.g. opinions, features, locations). The options are usually labelled A–F, and the items are numbered questions.",
+              "zh": "你会听到一段对话或独白，需要把一组项目（如说话者、地点、课程）与一组选项（如观点、特征、位置）配对。选项通常标为 A–F，项目则按题号排列。"
+            },
+            {
+              "en": "The key challenge: the recording does not use the exact words from the options. It paraphrases them, and it often mentions several options for one item before settling on the correct one.",
+              "zh": "关键难点：录音不会使用选项中的原词，而是进行同义替换；而且常常会先提到多个选项，最后才确定正确答案。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "example",
+              "title": {
+                "en": "Worked example",
+                "zh": "示例"
+              },
+              "text": [
+                {
+                  "en": "Item: 'What does Tom think of the new library?' Options: A) too expensive  B) well organised  C) too small.",
+                  "zh": "题目：Tom 对新图书馆怎么看？选项：A) 太贵  B) 组织得好  C) 太小。"
+                },
+                {
+                  "en": "You hear: 'I thought it would be cramped, but actually everything's easy to find.' The word 'cramped' suggests C, but then 'but actually' corrects this and 'easy to find' paraphrases 'well organised' — the answer is B.",
+                  "zh": "你听到：I thought it would be cramped, but actually everything's easy to find. 「cramped」（狭窄）暗示 C，但「but actually」进行了纠正，「easy to find」（容易找到）是「well organised」（组织得好）的同义替换——答案是 B。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "Strategy",
+            "zh": "策略"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Before listening, read both the items and the options, and underline keywords.",
+              "zh": "听前阅读项目和选项，并划出关键词。"
+            },
+            {
+              "en": "Listen for paraphrase of the options, not the exact words.",
+              "zh": "注意选项的同义替换，而非原词。"
+            },
+            {
+              "en": "Track the order: items are usually mentioned in order, but options may repeat.",
+              "zh": "跟踪顺序：项目通常按顺序出现，但选项可能重复。"
+            },
+            {
+              "en": "Write a possible letter lightly, then confirm or change it when the speaker corrects themselves.",
+              "zh": "先轻写一个可能的字母，听到说话者自我纠正时再确认或更改。"
+            }
+          ],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Common trap",
+                "zh": "常见陷阱"
+              },
+              "text": [
+                {
+                  "en": "Choosing the first option you hear mentioned. Speakers frequently mention a distractor first, then correct it with 'but', 'actually', 'in fact' or 'rather than'.",
+                  "zh": "选择你听到的第一个选项。说话者经常先提到干扰项，然后用 but、actually、in fact 或 rather than 进行纠正。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "list-map-labelling",
+      "title": {
+        "en": "Listening: map and plan labelling",
+        "zh": "听力：地图与平面图标示"
+      },
+      "summary": {
+        "en": "Follow directions on a map using landmarks, compass points and position language.",
+        "zh": "利用地标、方位词和位置语言在地图上跟随路线。"
+      },
+      "category": "listening",
+      "testType": "both",
+      "skill": "listening",
+      "relatedQuestionTypes": [
+        "map_labelling",
+        "plan_labelling"
+      ],
+      "estimatedMinutes": 8,
+      "difficulty": 2,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "How it works",
+            "zh": "如何作答"
+          },
+          "paragraphs": [
+            {
+              "en": "You see a map or plan with some labels missing (A, B, C…). The speaker describes a route or location, and you match the described place to the correct position.",
+              "zh": "你会看到一张地图或平面图，部分标注缺失（A、B、C…）。说话者描述一条路线或位置，你需要把所描述的地点与正确位置对应起来。"
+            }
+          ],
+          "bullets": [
+            {
+              "en": "Compass points: north, south, east, west, north-east…",
+              "zh": "方位词：north、south、east、west、north-east…"
+            },
+            {
+              "en": "Position: next to, opposite, in front of, behind, between, on the corner of",
+              "zh": "位置：next to、opposite、in front of、behind、between、on the corner of"
+            },
+            {
+              "en": "Direction of travel: go straight on, turn left/right, past the…, head towards",
+              "zh": "行进方向：go straight on、turn left/right、past the…、head towards"
+            }
+          ],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "examTip",
+              "title": {
+                "en": "Exam tip",
+                "zh": "考试技巧"
+              },
+              "text": [
+                {
+                  "en": "Look at the map BEFORE the audio starts and predict what each labelled area might be. Note the entrance/start point (often marked 'You are here').",
+                  "zh": "在音频开始前先看地图，预测每个已标注区域可能是什么。注意入口/起点（通常标有 You are here）。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "list-form-completion",
+      "title": {
+        "en": "Listening: form and note completion",
+        "zh": "听力：表格与笔记填空"
+      },
+      "summary": {
+        "en": "Complete forms and notes with exact words from the audio, respecting word limits.",
+        "zh": "用音频中的原词完成表格和笔记，并遵守字数限制。"
+      },
+      "category": "listening",
+      "testType": "both",
+      "skill": "listening",
+      "relatedQuestionTypes": [
+        "form_completion",
+        "note_completion",
+        "table_completion"
+      ],
+      "estimatedMinutes": 8,
+      "difficulty": 1,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "What to listen for",
+            "zh": "要听什么"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Names are spelled out letter by letter — write each letter accurately.",
+              "zh": "名字会逐字母拼读——准确记录每个字母。"
+            },
+            {
+              "en": "Numbers: dates, prices, telephone numbers, postcodes, quantities.",
+              "zh": "数字：日期、价格、电话号码、邮编、数量。"
+            },
+            {
+              "en": "Word limits: 'ONE WORD ONLY', 'NO MORE THAN TWO WORDS AND/OR A NUMBER'.",
+              "zh": "字数限制：ONE WORD ONLY、NO MORE THAN TWO WORDS AND/OR A NUMBER。"
+            },
+            {
+              "en": "Singular vs plural: the final -s matters and is marked wrong if missing.",
+              "zh": "单复数：词尾 -s 很重要，漏写会被判错。"
+            }
+          ],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Common trap",
+                "zh": "常见陷阱"
+              },
+              "text": [
+                {
+                  "en": "Writing 'books' when the answer is 'book'. Always decide from context whether the noun should be plural, and check the grammar of the sentence around the gap.",
+                  "zh": "答案本应是 book，却写成 books。始终根据上下文判断名词是否应为复数，并检查空格前后句子的语法。"
+                }
+              ],
+              "items": []
+            },
+            {
+              "kind": "bandComparison",
+              "title": {
+                "en": "Band 6 vs Band 7",
+                "zh": "6 分 vs 7 分"
+              },
+              "text": [
+                {
+                  "en": "Band 6 learners often get simple gaps right but lose marks on spelling, plurals and word limits. Band 7 learners systematically check spelling and grammar and rarely lose easy marks.",
+                  "zh": "6 分学习者常能做对简单填空，但在拼写、复数和字数限制上丢分。7 分学习者会系统地检查拼写和语法，很少丢失容易的分。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read-tfng",
+      "title": {
+        "en": "Reading: True / False / Not Given",
+        "zh": "阅读：判断正误（True / False / Not Given）"
+      },
+      "summary": {
+        "en": "Distinguish what the passage states, what it contradicts, and what it never says.",
+        "zh": "区分文章陈述的、文章否定的、以及文章从未提及的内容。"
+      },
+      "category": "reading",
+      "testType": "both",
+      "skill": "reading",
+      "relatedQuestionTypes": [
+        "true_false_not_given"
+      ],
+      "estimatedMinutes": 12,
+      "difficulty": 3,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The three options",
+            "zh": "三种判定"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "TRUE — the statement agrees with information in the passage.",
+              "zh": "TRUE — 陈述与文章信息一致。"
+            },
+            {
+              "en": "FALSE — the statement contradicts information in the passage.",
+              "zh": "FALSE — 陈述与文章信息矛盾。"
+            },
+            {
+              "en": "NOT GIVEN — the information is not mentioned at all.",
+              "zh": "NOT GIVEN — 信息完全没有提及。"
+            }
+          ],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "warning",
+              "title": {
+                "en": "The key distinction",
+                "zh": "关键区别"
+              },
+              "text": [
+                {
+                  "en": "FALSE means the passage says the OPPOSITE. NOT GIVEN means the passage says NOTHING about it — even if it feels true in real life.",
+                  "zh": "FALSE 表示文章说了相反的内容。NOT GIVEN 表示文章什么都没说——即使它在现实生活中感觉是对的。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "Worked examples",
+            "zh": "示例"
+          },
+          "paragraphs": [
+            {
+              "en": "Passage: 'Most commuters in the city travel to work by bus.'",
+              "zh": "原文：Most commuters in the city travel to work by bus."
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "example",
+              "title": null,
+              "text": [
+                {
+                  "en": "1) 'The majority of the city's commuters use the bus.' → TRUE (paraphrase of 'most').",
+                  "zh": "1) 「该市大多数通勤者乘坐公交车。」→ TRUE（most 的同义替换）。"
+                },
+                {
+                  "en": "2) 'Few commuters in the city travel by bus.' → FALSE ('few' contradicts 'most').",
+                  "zh": "2) 「该市很少有通勤者乘坐公交车。」→ FALSE（few 与 most 矛盾）。"
+                },
+                {
+                  "en": "3) 'Commuters find the bus service uncomfortable.' → NOT GIVEN (nothing about comfort).",
+                  "zh": "3) 「通勤者觉得公交服务不舒服。」→ NOT GIVEN（未提及舒适度）。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        },
+        {
+          "heading": {
+            "en": "Strategy",
+            "zh": "策略"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Scan for the statement's keyword, then read the surrounding sentence carefully.",
+              "zh": "扫读陈述中的关键词，然后仔细阅读周围句子。"
+            },
+            {
+              "en": "Watch for qualifiers: 'most', 'some', 'all', 'often', 'always', 'never'.",
+              "zh": "注意限定词：most、some、all、often、always、never。"
+            },
+            {
+              "en": "If you cannot find the information after a reasonable search, it is probably Not Given.",
+              "zh": "如果合理搜索后仍找不到该信息，很可能就是 Not Given。"
+            }
+          ],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Common trap",
+                "zh": "常见陷阱"
+              },
+              "text": [
+                {
+                  "en": "Answering Not Given too quickly. Always check whether the passage actually says the opposite (which would be False) before choosing Not Given.",
+                  "zh": "过快作答 Not Given。在选择 Not Given 之前，先确认文章是否说了相反内容（那将是 False）。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read-yesno",
+      "title": {
+        "en": "Reading: Yes / No / Not Given",
+        "zh": "阅读：作者观点（Yes / No / Not Given）"
+      },
+      "summary": {
+        "en": "Judge the writer's opinions and claims, not facts.",
+        "zh": "判断作者的观点和主张，而非事实。"
+      },
+      "category": "reading",
+      "testType": "both",
+      "skill": "reading",
+      "relatedQuestionTypes": [
+        "yes_no_not_given"
+      ],
+      "estimatedMinutes": 10,
+      "difficulty": 3,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "The difference from T/F/NG",
+            "zh": "与 T/F/NG 的区别"
+          },
+          "paragraphs": [
+            {
+              "en": "Yes/No/Not Given questions ask about the WRITER'S VIEWS or CLAIMS — what the writer believes, argues or implies. True/False/Not Given questions ask about FACTS stated in the passage.",
+              "zh": "Yes/No/Not Given 询问作者的观点或主张——作者相信、论证或暗示的内容。True/False/Not Given 询问文章陈述的事实。"
+            }
+          ],
+          "bullets": [],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "example",
+              "title": null,
+              "text": [
+                {
+                  "en": "'The writer believes that cars are the main cause of congestion.' Look for opinion language: 'I believe', 'it seems', 'undoubtedly', 'the real problem is'.",
+                  "zh": "「作者认为汽车是拥堵的主要原因。」寻找观点性语言：I believe、it seems、undoubtedly、the real problem is。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read-matching-headings",
+      "title": {
+        "en": "Reading: matching headings",
+        "zh": "阅读：段落标题配对"
+      },
+      "summary": {
+        "en": "Choose the heading that best summarises each paragraph's main idea.",
+        "zh": "选择最能概括每段主旨的标题。"
+      },
+      "category": "reading",
+      "testType": "both",
+      "skill": "reading",
+      "relatedQuestionTypes": [
+        "matching_headings"
+      ],
+      "estimatedMinutes": 10,
+      "difficulty": 3,
+      "sourceIds": [],
+      "sections": [
+        {
+          "heading": {
+            "en": "Strategy",
+            "zh": "策略"
+          },
+          "paragraphs": [],
+          "bullets": [
+            {
+              "en": "Read the FIRST sentence (topic sentence) and sometimes the last sentence of each paragraph.",
+              "zh": "阅读每段的第一句（主题句），有时也读最后一句。"
+            },
+            {
+              "en": "Ignore details and examples; identify the paragraph's MAIN idea.",
+              "zh": "忽略细节和例子；找出段落的主旨。"
+            },
+            {
+              "en": "Eliminate headings that are too specific or too general.",
+              "zh": "排除过于具体或过于宽泛的标题。"
+            },
+            {
+              "en": "There are usually more headings than paragraphs, so some headings are unused.",
+              "zh": "标题通常多于段落，因此有些标题用不上。"
+            }
+          ],
+          "table": null,
+          "callouts": [
+            {
+              "kind": "commonMistake",
+              "title": {
+                "en": "Common trap",
+                "zh": "常见陷阱"
+              },
+              "text": [
+                {
+                  "en": "Choosing a heading that matches one DETAIL in the paragraph rather than the main idea. A paragraph about 'causes of X' may mention 'a study in 2010' — do not pick the heading about 'a 2010 study'.",
+                  "zh": "选择了与段落中某个细节相符的标题，而非主旨。一段讲「X 的原因」的文字可能提到「2010 年的一项研究」——不要选「2010 年研究」这个标题。"
+                }
+              ],
+              "items": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

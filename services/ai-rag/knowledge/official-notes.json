@@ -1,0 +1,116 @@
+{
+  "format": "ielts-study-os-official-notes-v1",
+  "description": "Original, rewritten summaries of official public IELTS guidance. Links to official sources; no full-page text copied.",
+  "notes": [
+    {
+      "id": "format-overview",
+      "sourceId": "ielts-org-test-format",
+      "title": "IELTS test format overview",
+      "skill": "all",
+      "testType": "both",
+      "topics": ["format", "timing"],
+      "heading": "IELTS test format overview",
+      "content": "IELTS has four parts taken in this order: Listening (about 30 minutes plus 10 minutes to transfer answers on paper), Reading (60 minutes), Writing (60 minutes) and Speaking (11-14 minutes, may be on the same day or up to a week before/after). Listening and Speaking are identical for Academic and General Training; Reading and Writing differ."
+    },
+    {
+      "id": "listening-format",
+      "sourceId": "ielts-org-test-format",
+      "title": "Listening format",
+      "skill": "listening",
+      "testType": "both",
+      "topics": ["listening", "format"],
+      "heading": "Listening format",
+      "content": "Listening has four sections and 40 questions. Each section is heard once. Section 1 is a conversation in an everyday social context, Section 2 a monologue in an everyday context, Section 3 a conversation in an educational/training context, and Section 4 a monologue on an academic subject. Speakers use a range of accents."
+    },
+    {
+      "id": "academic-reading-format",
+      "sourceId": "ielts-org-test-format",
+      "title": "Academic Reading format",
+      "skill": "reading",
+      "testType": "academic",
+      "topics": ["reading", "format"],
+      "heading": "Academic Reading format",
+      "content": "Academic Reading lasts 60 minutes with 40 questions across three long passages taken from books, journals, magazines and newspapers. Texts are written for a non-specialist audience and may include diagrams, graphs or illustrations. Answers are written directly on the answer sheet (no extra transfer time)."
+    },
+    {
+      "id": "general-reading-format",
+      "sourceId": "ielts-org-test-format",
+      "title": "General Training Reading format",
+      "skill": "reading",
+      "testType": "general",
+      "topics": ["reading", "format"],
+      "heading": "General Training Reading format",
+      "content": "General Training Reading also lasts 60 minutes with 40 questions, but texts come from everyday sources: Section 1 has two or three short factual texts (notices, advertisements, timetables), Section 2 has two work-related texts, and Section 3 has one longer, more complex text on a topic of general interest."
+    },
+    {
+      "id": "writing-task-weighting",
+      "sourceId": "ielts-org-test-format",
+      "title": "Writing task weighting",
+      "skill": "writing",
+      "testType": "both",
+      "topics": ["writing", "scoring"],
+      "heading": "Writing task weighting",
+      "content": "Writing has two tasks. Task 2 is worth twice as much as Task 1 in calculating the Writing band score. You should spend about 20 minutes on Task 1 and 40 minutes on Task 2. Task 1 requires at least 150 words; Task 2 at least 250 words. Writing fewer than the required words loses marks under Task Achievement/Task Response."
+    },
+    {
+      "id": "speaking-format",
+      "sourceId": "ielts-org-test-format",
+      "title": "Speaking format",
+      "skill": "speaking",
+      "testType": "both",
+      "topics": ["speaking", "format"],
+      "heading": "Speaking format",
+      "content": "The Speaking test is a face-to-face interview in three parts and takes 11-14 minutes. Part 1 (4-5 minutes) is introduction and familiar topics. Part 2 (3-4 minutes) is a long turn: you speak for 1-2 minutes on a cue-card topic after one minute of preparation. Part 3 (4-5 minutes) is a two-way discussion of more abstract ideas linked to the Part 2 topic."
+    },
+    {
+      "id": "false-vs-not-given",
+      "sourceId": "ielts-org-sample-questions",
+      "title": "False vs Not Given",
+      "skill": "reading",
+      "testType": "academic",
+      "topics": ["tfng", "reading"],
+      "heading": "False vs Not Given",
+      "content": "In True/False/Not Given, 'True' means the statement agrees with the passage, 'False' means the statement contradicts the passage, and 'Not Given' means the information is neither confirmed nor contradicted. The key test is contradiction: if the passage says the opposite, it is False; if the passage is silent, it is Not Given."
+    },
+    {
+      "id": "yes-no-not-given",
+      "sourceId": "ielts-org-sample-questions",
+      "title": "Yes/No/Not Given",
+      "skill": "reading",
+      "testType": "academic",
+      "topics": ["ynng", "reading"],
+      "heading": "Yes/No/Not Given",
+      "content": "Yes/No/Not Given works the same as True/False/Not Given but applies to the writer's claims or opinions rather than factual statements. 'Yes' means the writer agrees with the statement, 'No' means the writer disagrees, and 'Not Given' means the writer's view is not stated."
+    },
+    {
+      "id": "band-descriptors",
+      "sourceId": "ielts-org-scoring",
+      "title": "Band descriptors",
+      "skill": "all",
+      "testType": "both",
+      "topics": ["scoring", "bands"],
+      "heading": "Band descriptors",
+      "content": "IELTS reports whole and half bands from 0 to 9. Writing and Speaking use public band descriptors for four criteria each. Writing: Task Achievement/Task Response, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy. Speaking: Fluency and Coherence, Lexical Resource, Grammatical Range and Accuracy, Pronunciation. Listening and Reading scores are converted from raw marks (out of 40) to the 9-band scale."
+    },
+    {
+      "id": "computer-test-behaviour",
+      "sourceId": "ielts-org-test-format",
+      "title": "Computer-delivered test behaviour",
+      "skill": "all",
+      "testType": "both",
+      "topics": ["computer", "format"],
+      "heading": "Computer-delivered test behaviour",
+      "content": "In the computer-delivered test, Listening answers are typed directly (with 2 minutes to check at the end), and Reading answers are typed directly with no transfer time. You can highlight text and make notes on the screen. The Writing tasks are typed, and the word count is shown on screen. The Speaking test remains a face-to-face interview."
+    },
+    {
+      "id": "official-prep-advice",
+      "sourceId": "ielts-org",
+      "title": "Official preparation advice",
+      "skill": "all",
+      "testType": "both",
+      "topics": ["preparation"],
+      "heading": "Official preparation advice",
+      "content": "Official guidance emphasises understanding the test format, practising under timed conditions, reading the instructions carefully (especially word limits), transferring answers accurately, and using official sample materials to become familiar with question types. It does not recommend memorising model answers, which examiners identify and penalise."
+    }
+  ]
+}
