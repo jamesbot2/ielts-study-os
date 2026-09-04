@@ -80,8 +80,98 @@ class OpenAICompatibleLlm(LlmProvider):
                     continue
 
     async def structured(self, messages: list[dict[str, str]], schema: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
-        raw = await self.chat(messages, **kwargs)
-        try:
-            return json.loads(raw)
-        except json.JSONDecodeError as e:
-            raise ValueError(f"LLM did not return valid JSON: {e}") from e
+        """Ask the model for a JSON object conforming to ``schema``.
+
+        The supplied schema is actually used: a bounded JSON-only instruction is
+        appended to the LAST user message (or added as one), the raw chat reply
+        is parsed as JSON, and the result is validated against the schema.
+
+        Parsing policy:
+        - primary path: the whole reply is one JSON object
+        - compatibility: exactly one ```json … ``` fenced block is accepted
+        - anything else (prose, markdown, multiple fences, …) is REJECTED with
+          a clear error — never silently coerced.
+        """
+        instr = (
+            "\n\nRespond with ONLY a single JSON object that strictly follows this "
+            f"JSON schema, with no markdown fences, no commentary and no extra text:\n"
+            f"{json.dumps(schema, ensure_ascii=False)}"
+        )
+        if messages and messages[-1].get("role") == "user":
+            work = list(messages)
+            work[-1] = {**work[-1], "content": str(work[-1].get("content") or "") + instr}
+        else:
+            work = [*messages, {"role": "user", "content": instr.lstrip()}]
+
+        raw = await self.chat(work, **kwargs)
+        obj = _parse_json_object(raw)
+        _validate_json_schema_shape(obj, schema)
+        return obj
+
+
+def _parse_json_object(raw: str) -> dict:
+    """Parse a raw LLM reply as exactly one JSON object.
+
+    Primary path: whole reply is the object. Compatibility: exactly one
+    ```json … ``` fenced block. Anything else raises ValueError.
+    """
+    if raw is None:
+        raise ValueError("LLM returned an empty structured response")
+    text = raw.strip()
+    if not text:
+        raise ValueError("LLM returned an empty structured response")
+    # Primary path.
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+    # Narrow compatibility: exactly one ```json fence (optional language tag).
+    if "```" in text:
+        import re
+
+        fences = re.findall(r"```(?:json)?\s*\n(.*?)```", text, flags=re.DOTALL)
+        if len(fences) == 1:
+            candidate = fences[0].strip()
+            try:
+                parsed = json.loads(candidate)
+                if isinstance(parsed, dict):
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+    raise ValueError(
+        "LLM did not return a single JSON object matching the requested schema "
+        "(returned prose or malformed JSON)."
+    )
+
+
+def _validate_json_schema_shape(obj: dict, schema: dict[str, Any]) -> None:
+    """Lightweight structural validation of a parsed object against a JSON
+    schema (type + required + property types). Deep JSON-Schema validation is
+    intentionally not re-implemented here; this catches gross mismatches."""
+    if not isinstance(obj, dict):
+        raise ValueError("Structured LLM output must be a JSON object")  # noqa: TRY004 - contract error across layers
+    if not isinstance(schema, dict):
+        return
+    if schema.get("type") == "object":
+        required = schema.get("required") or []
+        props = schema.get("properties") or {}
+        for field in required:
+            if field not in obj:
+                raise ValueError(f"Structured LLM output is missing required field: {field}")
+        for key, val in obj.items():
+            prop_schema = props.get(key)
+            if not isinstance(prop_schema, dict):
+                continue
+            expected = prop_schema.get("type")
+            if expected == "string" and not isinstance(val, str):
+                raise ValueError(f"Structured LLM output field '{key}' must be a string")
+            if expected == "integer" and not isinstance(val, int):
+                raise ValueError(f"Structured LLM output field '{key}' must be an integer")
+            if expected == "boolean" and not isinstance(val, bool):
+                raise ValueError(f"Structured LLM output field '{key}' must be a boolean")
+            if expected == "array" and not isinstance(val, list):
+                raise ValueError(f"Structured LLM output field '{key}' must be an array")
+            if expected == "object" and not isinstance(val, dict):
+                raise ValueError(f"Structured LLM output field '{key}' must be an object")

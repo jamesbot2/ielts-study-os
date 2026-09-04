@@ -13,7 +13,7 @@ from ..llm.base import LlmProvider
 from ..rag.citations import validate_citations
 from ..rag.service import RetrievalService
 from . import tools
-from .schemas import AGENT_STEP_SCHEMA, validate_actions
+from .schemas import AGENT_STEP_SCHEMA, classify_agent_step, validate_actions
 from .tools import ToolContext
 
 SYSTEM_PROMPT = """You are an IELTS learning coach (not an official examiner, psychologist, or generic chatbot).
@@ -34,6 +34,30 @@ class AgentResult:
     citations: list[dict[str, Any]]
     actions: list[dict[str, Any]]
     tool_steps: list[str] = field(default_factory=list)
+
+
+class StructuredOutputError(Exception):
+    """Raised when the LLM cannot produce a valid agent step after a bounded
+    retry. Message is sanitized (never contains provider secrets)."""
+
+
+def _sanitize_structured_error(e: Exception) -> str:
+    """Map a structured-output failure to a short, safe message."""
+    text = str(e)
+    low = text.lower()
+    if "authentication" in low or "401" in low or "unauthorized" in low:
+        return "provider authentication failed"
+    if "rate limit" in low or "429" in low:
+        return "provider rate limit reached"
+    if "timeout" in low or "timed out" in low:
+        return "provider request timed out"
+    if "connection" in low or "unavailable" in low or "resolve" in low or "connect" in low:
+        return "provider unavailable"
+    if "json" in low or "schema" in low or "prose" in low or "malformed" in low or "empty" in low:
+        return "model did not return a valid structured response"
+    if "fenced" in low:
+        return "model did not return a valid structured response"
+    return type(e).__name__
 
 
 class AgentRuntime:
@@ -60,9 +84,20 @@ class AgentRuntime:
         transcript.append({"role": "user", "content": json.dumps({"message": message, "learnerContext": snapshot}, ensure_ascii=False)})
 
         for _ in range(self.max_steps):
-            step = await llm.structured(transcript, AGENT_STEP_SCHEMA, temperature=0.2)
-            tool_name = step.get("tool")
-            if tool_name:
+            step, step_error = await self._structured_step(llm, transcript)
+            if step_error is not None:
+                # Structured output failed (prose/malformed/invalid shape).
+                # One controlled retry with an explicit reminder, then surface a
+                # sanitized failure rather than an empty assistant reply.
+                transcript.append(
+                    {"role": "assistant", "content": json.dumps({"error": step_error})}
+                )
+                step, step_error = await self._structured_step(llm, transcript)
+                if step_error is not None:
+                    raise StructuredOutputError(step_error)
+            kind, step = classify_agent_step(step)
+            if kind == "tool":
+                tool_name = step["tool"]
                 if tool_name not in tools.TOOLS:
                     transcript.append({"role": "assistant", "content": json.dumps({"error": f"unknown tool {tool_name}"})})
                     continue
@@ -83,7 +118,7 @@ class AgentRuntime:
                 continue
 
             # Final answer
-            text = str(step.get("text") or "")
+            text = str(step.get("text") or "").strip()
             raw_citations = step.get("citations") or []
             actions = validate_actions(step.get("actions") or [])
             citations = validate_citations(raw_citations, retrieved_for_citations)
@@ -108,6 +143,20 @@ class AgentRuntime:
             tool_steps=tool_steps,
         )
 
+    async def _structured_step(self, llm, transcript):
+        """Ask the LLM for one agent step; classify it. Never raises for a
+        provider/shape failure — returns (None, sanitized_error) instead so the
+        caller can retry once or surface a controlled error."""
+        try:
+            step = await llm.structured(transcript, AGENT_STEP_SCHEMA, temperature=0.2)
+        except Exception as e:  # noqa: BLE001 - provider/parse failures are sanitized
+            return None, _sanitize_structured_error(e)
+        try:
+            classify_agent_step(step)
+            return step, None
+        except ValueError as e:
+            return None, str(e)
+
     async def run(
         self,
         message: str,
@@ -130,7 +179,18 @@ class AgentRuntime:
         locale: str = "en",
         history: list[dict[str, str]] | None = None,
     ) -> AsyncIterator[dict[str, Any]]:
-        result = await self.run_with_llm(llm, message, snapshot, locale, history)
+        try:
+            result = await self.run_with_llm(llm, message, snapshot, locale, history)
+        except StructuredOutputError as e:
+            # Emit a sanitized error event instead of a silent HTTP-200 empty
+            # stream. Never include upstream bodies or secrets.
+            yield {"type": "error", "message": str(e)}
+            yield {"type": "done"}
+            return
+        except Exception as e:  # noqa: BLE001 - any generator failure must surface
+            yield {"type": "error", "message": _sanitize_internal_error(e)}
+            yield {"type": "done"}
+            return
         for tool in result.tool_steps:
             yield {"type": "tool_status", "name": tool, "status": "done"}
         # Stream text in small pieces (deterministic for tests, chunked in production).
@@ -193,3 +253,18 @@ def sanitize_history(history: list[dict[str, str]]) -> list[dict[str, str]]:
         if len(out) >= settings.max_history_size:
             break
     return out
+
+
+def _sanitize_internal_error(e: Exception) -> str:
+    """Internal agent failure → short safe message (no secrets/bodies)."""
+    text = str(e)
+    low = text.lower()
+    if "authentication" in low or "401" in low:
+        return "provider authentication failed"
+    if "timeout" in low or "timed out" in low:
+        return "provider request timed out"
+    if "rate limit" in low or "429" in low:
+        return "provider rate limit reached"
+    if "connection" in low or "resolve" in low or "connect" in low or "unavailable" in low:
+        return "provider unavailable"
+    return "internal agent error"

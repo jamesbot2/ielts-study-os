@@ -171,6 +171,11 @@ export function CoachModule() {
         controller.signal,
       );
 
+      // Never persist a silent empty assistant reply: if the stream produced no
+      // text, no citations and no actions, treat it as a failure.
+      if (!finalText.trim() && citations.length === 0 && actions.length === 0) {
+        throw new Error("AI Coach response stream ended unexpectedly.");
+      }
       await addMessage(cid, "assistant", finalText, { citations, actions });
     } catch (e) {
       const isAbort = (e as Error).name === "AbortError";

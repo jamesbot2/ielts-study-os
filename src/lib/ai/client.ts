@@ -184,11 +184,19 @@ export class RemoteAiProxyClient implements AiClient {
     let text = "";
     const citations: CitationRef[] = [];
     const actions: ActionProposal[] = [];
+    let receivedDone = false;
+    let backendError: string | null = null;
     const emit = (event: CoachStreamEvent) => {
+      if (event.type === "error") {
+        // Backend sent a sanitized error event — surface it, never silent.
+        backendError = event.message || "AI Coach backend error";
+        return;
+      }
       onEvent(event);
       if (event.type === "delta") text += event.text;
       if (event.type === "citation") citations.push(event.citation);
       if (event.type === "action_proposal") actions.push(event.action);
+      if (event.type === "done") receivedDone = true;
     };
     while (true) {
       const { done, value } = await reader.read();
@@ -208,6 +216,14 @@ export class RemoteAiProxyClient implements AiClient {
     }
     if (buffer.trim()) {
       try { emit(JSON.parse(buffer.trim()) as CoachStreamEvent); } catch { /* ignore */ }
+    }
+    if (backendError) {
+      throw new Error(backendError);
+    }
+    // A stream that never delivered a terminal `done` event is truncated —
+    // never return a partial/silent reply as if it were complete.
+    if (!receivedDone) {
+      throw new Error("AI Coach response stream ended unexpectedly.");
     }
     return { text, citations, actions };
   }

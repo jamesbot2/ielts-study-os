@@ -91,3 +91,38 @@ AGENT_STEP_SCHEMA = {
     },
     "required": [],
 }
+
+
+def classify_agent_step(step: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Validate a parsed agent step and classify it.
+
+    Returns ("tool", step) when the object is a valid tool call, ("answer",
+    step) when it is a valid final answer, or raises ValueError for a
+    meaningless/structurally invalid step (e.g. {}, {"foo":"bar"}).
+    """
+    if not isinstance(step, dict):
+        raise ValueError("Agent step must be a JSON object")  # noqa: TRY004 - contract error across layers
+    tool = step.get("tool")
+    text = step.get("text")
+    has_tool = tool is not None and str(tool).strip() != ""
+    has_text = text is not None and str(text).strip() != ""
+    if has_tool:
+        args = step.get("args")
+        if args is not None and not isinstance(args, dict):
+            raise ValueError("Agent tool 'args' must be an object")
+        if not has_text:
+            return ("tool", {"tool": str(tool).strip(), "args": args if isinstance(args, dict) else {}})
+        # Both tool and text present: treat as tool call (text ignored) is
+        # ambiguous — require exactly one intent.
+        raise ValueError("Agent step must be either a tool call OR a final answer, not both")
+    if has_text:
+        return ("answer", step)
+    raise ValueError("Agent step is empty or meaningless (no tool and no text)")
+
+
+def is_valid_agent_step(step: dict[str, Any]) -> bool:
+    try:
+        classify_agent_step(step)
+        return True
+    except ValueError:
+        return False
