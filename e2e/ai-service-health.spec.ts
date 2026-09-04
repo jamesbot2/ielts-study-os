@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 // V0.6 RC regression: the Settings "AI Service" connection test must call
 // GET /health on the IELTS Study OS backend — NOT /api/coach — and must not
@@ -36,9 +36,8 @@ test.describe("AI Service connection test uses /health", () => {
     await page.getByRole("button", { name: /Save/ }).first().click();
     await page.waitForTimeout(300);
 
-    // Trigger the AI Service connection test (primary button next to Save).
-    const buttons = page.getByRole("button", { name: /Test connection/ });
-    // The AI Service section button is btn-secondary; provider cards use btn-ghost.
+    // Trigger the AI Service connection test (section-level btn-secondary;
+    // provider cards use btn-ghost so they are not matched here).
     await page.locator("section .btn-secondary", { hasText: /Test connection/ }).first().click();
     await expect(page.getByText(/IELTS Study OS AI\/RAG backend connected/)).toBeVisible();
     await expect(page.getByText(/RAG: healthy/)).toBeVisible();
